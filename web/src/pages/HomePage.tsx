@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import reactLogo from '../assets/react.svg'
 import viteLogo from '/vite.svg'
-import './App.css'
-import './index.css'
+import '../styles/App.css'
+import '../styles/index.css'
 
 type TestData = 
 {
@@ -10,7 +10,7 @@ type TestData =
   text: string,
 }
 
-export default function TestApp() {
+export default function HomePage() {
   const [testData, setTestData] = useState<TestData[]>([])
 
   const fetchTest = async () => {

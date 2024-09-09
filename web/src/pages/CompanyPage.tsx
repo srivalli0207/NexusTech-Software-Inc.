@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box'
-import TopAppBar from './components/TopAppBar'
+import TopAppBar from '../components/TopAppBar'
 import Grid2 from '@mui/material/Grid2'
 import { Typography } from '@mui/material'
-import TeamMemberCard from './components/TeamMemberCard'
-import ProjectCard from './components/ProjectCard'
+import TeamMemberCard from '../components/TeamMemberCard'
+import ProjectCard from '../components/ProjectCard'
 
 const team = [
   "Srivalli Kakumani",
@@ -13,7 +13,7 @@ const team = [
   "Michael Lee"
 ];
 
-export default function App() {
+export default function CompanyPage() {
   return (
     <>
       <TopAppBar />

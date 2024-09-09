@@ -1,15 +1,15 @@
-import App from './App.tsx'
+import CompanyPage from './pages/CompanyPage.tsx'
 import React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blue, yellow } from '@mui/material/colors';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import TestApp from './TestApp.tsx';
+import HomePage from './pages/HomePage.tsx';
 
 const router = createBrowserRouter([
-  { path: "/", element: <App /> },
-  { path: "/test", element: <TestApp /> },
+  { path: "/about", element: <CompanyPage /> },
+  { path: "/", element: <HomePage /> },
 ]);
 
 function Main() {
