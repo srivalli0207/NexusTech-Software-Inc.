@@ -1,15 +1,18 @@
-import CompanyPage from './pages/CompanyPage.tsx'
 import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blue, yellow } from '@mui/material/colors';
-import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import CompanyPage from './pages/CompanyPage.tsx'
 import HomePage from './pages/HomePage.tsx';
+import DynamicRouteTest from './pages/DynamicRouteTest.tsx';
+
 
 const router = createBrowserRouter([
   { path: "/about", element: <CompanyPage /> },
   { path: "/", element: <HomePage /> },
+  { path: "/post/:post_id", element: <DynamicRouteTest />},
 ]);
 
 function Main() {
