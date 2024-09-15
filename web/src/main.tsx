@@ -7,12 +7,13 @@ import { blue, yellow } from '@mui/material/colors';
 import CompanyPage from './pages/CompanyPage.tsx'
 import HomePage from './pages/HomePage.tsx';
 import DynamicRouteTest from './pages/DynamicRouteTest.tsx';
-
+import LoginPage from './pages/LoginPage.tsx';
 
 const router = createBrowserRouter([
   { path: "/about", element: <CompanyPage /> },
   { path: "/", element: <HomePage /> },
   { path: "/post/:post_id", element: <DynamicRouteTest />},
+  { path: "/login", element: <LoginPage />}
 ]);
 
 function Main() {

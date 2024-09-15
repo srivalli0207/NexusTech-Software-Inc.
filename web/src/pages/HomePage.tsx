@@ -14,7 +14,7 @@ export default function HomePage() {
   const [testData, setTestData] = useState<TestData[]>([])
 
   const fetchTest = async () => {
-    const fetch_res = await fetch("http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com:8000/test/posts")
+    const fetch_res = await fetch("http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts")
     const data: TestData[] = await fetch_res.json()
     console.log(data)
     setTestData([...testData, ...data])
