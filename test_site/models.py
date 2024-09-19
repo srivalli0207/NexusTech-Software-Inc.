@@ -16,6 +16,14 @@ class User(models.Model):
     privacy = models.BooleanField(default=True)
 
 
+class Session(models.Model):
+    session_id = models.UUIDField(primary_key=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    expiration = models.DateTimeField()
+    activity = models.TimeField()
+
+
+
 class Forum(models.Model):
     name = models.CharField(max_length=32, primary_key=True)
     description = models.TextField()
