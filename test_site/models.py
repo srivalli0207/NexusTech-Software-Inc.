@@ -16,11 +16,37 @@ class User(models.Model):
     privacy = models.BooleanField(default=True)
 
 
+class UserMutedWord(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    muted_word = models.TextField()
+
+
+class UserBlock(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blocking_user_id")
+    blocked_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blocked_user_id")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user_id", "blocked_id"], name="user_block_constraint")
+        ]
+
+
+class Follow(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following_user_id")
+    following_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follow_user_id")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user_id", "following_id"], name="follow_constraint")
+        ]
+
+
 class Session(models.Model):
     session_id = models.UUIDField(primary_key=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     expiration = models.DateTimeField()
     activity = models.TimeField()
+
 
 class Forum(models.Model):
     name = models.CharField(max_length=32, primary_key=True)
@@ -28,6 +54,26 @@ class Forum(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     privacy = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now=True)
+
+
+class ForumFollow(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    forum_name = models.ForeignKey(Forum, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user_id", "forum_name"], name="forum_follow_unq_constraint")
+        ]
+
+
+class ForumModerator(models.Model):
+    name = models.ForeignKey(Forum, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["name", "user_id"], name="forum_moderator_unq_constraint")
+        ]
 
 
 class Post(models.Model):
@@ -45,6 +91,37 @@ class PostMedia(models.Model):
     media_type = models.CharField(max_length=8)
     url = models.URLField()
     index = models.IntegerField(default=0)
+
+
+class PostLike(models.Model):
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    like = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["post_id", "user_id"], name="post_like_unq_constraint")
+        ]
+
+
+class PostBookmark(models.Model):
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["post_id", "user_id"], name="post_bookmark_unq_constraint")
+        ]
+
+
+class PostUserTag(models.Model):
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["post_id", "user_id"], name="post_user_tag_unq_constraint")
+        ]
 
 
 class Comment(models.Model):

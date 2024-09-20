@@ -11,22 +11,23 @@ type ButtonOptions =
 
 const splitButtonOptions: ButtonOptions[] = [
   {buttonName: "User", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/users"},
-  // {buttonName: "UserMutedWord", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
-  {buttonName: "Comment", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/comments"},
+  {buttonName: "User Muted Word", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/user_muted_words"},
+  {buttonName: "User Block", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/user_blocks"},
   {buttonName: "Session", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/sessions"}, 
-  // {buttonName: "PostLike", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
-  // {buttonName: "ForumModerator", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
-  // {buttonName: "Follow", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
+  {buttonName: "Follow", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/follows"},
   {buttonName: "Post", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
-  // {buttonName: "Bookmark", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
-  // {buttonName: "ForumFollow", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
+  {buttonName: "Post Like", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/post_likes"},
+  {buttonName: "Bookmark", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/post_bookmarks"},
+  {buttonName: "ForumFollow", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/forum_follows"},
   {buttonName: "PostMedia", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/post_medias"},
+  {buttonName: "PostUserTag", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/post_user_tags"},
   {buttonName: "Forum", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/forums"},
-  // {buttonName: "UserBlock", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
+  {buttonName: "Forum Moderator", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/forum_moderators"},
+  {buttonName: "Comment", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/comments"},
   {buttonName: "Direct Message", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/dms"},
   // {buttonName: "Settings", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
   {buttonName: "Report", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/reports"},
-  // {buttonName: "PostUserTag", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"}
+  
 ];
 
 export default function HomePage() {
