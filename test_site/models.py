@@ -19,8 +19,8 @@ class User(models.Model):
 class Session(models.Model):
     session_id = models.UUIDField(primary_key=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    expiration = models.DateTimeField()
-    activity = models.TimeField()
+    expiration = models.DateTimeField(auto_now=True)
+    activity = models.TimeField(auto_now=True)
 
 class Forum(models.Model):
     name = models.CharField(max_length=32, primary_key=True)
