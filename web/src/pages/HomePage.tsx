@@ -40,24 +40,37 @@ export default function HomePage() {
   }
 
   return (
-    <>
-      {testData.length > 0 && <table style={{border: "1px solid white", borderCollapse: "collapse"}}>
+  <>
+    {testData.length > 0 && (
+      <table style={{ border: "1px solid white", borderCollapse: "collapse" }}>
         <tr>
           {Object.keys(testData[0]).map((key) => {
-            return (<th>{key}</th>)
+            return (
+              <th style={{ border: "1px solid white", padding: "4px" }}>
+                {key}
+              </th>
+            );
           })}
         </tr>
         {testData.map((data) => {
           return (
-          <tr>
-            {Object.values(data).map((val: any) => {
-              return (<td style={{paddingLeft: "4px", paddingRight: "4px"}}>{val}</td>);
-            })}
-          </tr>
-          )
+            <tr>
+              {Object.values(data).map((val: any) => {
+                return (
+                  <td style={{ border: "1px solid white", padding: "4px" }}>
+                    {val}
+                  </td>
+                );
+              })}
+            </tr>
+          );
         })}
-      </table>}
-      <SplitButton options={splitButtonOptions.map((value) => value.buttonName)} handleClickCallback={fetchOnClick}/> 
-    </>
-  )
+      </table>
+    )}
+    <SplitButton
+      options={splitButtonOptions.map((value) => value.buttonName)}
+      handleClickCallback={fetchOnClick}
+    />
+  </>
+);
 }
