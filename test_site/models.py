@@ -22,8 +22,6 @@ class Session(models.Model):
     expiration = models.DateTimeField()
     activity = models.TimeField()
 
-
-
 class Forum(models.Model):
     name = models.CharField(max_length=32, primary_key=True)
     description = models.TextField()
@@ -40,3 +38,40 @@ class Post(models.Model):
     # TODO: CommentSetting enum
     sensitive = models.BooleanField(default=False)
     location_tag = models.TextField(null=True)
+
+
+class PostMedia(models.Model):
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
+    media_type = models.CharField(max_length=8)
+    url = models.URLField()
+    index = models.IntegerField(default=0)
+
+
+class Comment(models.Model):
+    comment_id = models.IntegerField(primary_key=True)
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    creation_date = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    content = models.TextField()
+    # TODO: Like
+
+
+class DirectMessage(models.Model):
+    message_id = models.IntegerField(primary_key=True)
+    from_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sending_user")
+    to_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiving_user")
+    message = models.TextField()
+    sent = models.DateTimeField()
+    # TODO: media
+
+
+class Report(models.Model):
+    report_id = models.IntegerField(primary_key=True)
+    reported_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reported_user")
+    report_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="report_sender")
+    reason = models.TextField()
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
+    reported_at = models.DateTimeField()
+
