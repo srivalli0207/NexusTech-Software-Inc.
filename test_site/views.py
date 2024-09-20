@@ -18,7 +18,7 @@ def index(request: HttpRequest):
 
 def response(objects):
     data = serializers.serialize("python", objects)
-    return HttpResponse(json.dumps([d["fields"] for d in data], default=json_serial), content_type="application/json")
+    return HttpResponse(json.dumps([{"pk": d.get("pk"), **d["fields"]} for d in data], default=json_serial), content_type="application/json")
 
 
 def users(request: HttpRequest):
