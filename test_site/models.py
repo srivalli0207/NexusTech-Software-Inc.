@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -152,3 +153,13 @@ class Report(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
     reported_at = models.DateTimeField()
 
+
+class UserSettings(models.Model):
+    class SensitiveContentBehavior(models.TextChoices):
+        SHOW = "SHOW", _("Show")
+        BLUR = "BLUR", _("Blur")
+        HIDE = "HIDE", _("Hide")
+
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    language = models.CharField(max_length=2)
+    sensitive_content_behavior = models.CharField(max_length=4, choices=SensitiveContentBehavior.choices, default=SensitiveContentBehavior.BLUR)

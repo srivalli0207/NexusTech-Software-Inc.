@@ -25,9 +25,8 @@ const splitButtonOptions: ButtonOptions[] = [
   {buttonName: "Forum Moderator", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/forum_moderators"},
   {buttonName: "Comment", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/comments"},
   {buttonName: "Direct Message", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/dms"},
-  // {buttonName: "Settings", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/posts"},
+  {buttonName: "Settings", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/settings"},
   {buttonName: "Report", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/reports"},
-  
 ];
 
 export default function HomePage() {

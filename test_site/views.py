@@ -69,3 +69,5 @@ def dms(request: HttpRequest):
 def reports(request: HttpRequest):
     return response(Report.objects.all())
 
+def settings(request: HttpRequest):
+    return response(UserSettings.objects.all())

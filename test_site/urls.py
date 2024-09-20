@@ -20,4 +20,5 @@ urlpatterns = [
     path("forum_moderators", views.forum_moderators, name="forum_moderators"),
     path("dms", views.dms, name="dms"),
     path("reports", views.reports, name="reports"),
+    path("settings", views.settings, name="settings"),
 ]
