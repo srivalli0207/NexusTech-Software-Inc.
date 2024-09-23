@@ -9,7 +9,7 @@ export default function LoginPage() {
       <Box 
          component="form"
          onSubmit={()=> console.log('submit form!')}
-
+         autoComplete="on"
          sx={{ 
             bgcolor: 'grey', 
             borderRadius: 1,
@@ -28,12 +28,13 @@ export default function LoginPage() {
             <h2 style={{marginBottom: 10}}>Sign In</h2>
             <TextField 
                required
-               id="outlined-required"
+               id="email"
                label="Email"
+               type="email"
             />
             <TextField
                required
-               id="outlined-password-input"
+               id="password"
                type="password"
                label="Password"
             />
