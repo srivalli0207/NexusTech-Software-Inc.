@@ -8,12 +8,14 @@ import CompanyPage from './pages/CompanyPage.tsx'
 import HomePage from './pages/HomePage.tsx';
 import DynamicRouteTest from './pages/DynamicRouteTest.tsx';
 import LoginPage from './pages/LoginPage.tsx';
+import SignUpPage from './pages/SignUpPage.tsx';
 
 const router = createBrowserRouter([
   { path: "/about", element: <CompanyPage /> },
   { path: "/", element: <HomePage /> },
   { path: "/post/:post_id", element: <DynamicRouteTest />},
-  { path: "/login", element: <LoginPage />}
+  { path: "/login", element: <LoginPage />},
+  { path: "/signup", element: <SignUpPage />},
 ]);
 
 function Main() {

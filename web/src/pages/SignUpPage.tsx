@@ -4,20 +4,20 @@ import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
 import { Link } from "react-router-dom"
 
-export default function LoginPage() {
+export default function SignUpPage() {
    return (
       <Box 
          component="form"
+         autoComplete="on"
          onSubmit={()=> console.log('submit form!')}
-
          sx={{ 
             bgcolor: 'grey', 
             borderRadius: 1,
             padding: '20px 20px 20px 20px',
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '450px',
+            justifyContent:'center',
+            alignItems:'center',
+            minHeight: '550px',
             width: '450px'
          }}
       >
@@ -25,20 +25,32 @@ export default function LoginPage() {
             spacing={2.5}
             width="80%"
          >
-            <h2 style={{marginBottom: 10}}>Sign In</h2>
+            <h2>Sign Up</h2>
             <TextField 
                required
-               id="outlined-required"
+               id="username"
+               label="Username"
+            />
+            <TextField 
+               required
+               id="email"
+               type="email"
                label="Email"
             />
             <TextField
                required
-               id="outlined-password-input"
+               id="password"
                type="password"
                label="Password"
             />
-            <Button variant="contained" type='submit'>Sign In</Button>
-            <p>Don't have account? <Link to={"../signup"}>Create Account</Link></p>
+            <TextField
+               required
+               id="password confirm"
+               type="password"
+               label="Confirm Password"
+            />
+            <Button variant="contained" type='submit'>Create Account</Button>
+            <p>Already have an account? <Link to={"../login"}>Sign In</Link></p>
          </Stack>
       </Box>
    )
