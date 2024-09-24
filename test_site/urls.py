@@ -21,4 +21,6 @@ urlpatterns = [
     path("dms", views.dms, name="dms"),
     path("reports", views.reports, name="reports"),
     path("settings", views.settings, name="settings"),
+
+    path("auth/signup", views.register_user, name="register_user"),
 ]

@@ -2,8 +2,11 @@ from django.core import serializers
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from .models import *
-import json
+import json, random
 from datetime import datetime, date, time
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
+#from django.contrib.auth.models import User
 
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
@@ -16,9 +19,20 @@ def json_serial(obj):
 def index(request: HttpRequest):
     return render(request, "index.html")
 
+user_id_fields = ["user_id", "blocked_id", "following_id", "creator", "from_user_id", "to_user_id", "reported_user_id", "report_user_id"]
+post_id_fields = ["post_id"]
 def response(objects):
     data = serializers.serialize("python", objects)
-    return HttpResponse(json.dumps([{"pk": d.get("pk"), **d["fields"]} for d in data], default=json_serial), content_type="application/json")
+    ret = []
+    for d in data:
+        fields = {"pk": d.get("pk"), **d["fields"]}
+        for key in list(fields.keys()):
+            if key in user_id_fields:
+                fields[key + "_hint"] = User.objects.get(pk=fields["user_id"]).username
+            elif key in post_id_fields:
+                fields[key + "_hint"] = Post.objects.get(pk=fields["user_id"]).username
+        ret.append(fields)
+    return HttpResponse(json.dumps(ret, default=json_serial), content_type="application/json")
 
 
 def users(request: HttpRequest):
@@ -71,3 +85,20 @@ def reports(request: HttpRequest):
 
 def settings(request: HttpRequest):
     return response(UserSettings.objects.all())
+
+@csrf_exempt
+@require_POST
+def register_user(request: HttpRequest):
+    if request.method != "POST":
+        return HttpResponse(status=405)
+    print(request.body)
+
+    data: dict = json.loads(request.body)
+    name = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+    
+    user = User(user_id=random.randint(10, 99999), username=name, email=email, password=password)
+    user.save()
+    return HttpResponse("success")
+

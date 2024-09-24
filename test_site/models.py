@@ -5,15 +5,15 @@ from django.utils.translation import gettext_lazy as _
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True)
-    username = models.CharField(max_length=32)
+    username = models.CharField(max_length=32, unique=True)
     email = models.CharField(max_length=64)
     password = models.CharField(max_length=64)
-    profile_picture = models.URLField(null=True)
-    bio = models.TextField(null=True)
-    pronouns = models.CharField(max_length=32, null=True)
+    profile_picture = models.URLField(null=True, default=None)
+    bio = models.TextField(null=True, default=None)
+    pronouns = models.CharField(max_length=32, null=True, default=None)
     verified = models.BooleanField(default=False)
     online_status = models.BooleanField(default=False)
-    real_name = models.CharField(max_length=128, null=True)
+    real_name = models.CharField(max_length=128, null=True, default=None)
     privacy = models.BooleanField(default=True)
 
 
