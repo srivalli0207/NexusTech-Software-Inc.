@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpRequest, JsonResponse
 from .models import *
 import json, random
 from datetime import datetime, date, time
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 #from django.contrib.auth.models import User
 
@@ -86,19 +86,19 @@ def reports(request: HttpRequest):
 def settings(request: HttpRequest):
     return response(UserSettings.objects.all())
 
-@csrf_exempt
+@ensure_csrf_cookie
+@require_GET
+def get_csrf_token(request: HttpRequest):
+    return JsonResponse({"message": "Retrieving token success!"},status=200)
+
 @require_POST
 def register_user(request: HttpRequest):
-    if request.method != "POST":
-        return HttpResponse(status=405)
-    print(request.body)
-
     data: dict = json.loads(request.body)
     name = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    
+
     user = User(user_id=random.randint(10, 99999), username=name, email=email, password=password)
     user.save()
-    return HttpResponse("success")
+    return JsonResponse({"message": "Register user success!"},status=200)
 

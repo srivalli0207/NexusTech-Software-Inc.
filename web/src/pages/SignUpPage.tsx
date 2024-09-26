@@ -4,32 +4,19 @@ import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
 import { Link } from "react-router-dom"
 import { FormEvent } from "react"
+import { signup } from "../utils/auth"
+import CSRF_Token from "../utils/csrf_token"
 
 export default function SignUpPage() {
 
    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
 
-      const formData = new FormData(event.currentTarget)
-      let formDataObject: { [key: string]: FormDataEntryValue } = {}
-      formData.forEach( (value, key) => formDataObject[key] = value );
       const username = (event.currentTarget.elements.namedItem("username") as HTMLFormElement).value;
       const email = (event.currentTarget.elements.namedItem("email") as HTMLFormElement).value;
       const password = (event.currentTarget.elements.namedItem("password") as HTMLFormElement).value;
-      const response = await fetch("http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/auth/signup", {
-         method: "POST",
-         body: JSON.stringify({
-            username: username,
-            email: email,
-            password: password
-         }),
-         headers: {
-            "Content-Type": "application/json"
-         }
-      });
-      console.log(response)
+      await signup({ username: username, email: email, password: password })
    }
-
 
    return (
       <Box 
@@ -51,6 +38,7 @@ export default function SignUpPage() {
             spacing={2.5}
             width="80%"
          >
+            <CSRF_Token />
             <h2>Sign Up</h2>
             <TextField 
                required
