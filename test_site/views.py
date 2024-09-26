@@ -1,12 +1,13 @@
 from django.core import serializers
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from .models import *
-import json, random
-from datetime import datetime, date, time
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import User as django_user
+from django.contrib.auth import authenticate, login
+from datetime import datetime, date, time
+import json, random
+from .models import *
 
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
@@ -91,14 +92,36 @@ def settings(request: HttpRequest):
 def get_csrf_token(request: HttpRequest):
     return JsonResponse({"message": "Retrieving token success!"},status=200)
 
+@require_GET
+def get_session(request: HttpRequest):
+    if (request.user.is_authenticated):
+        user_object = {}
+        user_object['username'] = request.user.username
+        user_object['email'] = django_user.objects.get(username=request.user.username).email
+
+        return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
+    else:
+        return JsonResponse({"message": "User not authenticated!", "user": None}, status=401)
+
 @require_POST
-def register_user(request: HttpRequest):
+def register_user(request: HttpRequest, ):
     data: dict = json.loads(request.body)
     name = data.get("username")
     email = data.get("email")
     password = data.get("password")
 
-    user = User(user_id=random.randint(10, 99999), username=name, email=email, password=password)
-    user.save()
-    return JsonResponse({"message": "Register user success!"},status=200)
+    if (django_user.objects.filter(username=name).exists()):
+        return JsonResponse({"message": "Username taken!"}, status=409)
+    elif (len(password) < 8):
+        return JsonResponse({"message": "Password should be 8 characters or longer"}, status=409)
+    
+    user = django_user.objects.create_user(name, email, password)
+    
+    if (user.is_authenticated):
+        login(request, user)
+        user_model = User(user_id=random.randint(10, 99999), username=name, email=email, password=password)
+        user_model.save()
+        return JsonResponse({"message": "Register user success!"},status=200)
+    else:
+        return JsonResponse({"message": "Login failed!"}, status=409)
 

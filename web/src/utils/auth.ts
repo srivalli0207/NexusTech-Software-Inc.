@@ -17,12 +17,15 @@ const request = async (method: string, path: string, data?: {[key: string]: stri
 
    const response = await fetch(path, options)
    const msg = await response.json()
-
    return msg
 }
 
 export const get_csrf_token = async () => {
    await request('GET', URLS.CSRF_TOKEN)
+}
+
+export const get_auth = async () => {
+   return await request('GET', URLS.GET_AUTH)
 }
 
 export const signup = async (data: {username: string, email: string, password: string}) => {

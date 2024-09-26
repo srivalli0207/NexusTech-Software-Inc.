@@ -23,5 +23,6 @@ urlpatterns = [
     path("settings", views.settings, name="settings"),
 
     path("auth/csrf", views.get_csrf_token, name="get-csrf-token"),
+    path("auth/session", views.get_session, name="get_session"),
     path("auth/signup", views.register_user, name="register_user"),
 ]

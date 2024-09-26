@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage.tsx';
 import DynamicRouteTest from './pages/DynamicRouteTest.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
+import { AuthContextProvider } from './utils/authContext.tsx';
 
 const router = createBrowserRouter([
   { path: "/about", element: <CompanyPage /> },
@@ -42,7 +43,9 @@ function Main() {
     <React.StrictMode>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <RouterProvider router={router} />
+        <AuthContextProvider>
+          <RouterProvider router={router} />
+        </AuthContextProvider>
       </ThemeProvider>
     </React.StrictMode>
   );
