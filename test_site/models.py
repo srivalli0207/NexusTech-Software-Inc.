@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User as DjangoUser
 
 # Create your models here.
 
 class User(models.Model):
-    user_id = models.IntegerField(primary_key=True)
+    user_id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=32, unique=True)
     email = models.CharField(max_length=64)
     password = models.CharField(max_length=64)
@@ -78,11 +79,16 @@ class ForumModerator(models.Model):
 
 
 class Post(models.Model):
-    post_id = models.IntegerField(primary_key=True)
+    class PostCommentSetting(models.TextChoices):
+        ALL = "ALL", _("All")
+        FOLLOWING = "FOLLOWING", _("Following")
+        NONE = "NONE", _("None")
+
+    post_id = models.AutoField(primary_key=True)
     forum_id = models.ForeignKey(Forum, null=True, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(null=True)
-    # TODO: CommentSetting enum
+    comment_setting = models.CharField(max_length=9, choices=PostCommentSetting.choices, default=PostCommentSetting.ALL)
     sensitive = models.BooleanField(default=False)
     location_tag = models.TextField(null=True)
 
@@ -126,17 +132,28 @@ class PostUserTag(models.Model):
 
 
 class Comment(models.Model):
-    comment_id = models.IntegerField(primary_key=True)
+    comment_id = models.AutoField(primary_key=True)
     post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    parent_id = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, default=None)
     creation_date = models.DateTimeField(auto_now=True)
     last_updated = models.DateTimeField(auto_now=True)
     content = models.TextField()
-    # TODO: Like
+
+
+class CommentLike(models.Model):
+    comment_id = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)
+    like = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["comment_id", "user_id"], name="comment_like_unq_constraint")
+        ]
 
 
 class DirectMessage(models.Model):
-    message_id = models.IntegerField(primary_key=True)
+    message_id = models.AutoField(primary_key=True)
     from_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sending_user")
     to_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiving_user")
     message = models.TextField()
@@ -145,7 +162,7 @@ class DirectMessage(models.Model):
 
 
 class Report(models.Model):
-    report_id = models.IntegerField(primary_key=True)
+    report_id = models.AutoField(primary_key=True)
     reported_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reported_user")
     report_user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="report_sender")
     reason = models.TextField()
