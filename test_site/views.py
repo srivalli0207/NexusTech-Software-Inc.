@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.models import User as django_user
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from datetime import datetime, date, time
 import json, random
 from .models import *
@@ -102,6 +102,29 @@ def get_session(request: HttpRequest):
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
         return JsonResponse({"message": "User not authenticated!", "user": None}, status=401)
+    
+@require_POST
+def login_user(request: HttpRequest):
+    data: dict = json.loads(request.body)
+    username = data.get("username")
+    password = data.get("password")
+    
+    user = authenticate(request=request, username=username, password= password)
+
+    if user is not None:
+        login(request=request, user=user)
+        user_object = {}
+        user_object['username'] = request.user.username
+        user_object['email'] = django_user.objects.get(username=request.user.username).email
+
+        return JsonResponse({"message": "Login success!", "user": user_object}, status=200)
+    else:
+        return JsonResponse({"message": "Invalid username or password!", "user": None}, status=401)
+    
+@require_POST
+def logout_user(request: HttpRequest):
+    logout(request=request)
+    return JsonResponse({"message": "Logout!"}, status=200)
 
 @require_POST
 def register_user(request: HttpRequest, ):

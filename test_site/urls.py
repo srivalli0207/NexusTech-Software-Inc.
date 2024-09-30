@@ -22,7 +22,9 @@ urlpatterns = [
     path("reports", views.reports, name="reports"),
     path("settings", views.settings, name="settings"),
 
-    path("auth/csrf", views.get_csrf_token, name="get-csrf-token"),
+    path("auth/csrf", views.get_csrf_token, name="get_csrf-token"),
     path("auth/session", views.get_session, name="get_session"),
     path("auth/signup", views.register_user, name="register_user"),
+    path("auth/login", views.login_user, name="login_user"),
+    path("auth/logout", views.logout_user, name="logout_user")
 ]

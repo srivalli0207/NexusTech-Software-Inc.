@@ -1,13 +1,11 @@
-import { Box } from "@mui/material"
-import TextField from "@mui/material/TextField"
-import Stack from "@mui/material/Stack"
-import Button from "@mui/material/Button"
+import { Box, TextField, Stack, Button, useTheme } from "@mui/material"
 import { Link } from "react-router-dom"
 import { FormEvent } from "react"
 import { signup } from "../utils/auth"
 import CSRF_Token from "../utils/csrf_token"
 
 export default function SignUpPage() {
+   const theme = useTheme()
 
    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
@@ -24,14 +22,14 @@ export default function SignUpPage() {
          autoComplete="on"
          onSubmit={ handleSubmit }
          sx={{ 
-            bgcolor: 'grey', 
+            bgcolor: theme.palette.secondary.main,
             borderRadius: 1,
             padding: '20px 20px 20px 20px',
             display: 'flex',
             justifyContent:'center',
             alignItems:'center',
             minHeight: '550px',
-            width: '450px'
+            width: '450px',
          }}
       >
          <Stack 

@@ -41,7 +41,7 @@ export default function HomePage() {
 
   return (
     <>
-      {testData.length > 0 && <table style={{border: "1px solid white", borderCollapse: "collapse"}}>
+      {testData.length > 0 && <table style={{border: "1px solid white", borderCollapse: "collapse", margin: 'auto'}}>
         <tr>
           {Object.keys(testData[0]).map((key) => {
             return (<th>{key}</th>)

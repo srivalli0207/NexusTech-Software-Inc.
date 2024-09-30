@@ -17,11 +17,20 @@ export function AuthContextProvider({children}: AuthContextProviderProp) {
 
    useEffect(() => {
       const get_user_auth = async () => {
-         const data = await get_auth()
-         console.log(data)
+         await get_auth()
       }
 
+      const on_auth_changed = (e: any) => {
+         //console.log(e.detail.user)
+         setAuth(e.detail.user)
+      }
+      
       get_user_auth()
+      document.addEventListener('nexify.auth.changed', on_auth_changed)
+
+      return () => {
+         document.removeEventListener('nexify.auth.changed', on_auth_changed)
+      }
 
    }, [])
 

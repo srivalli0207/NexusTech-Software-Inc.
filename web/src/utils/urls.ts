@@ -7,9 +7,11 @@ const BASE_URL = (import.meta.env.MODE == 'production') ? DOMAIN.PRODUCTION : DO
 
 export const URLS = Object.freeze({
    // authentication
-   CSRF_TOKEN: BASE_URL + '/api/test/auth/csrf',
-   GET_AUTH: BASE_URL + '/api/test/auth/session',
-   SIGNUP: BASE_URL + '/api/test/auth/signup',
+   CSRF_TOKEN: `${BASE_URL}/api/test/auth/csrf`,
+   GET_AUTH: `${BASE_URL}/api/test/auth/session`,
+   SIGNUP: `${BASE_URL}/api/test/auth/signup`,
+   LOGIN: `${BASE_URL}/api/test/auth/login`,
+   LOGOUT: `${BASE_URL}/api/test/auth/logout`,
 
    // add rest of api endpoint urls
 })
