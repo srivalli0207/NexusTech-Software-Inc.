@@ -25,21 +25,15 @@ export default function NexifyAppBar() {
    }
 
    return (
-      <>
-         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position='static'
-               sx={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-               }}
-            >
-               <Toolbar>
-                  {renderAuthButtons()}
-               </Toolbar>
-            </AppBar>
+      <Box sx={{ height: "100%" }}>
+         <AppBar position='static'>
+            <Toolbar>
+               { renderAuthButtons() }
+            </Toolbar>
+         </AppBar>
+         <Box sx={{ height: "100%" }}>
+            <Outlet />
          </Box>
-         <Outlet />
-      </>
+      </Box>
    )
 }
