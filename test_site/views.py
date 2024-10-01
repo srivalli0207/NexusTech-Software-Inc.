@@ -142,9 +142,12 @@ def register_user(request: HttpRequest, ):
     
     if (user.is_authenticated):
         login(request, user)
-        user_model = User(user_id=random.randint(10, 99999), username=name, email=email, password=password)
+        user_object = {}
+        user_object['username'] = name
+        user_object['email'] = email
+        user_model = User(user_id=user.pk, username=name, email=email, password=password)
         user_model.save()
-        return JsonResponse({"message": "Register user success!"},status=200)
+        return JsonResponse({"message": "Register user success!", "user": user_object},status=200)
     else:
-        return JsonResponse({"message": "Login failed!"}, status=409)
+        return JsonResponse({"message": "Login failed!","user": None}, status=409)
 

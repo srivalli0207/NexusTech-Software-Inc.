@@ -14,15 +14,21 @@ type AuthContextProviderProp = {
 
 export function AuthContextProvider({children}: AuthContextProviderProp) {
    const [auth, setAuth] = useState<UserAuth>(null)
+   const [loading, setLoading] = useState(true)
 
    useEffect(() => {
       const get_user_auth = async () => {
          await get_auth()
+         setLoading(false)
       }
 
       const on_auth_changed = (e: any) => {
-         //console.log(e.detail.user)
-         setAuth(e.detail.user)
+         if (e.detail.user == null) {
+            setAuth(null)
+         }
+         else {
+            setAuth(e.detail.user)
+         }
       }
       
       get_user_auth()
@@ -36,7 +42,7 @@ export function AuthContextProvider({children}: AuthContextProviderProp) {
 
    return (
       <AuthContext.Provider value={auth}>
-         {children}
+         {!loading && children}
       </AuthContext.Provider>
    )
 }
