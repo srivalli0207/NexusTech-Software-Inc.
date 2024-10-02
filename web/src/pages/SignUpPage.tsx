@@ -27,7 +27,7 @@ export default function SignUpPage() {
          console.log('signup failed', response.message)
       }
 
-      setLoading(false)
+      setLoading(false) 
    }
 
    return (

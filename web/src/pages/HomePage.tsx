@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SplitButton from '../components/SplitButton'
 import '../styles/App.css'
 import '../styles/index.css'
+import PostFeedCard, { Post } from '../components/PostFeedCard'
 
 type ButtonOptions = 
 {
@@ -28,6 +29,16 @@ const splitButtonOptions: ButtonOptions[] = [
   {buttonName: "Settings", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/settings"},
   {buttonName: "Report", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/reports"},
 ];
+
+const testPosts: Post[] = [
+  {
+    username: "triph",
+    pfp: "https://avatars.githubusercontent.com/u/1747088",
+    date: "October 1st, 2024",
+    text: "Say hello to my new koala.",
+    photos: ["https://media.istockphoto.com/id/98201918/photo/small-koala-sitting-on-white-background.jpg?s=1024x1024&w=is&k=20&c=5QNao-I60NybQMxtI8YoP72K468M9GLofRcD3zQz3DA="]
+  }
+]
 
 export default function HomePage() {
   const [testData, setTestData] = useState<any[]>([])
@@ -57,7 +68,10 @@ export default function HomePage() {
           )
         })}
       </table>}
-      <SplitButton options={splitButtonOptions.map((value) => value.buttonName)} handleClickCallback={fetchOnClick}/> 
+      <SplitButton options={splitButtonOptions.map((value) => value.buttonName)} handleClickCallback={fetchOnClick}/>
+      {testPosts.map((post) => {
+        return (<PostFeedCard post={post} />);
+      })}
     </>
   )
 }

@@ -10,15 +10,26 @@ import HomePage from './pages/HomePage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
 import NexifyAppBar from './components/NexifyAppBar.tsx';
+import UserProfile from './pages/UserProfile.tsx';
 import { useUser } from './utils/auth-hooks.ts';
 
 function Main() {
   const user = useUser()
 
   // redirect to another page if user is already logged in
-  const routeLoader = async () => {
+  const routeLoaderAuthenticated = async () => {
     if (user != null) {
       return redirect('/')
+    }
+    else {
+      return null
+    }
+  }
+
+  // redirect to login page if user is not logged in
+  const routeLoaderUnauthenticated = async () => {
+    if (user == null) {
+      return redirect('/login')
     }
     else {
       return null
@@ -28,8 +39,8 @@ function Main() {
   const router = createBrowserRouter([
     // these routes do not have the Appbar
     { path: "/about", element: <CompanyPage /> },
-    { path: "/login", loader: routeLoader, element: <LoginPage /> },
-    { path: "/signup", loader: routeLoader, element: <SignUpPage /> },
+    { path: "/login", loader: routeLoaderAuthenticated, element: <LoginPage /> },
+    { path: "/signup", loader: routeLoaderAuthenticated, element: <SignUpPage /> },
 
     // these routes contain the Appbar
     {
@@ -37,6 +48,7 @@ function Main() {
       children:
         [
           { path: "/", element: <HomePage /> },
+          { path: "/user-profile", loader: routeLoaderUnauthenticated, element: <UserProfile /> },
           { path: "/post/:post_id", element: <DynamicRouteTest /> },
         ]
     },
