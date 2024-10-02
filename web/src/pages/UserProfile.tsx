@@ -49,15 +49,15 @@ export default function UserProfile() {
    // ]
 
    return (
-      <Box bgcolor='	#CD5C5C' height='100%'>
+      <Box bgcolor='	#202020' height='100%'>
          <Grid container height='100%'>
-            <Grid bgcolor='#FF6347' size={3} sx={{ margin: '0' }}>
+            <Grid bgcolor='#202020' size={3} sx={{ margin: '0' }}>
                <SideBar />
 
 
 
             </Grid>
-            <Grid bgcolor='#FFA07A' size={7} sx={{ margin: '0', display: 'flex', flexDirection: 'column' }}>
+            <Grid bgcolor='#202020' size={7} sx={{ margin: '0', display: 'flex', flexDirection: 'column' }}>
                {
                   posts.map((post) => {
                      return (<PostFeedCard post={post} />);

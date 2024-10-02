@@ -34,7 +34,7 @@ export default function NexifyAppBar() {
                {
                   user != null ?
                      <>
-                        <IconButton sx={{ p: 0, marginLeft: 'auto', marginRight: '10px' }}>
+                        <IconButton sx={{ p: 2, marginLeft: 'auto', marginRight: '10px' }}>
                            <Avatar>{user?.username[0]}</Avatar>
                         </IconButton>
                         <Button type='submit' onClick={handleLogout} color="inherit">Logout</Button>
