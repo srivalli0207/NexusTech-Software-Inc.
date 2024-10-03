@@ -1,12 +1,11 @@
-import { Button, AppBar, Toolbar, Box, Typography, IconButton } from "@mui/material"
-import { Outlet, Link, useNavigate } from "react-router-dom"
-import { log_out } from "../utils/auth"
-import { useUser } from "../utils/auth-hooks"
+import { AppBar, Toolbar, IconButton, Typography, Avatar, Button } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
-import Avatar from '@mui/material/Avatar';
+import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "../utils/auth-hooks";
+import { log_out } from "../utils/auth";
 
 
-export default function NexifyAppBar() {
+export default function NexifyAppBar () {
    const user = useUser()
    const navigate = useNavigate()
 
@@ -16,8 +15,7 @@ export default function NexifyAppBar() {
    }
 
    return (
-      <Box id='Page-Container' position='sticky' display='flex' flexDirection='column' height='100%'>
-         <AppBar id='Appbar-Header' position='static'>
+      <AppBar id='Appbar-Header' position='static'>
             <Toolbar>
                <IconButton
                   size="large"
@@ -44,9 +42,5 @@ export default function NexifyAppBar() {
                }
             </Toolbar>
          </AppBar>
-         <Box id='Page-Body' flexGrow={1}>
-            <Outlet />
-         </Box>
-      </Box>
    )
 }
