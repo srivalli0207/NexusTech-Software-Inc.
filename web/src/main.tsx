@@ -9,7 +9,7 @@ import CompanyPage from './pages/CompanyPage.tsx'
 import HomePage from './pages/HomePage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
-import NexifyAppBar from './components/NexifyAppBar.tsx';
+import Layout from './components/Layout.tsx';
 import UserProfile from './pages/UserProfile.tsx';
 import { useUser } from './utils/auth-hooks.ts';
 
@@ -44,7 +44,7 @@ function Main() {
 
     // these routes contain the Appbar
     {
-      element: <NexifyAppBar />,
+      element: <Layout />,
       children:
         [
           { path: "/", element: <HomePage /> },

@@ -43,6 +43,5 @@ export default function UserProfile() {
             </Grid>
          </Grid>
       </Box>
-
    )
 }
