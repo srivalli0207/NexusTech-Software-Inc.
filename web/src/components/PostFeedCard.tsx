@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 export interface Post {
   username: string,
   pfp: string,
-  date: string,
+  date: Date,
   text: string,
   photos: string[]
 }
@@ -30,7 +30,7 @@ export default function PostFeedCard({ post }: { post: Post }) {
             </IconButton>
           }
           title={post.username}
-          subheader={post.date}
+          subheader={post.date.toLocaleString()}
         />
         {post.photos.map((photo) => {
           return (

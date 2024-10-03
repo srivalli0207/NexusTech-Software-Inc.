@@ -91,6 +91,8 @@ class Post(models.Model):
     comment_setting = models.CharField(max_length=9, choices=PostCommentSetting.choices, default=PostCommentSetting.ALL)
     sensitive = models.BooleanField(default=False)
     location_tag = models.TextField(null=True)
+    creation_date = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
 
 class PostMedia(models.Model):

@@ -12,6 +12,7 @@ export const URLS = Object.freeze({
    SIGNUP: `${BASE_URL}/api/test/auth/signup`,
    LOGIN: `${BASE_URL}/api/test/auth/login`,
    LOGOUT: `${BASE_URL}/api/test/auth/logout`,
+   POSTS: `${BASE_URL}/api/test/posts`
 
    // add rest of api endpoint urls
 })

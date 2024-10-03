@@ -54,8 +54,8 @@ def sessions(request: HttpRequest):
 def follows(request: HttpRequest):
     return response(Follow.objects.all())
 
-def posts(request: HttpRequest):
-    return response(Post.objects.all())
+# def posts(request: HttpRequest):
+#     return response(Post.objects.all())
 
 def post_likes(request: HttpRequest):
     return response(PostLike.objects.all())
@@ -151,3 +151,9 @@ def register_user(request: HttpRequest, ):
     else:
         return JsonResponse({"message": "Login failed!","user": None}, status=409)
 
+@require_GET
+def get_posts(request: HttpRequest):
+    if (request.user.is_authenticated):
+        return response(Post.objects.filter(user_id=request.user.id))
+    else:
+        return response(Post.objects.all())
