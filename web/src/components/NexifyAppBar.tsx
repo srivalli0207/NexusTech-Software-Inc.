@@ -32,8 +32,8 @@ export default function NexifyAppBar () {
                {
                   user != null ?
                      <>
-                        <IconButton sx={{ p: 2, marginLeft: 'auto', marginRight: '10px' }}>
-                           <Avatar>{user?.username[0]}</Avatar>
+                        <IconButton sx={{ p: 2, marginLeft: 'auto', marginRight: '10px' }} component={Link} to='/user-profile'>
+                           <Avatar>{user?.username[0].toUpperCase()}</Avatar>
                         </IconButton>
                         <Button type='submit' onClick={handleLogout} color="inherit">Logout</Button>
                      </>

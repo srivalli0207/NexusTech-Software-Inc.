@@ -164,8 +164,17 @@ def get_posts(request: HttpRequest):
 def submit_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     text = data.get("text")
-    user = User.objects.filter(username=request.user.username)[0]
+    user = User.objects.get(pk=request.user.id)
     print(user)
-    post = Post( user_id=user, text=text, comment_setting=Post.PostCommentSetting.NONE, )
+    post = Post(user_id=user, text=text)
     post.save()
+    return JsonResponse({'message': 'post request processed'}, status=200)
+
+@login_required
+def delete_post(request: HttpRequest):
+    data: dict = json.loads(request.body)
+    post_id = data.get("post_id")
+    post = Post.objects.get(pk=post_id)
+    print(post)
+    post.delete()
     return JsonResponse({'message': 'post request processed'}, status=200)

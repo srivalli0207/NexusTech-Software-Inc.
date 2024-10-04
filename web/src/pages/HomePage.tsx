@@ -3,6 +3,7 @@ import SplitButton from '../components/SplitButton'
 import '../styles/App.css'
 import '../styles/index.css'
 import PostFeedCard, { Post } from '../components/PostFeedCard'
+import Typography from '@mui/material/Typography'
 
 type ButtonOptions = 
 {
@@ -49,6 +50,10 @@ export default function HomePage() {
     console.log(data)
     setTestData(data)
   }
+
+  return (
+    <Typography variant="h1">WIP :)</Typography>
+  )
 /*
   return (
     <>

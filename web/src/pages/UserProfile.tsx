@@ -1,24 +1,28 @@
 import { FormEvent, useEffect, useState } from "react"
-import { Box, CircularProgress, Avatar } from '@mui/material'
-import Grid from '@mui/material/Grid2'
+import { Box, CircularProgress } from '@mui/material'
 import PostFeedCard, { Post } from "../components/PostFeedCard"
-import SideBar from "../components/SideBar"
 import { get_posts } from "../utils/fetch"
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useUser } from "../utils/auth-hooks";
-import { submit_post } from "../utils/fetch"
+import { submit_post, delete_post } from "../utils/fetch"
 import CSRF_Token from "../utils/csrf_token"
 
 export default function UserProfile() {
    const [loading, setLoading] = useState(true);
    const [posts, setPosts] = useState<Post[]>([]);
-   const user = useUser()
+   const user = useUser();
+
+   const handleDelete = async (post: Post) => {
+      await delete_post( {post_id: post.id} );
+      setPosts(posts.filter(p => p.id != post.id))
+   }
 
    useEffect(() => {
       get_posts().then(async (res) => {
          setPosts(res.map((post: any) => {
             return {
+               id: post.pk,
                username: post.user_id_hint,
                pfp: user,
                date: new Date(post.creation_date),
@@ -36,11 +40,11 @@ export default function UserProfile() {
 
    return (
       <Box bgcolor='	#202020' height='100%'>
-         {loading && <CircularProgress />}
          <UserProfilePost />
+         {loading && <CircularProgress />}
          {
             posts.map((post) => {
-               return (<PostFeedCard post={post} />);
+               return (<PostFeedCard post={post} onDelete={handleDelete} />);
             })
          }
       </Box>

@@ -11,8 +11,12 @@ import ShareIcon from "@mui/icons-material/Share";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import Typography from "@mui/material/Typography";
 import { useUser } from "../utils/auth-hooks";
+import Menu from "@mui/material/Menu";
+import { useState } from "react";
+import MenuItem from "@mui/material/MenuItem";
 
 export interface Post {
+  id: number,
   username: string,
   pfp: string,
   date: Date,
@@ -20,16 +24,37 @@ export interface Post {
   photos: string[]
 }
 
-export default function PostFeedCard({ post }: { post: Post }) {
-  const user = useUser()
+export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete: (post: Post) => void }) {
+    const user = useUser();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+    const handleDelete = () => {
+      onDelete(post);
+      handleClose();
+    }
     return (
       <Card sx={{ textAlign: "left" }}>
         <CardHeader
           //avatar={<Avatar aria-label="pfp" src={post.pfp} />}
           avatar={<Avatar>{user?.username[0]}</Avatar>}
           action={
-            <IconButton aria-label="settings">
+            <IconButton
+              aria-label="settings"
+              aria-controls={open ? 'basic-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              onClick={handleClick}
+            >
               <MoreVertIcon />
+              <Menu id="post-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={handleDelete}>Delete</MenuItem>
+              </Menu>
             </IconButton>
           }
           title={post.username}
