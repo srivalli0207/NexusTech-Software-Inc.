@@ -47,8 +47,3 @@ export const signup = async (data: {username: string, email: string, password: s
    const res = await auth_request('POST', URLS.SIGNUP, data)
    return {message: res.message, user: res.user}
 }
-
-export const get_posts = async () => {
-   const res = await auth_request('GET', URLS.POSTS)
-   return res;
-}

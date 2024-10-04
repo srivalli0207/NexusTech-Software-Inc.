@@ -28,7 +28,7 @@ function Main() {
 
   // redirect to login page if user is not logged in
   const routeLoaderUnauthenticated = async () => {
-    if (user == null) {
+    if (user ==  null) {
       return redirect('/login')
     }
     else {

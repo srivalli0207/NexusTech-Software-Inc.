@@ -10,6 +10,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import Typography from "@mui/material/Typography";
+import { useUser } from "../utils/auth-hooks";
 
 export interface Post {
   username: string,
@@ -20,10 +21,12 @@ export interface Post {
 }
 
 export default function PostFeedCard({ post }: { post: Post }) {
+  const user = useUser()
     return (
       <Card sx={{ textAlign: "left" }}>
         <CardHeader
-          avatar={<Avatar aria-label="pfp" src={post.pfp} />}
+          //avatar={<Avatar aria-label="pfp" src={post.pfp} />}
+          avatar={<Avatar>{user?.username[0]}</Avatar>}
           action={
             <IconButton aria-label="settings">
               <MoreVertIcon />
