@@ -49,6 +49,7 @@ function Main() {
         [
           { path: "/", element: <HomePage /> },
           { path: "/user-profile", loader: routeLoaderUnauthenticated, element: <UserProfile /> },
+          { path: "/user-profile/:username", loader: routeLoaderUnauthenticated, element: <UserProfile /> },
           { path: "/post/:post_id", element: <DynamicRouteTest /> },
         ]
     },

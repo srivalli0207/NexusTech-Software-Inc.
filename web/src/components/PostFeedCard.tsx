@@ -53,7 +53,7 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
             >
               <MoreVertIcon />
               <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
-                <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                {user?.username == post.username && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
               </Menu>
             </IconButton>
           }

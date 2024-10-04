@@ -7,11 +7,13 @@ import Button from '@mui/material/Button';
 import { useUser } from "../utils/auth-hooks";
 import { submit_post, delete_post } from "../utils/fetch"
 import CSRF_Token from "../utils/csrf_token"
+import { useParams } from "react-router-dom";
 
 export default function UserProfile() {
    const [loading, setLoading] = useState(true);
    const [posts, setPosts] = useState<Post[]>([]);
    const user = useUser();
+   const { username } = useParams();
 
    const handleDelete = async (post: Post) => {
       await delete_post( {post_id: post.id} );
@@ -19,7 +21,7 @@ export default function UserProfile() {
    }
 
    useEffect(() => {
-      get_posts().then(async (res) => {
+      get_posts(username).then(async (res) => {
          setPosts(res.map((post: any) => {
             return {
                id: post.pk,
@@ -40,7 +42,7 @@ export default function UserProfile() {
 
    return (
       <Box bgcolor='	#202020' height='100%'>
-         <UserProfilePost />
+         {(username === undefined || username === user?.username) && <UserProfilePost />}
          {loading && <CircularProgress />}
          {
             posts.map((post) => {

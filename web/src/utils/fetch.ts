@@ -21,8 +21,8 @@ const fetch_request = async (method: string, path: string, data?: {[key: string]
    return msg
 }
 
-export const get_posts = async () => {
-   const res = await fetch_request('GET', URLS.POSTS)
+export const get_posts = async (username?: string) => {
+   const res = await fetch_request('GET', URLS.POSTS + (username !== undefined ? `?username=${username}` : ""))
    return res;
 }
 

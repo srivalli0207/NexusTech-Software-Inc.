@@ -154,7 +154,9 @@ def register_user(request: HttpRequest, ):
 
 @require_GET
 def get_posts(request: HttpRequest):
-    if (request.user.is_authenticated):
+    if (username := request.GET.get("username")) is not None:
+        return response(Post.objects.filter(user_id__username=username))
+    elif request.user.is_authenticated:
         return response(Post.objects.filter(user_id=request.user.id))
     else:
         return response(Post.objects.all())
