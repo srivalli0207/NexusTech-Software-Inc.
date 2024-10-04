@@ -29,7 +29,7 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEl(event.currentTarget);
+      if (!open) setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
       setAnchorEl(null);
@@ -52,7 +52,7 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
               onClick={handleClick}
             >
               <MoreVertIcon />
-              <Menu id="post-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
+              <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
                 <MenuItem onClick={handleDelete}>Delete</MenuItem>
               </Menu>
             </IconButton>
