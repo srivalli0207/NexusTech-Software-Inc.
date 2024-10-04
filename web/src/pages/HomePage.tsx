@@ -1,17 +1,15 @@
-import { useState } from 'react'
-import SplitButton from '../components/SplitButton'
+// import { useState } from 'react'
 import '../styles/App.css'
 import '../styles/index.css'
-import PostFeedCard, { Post } from '../components/PostFeedCard'
 import Typography from '@mui/material/Typography'
 
-type ButtonOptions = 
-{
-  buttonName: string,
-  fetchURL: string,
-}
+// type ButtonOptions = 
+// {
+//   buttonName: string,
+//   fetchURL: string,
+// }
 
-const splitButtonOptions: ButtonOptions[] = [
+// const splitButtonOptions: ButtonOptions[] = [
   //{buttonName: "User", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/users"},
   //{buttonName: "User Muted Word", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/user_muted_words"},
   //{buttonName: "User Block", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/user_blocks"},
@@ -29,7 +27,7 @@ const splitButtonOptions: ButtonOptions[] = [
   //{buttonName: "Direct Message", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/dms"},
   //{buttonName: "Settings", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/settings"},
   //{buttonName: "Report", fetchURL: "http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com/api/test/reports"},
-];
+// ];
 
 //const testPosts: Post[] = [
   {
@@ -42,14 +40,14 @@ const splitButtonOptions: ButtonOptions[] = [
 //]
 
 export default function HomePage() {
-  const [testData, setTestData] = useState<any[]>([])
+  // const [testData, setTestData] = useState<any[]>([])
 
-  const fetchOnClick = async (index: number) => {
-    const fetch_res = await fetch(splitButtonOptions[index].fetchURL)
-    const data = await fetch_res.json()
-    console.log(data)
-    setTestData(data)
-  }
+  // const fetchOnClick = async (index: number) => {
+  //   const fetch_res = await fetch(splitButtonOptions[index].fetchURL)
+  //   const data = await fetch_res.json()
+  //   console.log(data)
+  //   setTestData(data)
+  // }
 
   return (
     <Typography variant="h1">WIP :)</Typography>

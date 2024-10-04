@@ -58,7 +58,7 @@ export function UserProfilePost() {
 
       const formData = new FormData(event.currentTarget)
       let formObject = Object.fromEntries(formData.entries()) as {text: string}
-      const response = await submit_post( {text: formObject.text} )
+      await submit_post( {text: formObject.text} )
    }
 
    return (
