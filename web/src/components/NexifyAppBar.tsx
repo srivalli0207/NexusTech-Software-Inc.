@@ -38,7 +38,7 @@ export default function NexifyAppBar () {
                         <Button type='submit' onClick={handleLogout} color="inherit">Logout</Button>
                      </>
                      :
-                     <Button color="inherit" sx={{ marginLeft: 'auto' }} component={Link} to="login">Login</Button>
+                     <Button color="inherit" sx={{ marginLeft: 'auto' }} onClick={() => navigate('/login')}>Login</Button>
                }
             </Toolbar>
          </AppBar>

@@ -1,9 +1,7 @@
 import { FormEvent, useEffect, useState } from "react"
-import { Box, CircularProgress } from '@mui/material'
+import { Box, CircularProgress, Button, TextField, Stack } from '@mui/material'
 import PostFeedCard, { Post } from "../components/PostFeedCard"
 import { get_posts } from "../utils/fetch"
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import { useUser } from "../utils/auth-hooks";
 import { submit_post, delete_post } from "../utils/fetch"
 import CSRF_Token from "../utils/csrf_token"
@@ -30,7 +28,7 @@ export default function UserProfile() {
                date: new Date(post.creation_date),
                text: post.text,
                photos: [""]
-              // photos: ["https://media.istockphoto.com/id/98201918/photo/small-koala-sitting-on-white-background.jpg?s=1024x1024&w=is&k=20&c=5QNao-I60NybQMxtI8YoP72K468M9GLofRcD3zQz3DA="]
+               // photos: ["https://media.istockphoto.com/id/98201918/photo/small-koala-sitting-on-white-background.jpg?s=1024x1024&w=is&k=20&c=5QNao-I60NybQMxtI8YoP72K468M9GLofRcD3zQz3DA="]
             }
          }));
          setLoading(false);
@@ -44,11 +42,13 @@ export default function UserProfile() {
       <Box bgcolor='	#202020' height='100%'>
          {(username === undefined || username === user?.username) && <UserProfilePost />}
          {loading && <CircularProgress />}
-         {
-            posts.map((post) => {
-               return (<PostFeedCard post={post} onDelete={handleDelete} />);
-            })
-         }
+         <Stack spacing={2}>
+            {
+               posts.map((post, index) => {
+                  return (<PostFeedCard key={index} post={post} onDelete={handleDelete} />);
+               })
+            }
+         </Stack>
       </Box>
    )
 }
@@ -56,7 +56,7 @@ export default function UserProfile() {
 export function UserProfilePost() {
 
    const submitPost = async (event: FormEvent<HTMLFormElement>) => {
-      //event.preventDefault()
+      event.preventDefault()
 
       const formData = new FormData(event.currentTarget)
       let formObject = Object.fromEntries(formData.entries()) as {text: string}
@@ -69,19 +69,22 @@ export function UserProfilePost() {
          //sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' }}}
          noValidate
          autoComplete="off"
-         onSubmit={ submitPost }
+         onSubmit={submitPost}
       >
          <CSRF_Token />
-         <div>
-            <TextField
-               sx={{ width: '100%' }}
-               name="text"
-               label="Text Post"
-               multiline
-               maxRows={5}
-            />
+         <TextField
+            sx={{ width: '100%' }}
+            name="text"
+            label="Text Post"
+            multiline
+            required
+            maxRows={5}
+         />
+         <div style={{ display: 'flex' }}>
+            <Button type='submit' variant="contained" sx={{ margin: '1rem 0 1rem auto' }}>
+               Make a Post
+            </Button>
          </div>
-         <Button type='submit' variant="contained" sx={{ marginTop: '1rem', marginBottom: '1rem' }}>Make a Post</Button>
       </Box>
 
    )

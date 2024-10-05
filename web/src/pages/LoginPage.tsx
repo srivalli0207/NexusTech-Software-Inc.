@@ -1,13 +1,12 @@
 import { Box, TextField, Stack, Button, useTheme, CircularProgress } from "@mui/material"
 import { FormEvent, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { log_in } from "../utils/auth"
 import CSRF_Token from "../utils/csrf_token"
 
 export default function LoginPage() {
    const theme = useTheme()
-   const navigate = useNavigate()
-
+   
    const [loading, setLoading] = useState(false)
 
    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -20,7 +19,6 @@ export default function LoginPage() {
 
       if (response.user != null) {
          console.log('logged in', response.user)
-         navigate('/')
       }
       else {
          console.log('loggin failed', response.message)

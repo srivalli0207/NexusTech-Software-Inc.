@@ -14,81 +14,95 @@ import UserProfile from './pages/UserProfile.tsx';
 import { useUser } from './utils/auth-hooks.ts';
 
 function Main() {
-  const user = useUser()
+	const user = useUser()
 
-  // redirect to another page if user is already logged in
-  const routeLoaderAuthenticated = async () => {
-    if (user != null) {
-      return redirect('/')
-    }
-    else {
-      return null
-    }
-  }
+	// redirect to another page if user is already logged in
+	const authRouteRedirect = ({ request }: { request: any }) => {
+		const req = request as Response
 
-  // redirect to login page if user is not logged in
-  const routeLoaderUnauthenticated = async () => {
-    if (user ==  null) {
-      return redirect('/login')
-    }
-    else {
-      return null
-    }
-  }
+		if (user != null) {
+			const url = new URL(req.url)
+			const redirectUrl = url.searchParams.get('next')
 
-  const router = createBrowserRouter([
-    // these routes do not have the Appbar
-    { path: "/about", element: <CompanyPage /> },
-    { path: "/login", loader: routeLoaderAuthenticated, element: <LoginPage /> },
-    { path: "/signup", loader: routeLoaderAuthenticated, element: <SignUpPage /> },
+			if (redirectUrl == null) {
+				return redirect('/')
+			}
+			else {
+				return redirect(redirectUrl)
+			}
+		}
+		else {
+			return null
+		}
+	}
 
-    // these routes contain the Appbar
-    {
-      element: <Layout />,
-      children:
-        [
-          { path: "/", element: <HomePage /> },
-          { path: "/user-profile", loader: routeLoaderUnauthenticated, element: <UserProfile /> },
-          { path: "/user-profile/:username", loader: routeLoaderUnauthenticated, element: <UserProfile /> },
-          { path: "/post/:post_id", element: <DynamicRouteTest /> },
-        ]
-    },
-  ]);
+	// redirect to login page if user is not logged in
+	const protectedRoutes = ({ request }: { request: any }) => {
+		const req = request as Response
 
-  // const prefersDarkMode = !useMediaQuery("(prefers-color-scheme: dark)");
-  const prefersDarkMode = true; // screw it for now
+		if (user == null) {
+			const url = new URL(req.url)
+			return redirect(`/login/?next=${url.pathname}`)
+		}
+		else {
+			return null
+		}
+	}
 
-  const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            main: prefersDarkMode ? yellow[400] : yellow[700],
-          },
-          secondary: {
-            main: grey[600],
-          },
-        },
-      }),
-    [prefersDarkMode],
-  );
+	const router = createBrowserRouter([
+		// these routes do not have the Appbar
+		{ path: "/about", element: <CompanyPage /> },
+		{ path: "/login", loader: authRouteRedirect, element: <LoginPage /> },
+		{ path: "/signup", loader: authRouteRedirect, element: <SignUpPage /> },
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider router={router} />
-    </ThemeProvider>
-  );
+		// these routes contain the Appbar
+		{
+			element: <Layout />,
+			children:
+				[
+					{ path: "/", element: <HomePage /> },
+					{ path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
+					{ path: "/user-profile/:username", loader: protectedRoutes, element: <UserProfile /> },
+					{ path: "/post/:post_id", element: <DynamicRouteTest /> },
+				]
+		},
+	]);
+
+
+	// const prefersDarkMode = !useMediaQuery("(prefers-color-scheme: dark)");
+	const prefersDarkMode = true; // screw it for now
+
+	const theme = React.useMemo(
+		() =>
+			createTheme({
+				palette: {
+					mode: prefersDarkMode ? "dark" : "light",
+					primary: {
+						main: prefersDarkMode ? yellow[400] : yellow[700],
+					},
+					secondary: {
+						main: grey[600],
+					},
+				},
+			}),
+		[prefersDarkMode],
+	);
+
+	return (
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
+			<RouterProvider router={router} />
+		</ThemeProvider>
+	);
 }
 
 ReactDOM.createRoot(
-  document.getElementById("root") as ReactDOM.Container,
+	document.getElementById("root") as ReactDOM.Container,
 ).render(
-  <React.StrictMode>
-    <AuthContextProvider>
-      <Main />
-    </AuthContextProvider>
-  </React.StrictMode>
+	<React.StrictMode>
+		<AuthContextProvider>
+			<Main />
+		</AuthContextProvider>
+	</React.StrictMode>
 );
 

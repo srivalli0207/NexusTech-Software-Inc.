@@ -1,8 +1,8 @@
 import { getCSRFTokenFromCookie } from "./cookie"
-import { URLS } from "./urls"
+import { URLS, createRedirectUrl } from "./urls"
 
-const fetch_request = async (method: string, path: string, data?: {[key: string]: any}) => {
-   const options: {[key: string]: any} = {
+const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number }) => {
+   const options: { [key: string]: any } = {
       method,
       headers: {
          "Accept": "application/json",
@@ -16,8 +16,12 @@ const fetch_request = async (method: string, path: string, data?: {[key: string]
    }
 
    const response = await fetch(path, options)
-   const msg = await response.json()
 
+   if (response.redirected) {
+      window.location.href = response.url // redirect
+   }
+
+   const msg = await response.json()
    return msg
 }
 
@@ -26,12 +30,15 @@ export const get_posts = async (username?: string) => {
    return res;
 }
 
-export const submit_post = async (data: {text: string}) => {
-   const res = await fetch_request('POST', URLS.SUBMIT_POST, data)
+// next param is for redirects, if a post is submitted without a session, redirect to login, after login success
+// redirect back to original page
+
+export const submit_post = async (data: { text: string }) => {
+   const res = await fetch_request('POST', createRedirectUrl(URLS.SUBMIT_POST), data)
    return res
 }
 
-export const delete_post = async (data: {post_id: number}) => {
-   const res = await fetch_request('DELETE', URLS.DELETE_POST, data)
+export const delete_post = async (data: { post_id: number }) => {
+   const res = await fetch_request('DELETE', createRedirectUrl(URLS.DELETE_POST), data)
    return res
 }

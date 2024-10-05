@@ -18,3 +18,13 @@ export const URLS = Object.freeze({
    SUBMIT_POST: `${BASE_URL}/api/test/post_submit`,
    DELETE_POST: `${BASE_URL}/api/test/post_delete`,
 })
+
+/**
+ * Creates a url with the next param which is the redirect url.
+ * @param base base url
+ */
+export const createRedirectUrl = (base: string) => {
+   const url = new URL(base)
+   url.searchParams.append('next', window.location.pathname)
+   return url.href
+}

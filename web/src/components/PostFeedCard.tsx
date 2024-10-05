@@ -60,9 +60,10 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
           title={post.username}
           subheader={post.date.toLocaleString()}
         />
-        {post.photos.map((photo) => {
+        {post.photos.map((photo, index) => {
           return (
             <CardMedia
+              key={index}
               component="img"
               sx={{width: "200px", height: "auto"}}
               image={photo}

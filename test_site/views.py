@@ -1,14 +1,14 @@
 from django.core import serializers
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.auth.models import User as django_user
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime, date, time
 import json
 from .models import *
+from nexus_site.custom_decorators import custom_login_required
 
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
@@ -95,11 +95,12 @@ def get_csrf_token(request: HttpRequest):
 
 @require_GET
 def get_session(request: HttpRequest):
+    print("getting sessions")
     if (request.user.is_authenticated):
         user_object = {}
         user_object['username'] = request.user.username
         user_object['email'] = django_user.objects.get(username=request.user.username).email
-
+        
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
         return JsonResponse({"message": "User not authenticated!", "user": None}, status=401)
@@ -160,19 +161,19 @@ def get_posts(request: HttpRequest):
         return response(Post.objects.filter(user_id=request.user.id))
     else:
         return response(Post.objects.all())
-    
+
+@custom_login_required
 @require_POST
-@login_required
 def submit_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     text = data.get("text")
-    user = User.objects.get(pk=request.user.id)
-    print(user)
-    post = Post(user_id=user, text=text)
+    user = User.objects.filter(username=request.user.username)[0]
+    post = Post( user_id=user, text=text, comment_setting=Post.PostCommentSetting.NONE, )
     post.save()
     return JsonResponse({'message': 'post request processed'}, status=200)
 
-@login_required
+@custom_login_required
+@require_http_methods(['DELETE'])
 def delete_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     post_id = data.get("post_id")
