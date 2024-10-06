@@ -4,6 +4,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import ExploreIcon from '@mui/icons-material/Explore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import MessageIcon from '@mui/icons-material/Message';
 
 export default function SideBar() {
    return (
@@ -19,6 +20,9 @@ export default function SideBar() {
          </Button>
          <Button component={Link} to='../' sx={{ width: '100%', justifyContent: 'flex-start' }} color="secondary" size="large" startIcon={<BookmarkIcon />}>
             Favorites
+         </Button>
+         <Button component={Link} to='../' sx={{ width: '100%', justifyContent: 'flex-start' }} color="secondary" size="large" startIcon={<MessageIcon />}>
+            Messages
          </Button>
       </Stack>
    )
