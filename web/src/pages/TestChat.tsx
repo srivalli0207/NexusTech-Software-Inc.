@@ -1,17 +1,18 @@
 import { useParams } from "react-router-dom"
-import { useRef, useEffect, FormEvent } from "react"
+import { useRef, useEffect, FormEvent, useState } from "react"
 import { Box, Button, TextField } from '@mui/material'
 
 export default function TestChat() {
    const { room_id } = useParams()
    const chatSocket = useRef<WebSocket>()
+   const [messages, setMessages] = useState<string[]>([])
 
    useEffect(() => {
       chatSocket.current = new WebSocket(`ws://${window.location.host}/ws/chat/${room_id}/`)
 
       chatSocket.current.onmessage = (e: MessageEvent) => {
          const data = JSON.parse(e.data)
-         console.log(data)
+         setMessages( (messages) => [...messages, data.message.toString()] )
       }
 
       chatSocket.current.onclose = (e: CloseEvent) => {
@@ -52,6 +53,9 @@ export default function TestChat() {
                </Button>
             </div>
          </Box>
+         {
+            messages.map((value, index) => <p key={index}>{value}</p>)
+         }
       </>
    )
 }
