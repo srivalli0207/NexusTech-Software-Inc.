@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider, redirect } from "react-router-dom"
 import { CssBaseline, createTheme, ThemeProvider } from '@mui/material'
 import { grey, yellow } from '@mui/material/colors';
 import { AuthContextProvider } from './utils/AuthContext.tsx';
-import DynamicRouteTest from './pages/DynamicRouteTest.tsx';
+import TestChat from './pages/TestChat.tsx';
 import CompanyPage from './pages/CompanyPage.tsx'
 import HomePage from './pages/HomePage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
@@ -63,7 +63,7 @@ function Main() {
 					{ path: "/", element: <HomePage /> },
 					{ path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
 					{ path: "/user-profile/:username", loader: protectedRoutes, element: <UserProfile /> },
-					{ path: "/post/:post_id", element: <DynamicRouteTest /> },
+					{ path: "/test-chat/:room_id", loader: protectedRoutes, element: <TestChat /> },
 				]
 		},
 	]);

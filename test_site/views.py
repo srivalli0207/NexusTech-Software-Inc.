@@ -95,7 +95,6 @@ def get_csrf_token(request: HttpRequest):
 
 @require_GET
 def get_session(request: HttpRequest):
-    print("getting sessions")
     if (request.user.is_authenticated):
         user_object = {}
         user_object['username'] = request.user.username
@@ -162,8 +161,8 @@ def get_posts(request: HttpRequest):
     else:
         return response(Post.objects.all())
 
-@custom_login_required
 @require_POST
+@custom_login_required
 def submit_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     text = data.get("text")
@@ -172,8 +171,8 @@ def submit_post(request: HttpRequest):
     post.save()
     return JsonResponse({'message': 'post request processed'}, status=200)
 
-@custom_login_required
 @require_http_methods(['DELETE'])
+@custom_login_required
 def delete_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     post_id = data.get("post_id")
