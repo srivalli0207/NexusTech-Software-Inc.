@@ -13,25 +13,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="UserProfile",
-            fields=[
-                ("profile_id", models.AutoField(primary_key=True, serialize=False)),
-                ("profile_picture", models.URLField(default=None, null=True)),
-                ("bio", models.TextField(default=None, null=True)),
-                ("pronouns", models.CharField(default=None, max_length=32, null=True)),
-                ("verified", models.BooleanField(default=False)),
-                ("online_status", models.BooleanField(default=False)),
-                (
-                    "real_name",
-                    models.CharField(default=None, max_length=128, null=True),
-                ),
-                ("privacy", models.BooleanField(default=True)),
-            ],
-        ),
-        migrations.RemoveField(
-            model_name="session",
-            name="user_id",
+        migrations.DeleteModel(
+            name="Session"
         ),
         migrations.RemoveConstraint(
             model_name="commentlike",
@@ -64,6 +47,10 @@ class Migration(migrations.Migration):
         migrations.RemoveConstraint(
             model_name="userblock",
             name="user_block_constraint",
+        ),
+        migrations.RenameModel(
+            old_name="User",
+            new_name="UserProfile"
         ),
         migrations.RenameField(
             model_name="comment",
@@ -115,348 +102,99 @@ class Migration(migrations.Migration):
             old_name="post_id",
             new_name="post",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="comment",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="commentlike",
-            name="user_id",
+            old_name="user_id",
+            new_name="user"
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="directmessage",
-            name="from_user_id",
+            old_name="from_user_id",
+            new_name="from_user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="directmessage",
-            name="to_user_id",
+            old_name="to_user_id",
+            new_name="to_user"
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="follow",
-            name="following_id",
+            old_name="following_id",
+            new_name="following",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="follow",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="forumfollow",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="forummoderator",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="post",
-            name="forum_id",
+            old_name="forum_id",
+            new_name="forum",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="post",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="postbookmark",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="postlike",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="postusertag",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="report",
-            name="report_user_id",
+            old_name="report_user_id",
+            new_name="report_user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="report",
-            name="reported_user_id",
+            old_name="reported_user_id",
+            new_name="reported_user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="userblock",
-            name="blocked_id",
+            old_name="blocked_id",
+            new_name="blocked",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="userblock",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="usermutedword",
-            name="user_id",
+            old_name="user_id",
+            new_name="user",
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name="usersettings",
-            name="user_id",
-        ),
-        migrations.AddField(
-            model_name="post",
-            name="forum",
-            field=models.ForeignKey(
-                default=None,
-                null=True,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.forum",
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="commentlike",
-            constraint=models.UniqueConstraint(
-                fields=("comment", "user"), name="comment_like_unq_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="follow",
-            constraint=models.UniqueConstraint(
-                fields=("user", "following"), name="follow_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="forumfollow",
-            constraint=models.UniqueConstraint(
-                fields=("user", "forum"), name="forum_follow_unq_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="forummoderator",
-            constraint=models.UniqueConstraint(
-                fields=("forum", "user"), name="forum_moderator_unq_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="postbookmark",
-            constraint=models.UniqueConstraint(
-                fields=("post", "user"), name="post_bookmark_unq_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="postlike",
-            constraint=models.UniqueConstraint(
-                fields=("post", "user"), name="post_like_unq_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="postusertag",
-            constraint=models.UniqueConstraint(
-                fields=("post", "user"), name="post_user_tag_unq_constraint"
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="userblock",
-            constraint=models.UniqueConstraint(
-                fields=("user", "blocked"), name="user_block_constraint"
-            ),
-        ),
-        migrations.DeleteModel(
-            name="Session",
-        ),
-        migrations.AddField(
-            model_name="userprofile",
-            name="user",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
-            ),
-        ),
-        migrations.AddField(
-            model_name="comment",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="commentlike",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                to="test_site.userprofile",
-            ),
-        ),
-        migrations.AddField(
-            model_name="directmessage",
-            name="from_user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="sending_user",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="directmessage",
-            name="to_user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="receiving_user",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="follow",
-            name="following",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="follow_user_id",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="follow",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="following_user_id",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="forumfollow",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="forummoderator",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="post",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="postbookmark",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="postlike",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="postusertag",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="report",
-            name="report_user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="report_sender",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="report",
-            name="reported_user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="reported_user",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="userblock",
-            name="blocked",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="blocked_user_id",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="userblock",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="blocking_user_id",
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="usermutedword",
-            name="user",
-            field=models.ForeignKey(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name="usersettings",
-            name="user",
-            field=models.OneToOneField(
-                default=None,
-                on_delete=django.db.models.deletion.CASCADE,
-                primary_key=True,
-                serialize=False,
-                to="test_site.userprofile",
-            ),
-            preserve_default=False,
-        ),
-        migrations.AlterField(
-            model_name="forum",
-            name="creator",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="test_site.userprofile"
-            ),
-        ),
-        migrations.DeleteModel(
-            name="User",
+            old_name="user_id",
+            new_name="user",
         ),
     ]

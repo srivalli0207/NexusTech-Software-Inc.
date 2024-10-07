@@ -5,8 +5,7 @@ from django.contrib.auth.models import User as DjangoUser
 # Create your models here.
 
 class UserProfile(models.Model):
-    profile_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(DjangoUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, primary_key=True)
     profile_picture = models.URLField(null=True, default=None)
     bio = models.TextField(null=True, default=None)
     pronouns = models.CharField(max_length=32, null=True, default=None)

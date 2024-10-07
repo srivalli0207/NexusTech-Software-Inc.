@@ -28,11 +28,6 @@ def response(objects):
     ret = []
     for d in data:
         fields = {"pk": d.get("pk"), **d["fields"]}
-        for key in list(fields.keys()):
-            if key in user_id_fields:
-                fields[key + "_hint"] = UserProfile.objects.get(pk=fields["user_id"]).username
-            elif key in post_id_fields:
-                fields[key + "_hint"] = Post.objects.get(pk=fields["user_id"]).username
         ret.append(fields)
     return HttpResponse(json.dumps(ret, default=json_serial), content_type="application/json")
 
@@ -96,10 +91,13 @@ def get_csrf_token(request: HttpRequest):
 @require_GET
 def get_session(request: HttpRequest):
     if (request.user.is_authenticated):
-        user_object = {}
-        user_object['username'] = request.user.username
-        user_object['email'] = django_user.objects.get(username=request.user.username).email
-        user_object['pfp'] = UserProfile.objects.get(username=request.user.username).profile_picture
+        user = django_user.objects.get(username=request.user.username)
+        profile = UserProfile.objects.get(pk=user.pk)
+        user_object = {
+            "username": user.username,
+            "email": user.email,
+            "pfp": profile.profile_picture
+        }
         
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
@@ -115,10 +113,13 @@ def login_user(request: HttpRequest):
 
     if user is not None:
         login(request=request, user=user)
-        user_object = {}
-        user_object['username'] = request.user.username
-        user_object['email'] = django_user.objects.get(username=request.user.username).email
-        user_object['pfp'] = UserProfile.objects.get(username=request.user.username).profile_picture
+        user = django_user.objects.get(username=request.user.username)
+        profile = UserProfile.objects.get(pk=user.pk)
+        user_object = {
+            "username": user.username,
+            "email": user.email,
+            "pfp": profile.profile_picture
+        }
 
         return JsonResponse({"message": "Login success!", "user": user_object}, status=200)
     else:
@@ -136,20 +137,22 @@ def register_user(request: HttpRequest, ):
     email = data.get("email")
     password = data.get("password")
 
-    if (django_user.objects.filter(username=name).exists()):
+    if django_user.objects.filter(username=name).exists():
         return JsonResponse({"message": "Username taken!"}, status=409)
-    elif (len(password) < 8):
+    elif len(password) < 8:
         return JsonResponse({"message": "Password should be 8 characters or longer"}, status=409)
     
     user = django_user.objects.create_user(name, email, password)
     
     if (user.is_authenticated):
         login(request, user)
-        user_object = {}
-        user_object['username'] = name
-        user_object['email'] = email
-        user_model = UserProfile(user_id=user.pk, username=name, email=email, password=password)
+        user_model = UserProfile(user=user)
         user_model.save()
+        user_object = {
+            "username": name,
+            "email": email,
+            "pfp": None
+        }
         return JsonResponse({"message": "Register user success!", "user": user_object},status=200)
     else:
         return JsonResponse({"message": "Login failed!","user": None}, status=409)
@@ -168,8 +171,8 @@ def get_posts(request: HttpRequest):
 def submit_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     text = data.get("text")
-    user = UserProfile.objects.filter(username=request.user.username)[0]
-    post = Post( user_id=user, text=text, comment_setting=Post.PostCommentSetting.NONE, )
+    user = UserProfile.objects.filter(user__username=request.user.username)[0]
+    post = Post(user=user,text=text, comment_setting=Post.PostCommentSetting.NONE)
     post.save()
     return JsonResponse({'message': 'post request processed'}, status=200)
 
