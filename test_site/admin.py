@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import *
 # Register your models here.
 
-admin.site.register(User)
+admin.site.register(UserProfile)
 admin.site.register(UserMutedWord)
 admin.site.register(UserBlock)
 admin.site.register(Follow)
@@ -13,7 +13,6 @@ admin.site.register(PostBookmark)
 admin.site.register(PostUserTag)
 admin.site.register(UserSettings)
 admin.site.register(Comment)
-admin.site.register(Session)
 admin.site.register(Post)
 admin.site.register(PostMedia)
 admin.site.register(Forum)
