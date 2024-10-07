@@ -30,7 +30,7 @@ def response(objects):
         fields = {"pk": d.get("pk"), **d["fields"]}
         for key in list(fields.keys()):
             if key in user_id_fields:
-                fields[key + "_hint"] = User.objects.get(pk=fields["user_id"]).username
+                fields[key + "_hint"] = UserProfile.objects.get(pk=fields["user_id"]).username
             elif key in post_id_fields:
                 fields[key + "_hint"] = Post.objects.get(pk=fields["user_id"]).username
         ret.append(fields)
@@ -38,7 +38,7 @@ def response(objects):
 
 
 def users(request: HttpRequest):
-    return response(User.objects.all())
+    return response(UserProfile.objects.all())
 
 def user_muted_words(request: HttpRequest):
     return response(UserMutedWord.objects.all())
@@ -49,8 +49,8 @@ def user_blocks(request: HttpRequest):
 def comments(request: HttpRequest):
     return response(Comment.objects.all())
 
-def sessions(request: HttpRequest):
-    return response(Session.objects.all())
+# def sessions(request: HttpRequest):
+#     return response(Session.objects.all())
 
 def follows(request: HttpRequest):
     return response(Follow.objects.all())
@@ -99,7 +99,7 @@ def get_session(request: HttpRequest):
         user_object = {}
         user_object['username'] = request.user.username
         user_object['email'] = django_user.objects.get(username=request.user.username).email
-        user_object['pfp'] = User.objects.get(username=request.user.username).profile_picture
+        user_object['pfp'] = UserProfile.objects.get(username=request.user.username).profile_picture
         
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
@@ -118,7 +118,7 @@ def login_user(request: HttpRequest):
         user_object = {}
         user_object['username'] = request.user.username
         user_object['email'] = django_user.objects.get(username=request.user.username).email
-        user_object['pfp'] = User.objects.get(username=request.user.username).profile_picture
+        user_object['pfp'] = UserProfile.objects.get(username=request.user.username).profile_picture
 
         return JsonResponse({"message": "Login success!", "user": user_object}, status=200)
     else:
@@ -148,7 +148,7 @@ def register_user(request: HttpRequest, ):
         user_object = {}
         user_object['username'] = name
         user_object['email'] = email
-        user_model = User(user_id=user.pk, username=name, email=email, password=password)
+        user_model = UserProfile(user_id=user.pk, username=name, email=email, password=password)
         user_model.save()
         return JsonResponse({"message": "Register user success!", "user": user_object},status=200)
     else:
@@ -168,7 +168,7 @@ def get_posts(request: HttpRequest):
 def submit_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     text = data.get("text")
-    user = User.objects.filter(username=request.user.username)[0]
+    user = UserProfile.objects.filter(username=request.user.username)[0]
     post = Post( user_id=user, text=text, comment_setting=Post.PostCommentSetting.NONE, )
     post.save()
     return JsonResponse({'message': 'post request processed'}, status=200)
