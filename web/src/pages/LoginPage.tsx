@@ -1,4 +1,4 @@
-import { Box, TextField, Stack, Button, useTheme, CircularProgress } from "@mui/material"
+import { Box, TextField, Stack, Button, useTheme, CircularProgress, SnackbarCloseReason, Snackbar } from "@mui/material"
 import { FormEvent, useState } from "react"
 import { Link } from "react-router-dom"
 import { log_in } from "../utils/auth"
@@ -7,7 +7,20 @@ import CSRF_Token from "../utils/csrf_token"
 export default function LoginPage() {
    const theme = useTheme()
    
-   const [loading, setLoading] = useState(false)
+   const [loading, setLoading] = useState(false);
+   const [open, setOpen] = useState(false);
+   const [message, setMessage] = useState("");
+  
+    const handleClose = (
+      _event: React.SyntheticEvent | Event,
+      reason?: SnackbarCloseReason,
+    ) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+  
+      setOpen(false);
+    };
 
    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
       setLoading(true)
@@ -19,9 +32,10 @@ export default function LoginPage() {
 
       if (response.user != null) {
          console.log('logged in', response.user)
-      }
-      else {
-         console.log('loggin failed', response.message)
+      } else {
+         console.log('loggin failed', response.message);
+         setMessage(response.message);
+         setOpen(true);
       }
 
       setLoading(false)
@@ -33,7 +47,6 @@ export default function LoginPage() {
             component="form"
             onSubmit={handleSubmit}
             autoComplete="on"
-
             bgcolor={theme.palette.secondary.main}
             borderRadius={1}
             padding='20px 20px 20px 20px'
@@ -61,14 +74,21 @@ export default function LoginPage() {
                   type="password"
                   label="Password"
                />
-               <Button variant="contained" type='submit' sx={{ height: '2.5rem' }}>
+               <Button variant="contained" type='submit' sx={{ height: '2.5rem' }} disabled={loading}>
                   {
                      loading ? <CircularProgress size='1.5rem' color="inherit" /> : 'Sign In'
                   }
                </Button>
-               <p>Don't have account? <Link to={"../signup"} style={{ color: theme.palette.primary.main }}>Create Account</Link></p>
+               <p>Don't have an account? <Link to={"../signup"} style={{ color: theme.palette.primary.main }}>Create Account</Link></p>
             </Stack>
          </Box>
+         <Snackbar
+            open={open}
+            autoHideDuration={6000}
+            onClose={handleClose}
+            message={message}
+            anchorOrigin={{vertical: "bottom", horizontal: "center"}}
+         />
       </Box>
    )
 }
