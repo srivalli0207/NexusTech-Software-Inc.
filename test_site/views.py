@@ -99,6 +99,7 @@ def get_session(request: HttpRequest):
         user_object = {}
         user_object['username'] = request.user.username
         user_object['email'] = django_user.objects.get(username=request.user.username).email
+        user_object['pfp'] = User.objects.get(username=request.user.username).profile_picture
         
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
@@ -117,6 +118,7 @@ def login_user(request: HttpRequest):
         user_object = {}
         user_object['username'] = request.user.username
         user_object['email'] = django_user.objects.get(username=request.user.username).email
+        user_object['pfp'] = User.objects.get(username=request.user.username).profile_picture
 
         return JsonResponse({"message": "Login success!", "user": user_object}, status=200)
     else:

@@ -6,7 +6,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import ShareIcon from "@mui/icons-material/Share";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import Typography from "@mui/material/Typography";
@@ -78,7 +79,10 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
         </CardContent>
         <CardActions disableSpacing>
           <IconButton aria-label="like">
-            <FavoriteIcon />
+            <ThumbUpIcon />
+          </IconButton>
+          <IconButton aria-label="dislike">
+            <ThumbDownIcon />
           </IconButton>
           <IconButton aria-label="bookmark">
             <BookmarkIcon />

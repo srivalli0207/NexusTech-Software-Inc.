@@ -16,31 +16,31 @@ export default function NexifyAppBar () {
 
    return (
       <AppBar id='Appbar-Header' position='static'>
-            <Toolbar>
-               <IconButton
-                  size="large"
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  sx={{ mr: 2 }}
-               >
-                  <MenuIcon />
-               </IconButton>
-               <Typography variant="h6" component="div" sx={{ flexgrow: 1 }}>
-                  Nexify
-               </Typography>
-               {
-                  user != null ?
-                     <>
-                        <IconButton sx={{ p: 2, marginLeft: 'auto', marginRight: '10px' }} component={Link} to='/user-profile'>
-                           <Avatar>{user?.username[0].toUpperCase()}</Avatar>
-                        </IconButton>
-                        <Button type='submit' onClick={handleLogout} color="inherit">Logout</Button>
-                     </>
-                     :
-                     <Button color="inherit" sx={{ marginLeft: 'auto' }} onClick={() => navigate('/login')}>Login</Button>
-               }
-            </Toolbar>
-         </AppBar>
+         <Toolbar>
+            <IconButton
+               size="large"
+               edge="start"
+               color="inherit"
+               aria-label="menu"
+               sx={{ mr: 2 }}
+            >
+               <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexgrow: 1 }}>
+               Nexify
+            </Typography>
+            {
+               user != null ?
+                  <>
+                     <IconButton sx={{ p: 2, marginLeft: 'auto', marginRight: '10px' }} component={Link} to='/user-profile'>
+                        <Avatar src={user!.pfp !== null ? user!.pfp : undefined}>{user!.username[0].toUpperCase()}</Avatar>
+                     </IconButton>
+                     <Button type='submit' onClick={handleLogout} color="inherit">Logout</Button>
+                  </>
+                  :
+                  <Button color="inherit" sx={{ marginLeft: 'auto' }} onClick={() => navigate('/login')}>Login</Button>
+            }
+         </Toolbar>
+      </AppBar>
    )
 }

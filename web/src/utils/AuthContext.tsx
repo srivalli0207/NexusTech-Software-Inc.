@@ -4,6 +4,7 @@ import { get_auth } from "./auth";
 export type UserAuth = {
    username: string,
    email: string,
+   pfp: string | null
 } | null
 
 export const AuthContext = createContext<UserAuth>(null)
