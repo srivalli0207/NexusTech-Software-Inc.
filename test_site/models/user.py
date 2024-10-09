@@ -18,6 +18,9 @@ class UserProfile(models.Model):
             "username": self.user.username,
             "pfp": self.profile_picture
         }
+    
+    def __str__(self):
+        return f"{self.user.username} ({self.pk})"
 
 
 class Follow(models.Model):

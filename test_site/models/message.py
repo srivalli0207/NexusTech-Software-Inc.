@@ -10,10 +10,16 @@ class MessageConversation(models.Model):
     creator = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="creator", null=True, default=None)
     members = models.ManyToManyField(UserProfile, through="MessageConversationMember")
 
+    def __str__(self):
+        return f"{self.conversation_id} ({self.name}): {', '.join([member.user.username for member in self.members.all()])}"
+
 
 class MessageConversationMember(models.Model):
     conversation = models.ForeignKey(MessageConversation, on_delete=models.CASCADE)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.conversation.conversation_id}-{self.pk}: {self.user.user.username}"
 
 
 class Message(models.Model):
@@ -22,6 +28,9 @@ class Message(models.Model):
     conversation = models.ForeignKey(MessageConversation, on_delete=models.CASCADE, related_name="messages")
     text = models.TextField(null=True)
     sent = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.conversation.conversation_id}-{self.message_id}: {self.user.user.username} - {self.text}"
 
 
 class MessageMedia(models.Model):

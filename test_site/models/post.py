@@ -19,6 +19,9 @@ class Post(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.post_id}: {self.user.user.username} - {self.text}"
+
 
 class PostMedia(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
