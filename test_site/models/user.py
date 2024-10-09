@@ -13,6 +13,12 @@ class UserProfile(models.Model):
     real_name = models.CharField(max_length=128, null=True, default=None)
     privacy = models.BooleanField(default=True)
 
+    def natural_key(self):
+        return {
+            "username": self.user.username,
+            "pfp": self.profile_picture
+        }
+
 
 class Follow(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="following_user_id")

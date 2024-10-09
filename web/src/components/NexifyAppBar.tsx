@@ -1,8 +1,9 @@
 import { AppBar, Toolbar, IconButton, Typography, Avatar, Button } from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
+//import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../utils/auth-hooks";
 import { log_out } from "../utils/auth";
+import HubIcon from '@mui/icons-material/Hub';
 
 
 export default function NexifyAppBar () {
@@ -24,10 +25,10 @@ export default function NexifyAppBar () {
                aria-label="menu"
                sx={{ mr: 2 }}
             >
-               <MenuIcon />
+               <HubIcon />
             </IconButton>
             <Typography variant="h6" component="div" sx={{ flexgrow: 1 }}>
-               Nexify
+               Nexus
             </Typography>
             {
                user != null ?

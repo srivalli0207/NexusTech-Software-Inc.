@@ -83,6 +83,9 @@ function Main() {
 					secondary: {
 						main: grey[600],
 					},
+					background: {
+						default: prefersDarkMode ? grey[900] : grey[50]
+					}
 				},
 			}),
 		[prefersDarkMode],

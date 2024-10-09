@@ -42,8 +42,7 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
     return (
       <Card sx={{ textAlign: "left" }}>
         <CardHeader
-          //avatar={<Avatar aria-label="pfp" src={post.pfp} />}
-          avatar={<Avatar>{user?.username[0]}</Avatar>}
+          avatar={<Avatar aria-label="pfp" src={post.pfp}>{post.username[0].toUpperCase()}</Avatar>}
           action={
             <IconButton
               aria-label="settings"
@@ -55,6 +54,7 @@ export default function PostFeedCard({ post, onDelete }: { post: Post, onDelete:
               <MoreVertIcon />
               <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
                 {user?.username == post.username && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
+                <MenuItem>Report</MenuItem>
               </Menu>
             </IconButton>
           }

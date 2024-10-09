@@ -1,7 +1,8 @@
 import { FormEvent, useEffect, useState } from "react"
-import { Box, CircularProgress, Button, TextField, Stack } from '@mui/material'
+import { Box, CircularProgress, Button, TextField, Stack, useTheme } from '@mui/material'
+import Grid from "@mui/material/Grid2";
 import PostFeedCard, { Post } from "../components/PostFeedCard"
-import { get_posts } from "../utils/fetch"
+import { follow_user, get_is_following, get_posts } from "../utils/fetch"
 import { useUser } from "../utils/auth-hooks";
 import { submit_post, delete_post } from "../utils/fetch"
 import CSRF_Token from "../utils/csrf_token"
@@ -9,9 +10,12 @@ import { useParams } from "react-router-dom";
 
 export default function UserProfile() {
    const [loading, setLoading] = useState(true);
+   const [followLoading, setFollowLoading] = useState(true);
+   const [following, setFollowing] = useState(false);
    const [posts, setPosts] = useState<Post[]>([]);
    const user = useUser();
    const { username } = useParams();
+   const theme = useTheme();
 
    const handleDelete = async (post: Post) => {
       await delete_post( {post_id: post.id} );
@@ -23,8 +27,8 @@ export default function UserProfile() {
          setPosts(res.map((post: any) => {
             return {
                id: post.pk,
-               username: post.user_id_hint,
-               pfp: user,
+               username: post.user.username,
+               pfp: post.user.pfp,
                date: new Date(post.creation_date),
                text: post.text,
                photos: [""]
@@ -36,19 +40,38 @@ export default function UserProfile() {
          console.error(err);
          setLoading(false);
       });
+
+      if (user !== undefined && username !== undefined && user!.username !== username) {
+         get_is_following(username!).then(async (res) => {
+            setFollowing(res.following);
+            setFollowLoading(false);
+         });
+      } else {
+         setFollowLoading(false);
+      }
    }, []);
 
+   const followUser = async () => {
+      setFollowLoading(true);
+      const res = await follow_user(username!, !following);
+      setFollowing(res.following);
+      setFollowLoading(false);
+   }
+
    return (
-      <Box bgcolor='	#202020' height='100%'>
-         {(username === undefined || username === user?.username) && <UserProfilePost />}
+      <Box bgcolor={theme.palette.background.default}>
+         {user && <Button variant="contained" disabled={followLoading} onClick={username !== undefined ? followUser : undefined}>{username === undefined || user?.username === username ? "Edit Profile" : (followLoading ? <CircularProgress color="inherit" size="1.5rem" /> : (following ? "Unfollow" : "Follow"))}</Button>}
+         {(username === undefined || username === user!.username) && <UserProfilePost />}
          {loading && <CircularProgress />}
-         <Stack spacing={2}>
+         <Grid container spacing={2}>
             {
                posts.map((post, index) => {
-                  return (<PostFeedCard key={index} post={post} onDelete={handleDelete} />);
+                  return (<Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                     <PostFeedCard key={index} post={post} onDelete={handleDelete} />
+                  </Grid>);
                })
             }
-         </Stack>
+         </Grid>
       </Box>
    )
 }

@@ -24,7 +24,7 @@ def index(request: HttpRequest):
 user_id_fields = ["user_id", "blocked_id", "following_id", "creator", "from_user_id", "to_user_id", "reported_user_id", "report_user_id"]
 post_id_fields = ["post_id"]
 def response(objects):
-    data = serializers.serialize("python", objects)
+    data = serializers.serialize("python", objects, use_natural_foreign_keys=True)
     ret = []
     for d in data:
         fields = {"pk": d.get("pk"), **d["fields"]}
@@ -48,7 +48,15 @@ def comments(request: HttpRequest):
 #     return response(Session.objects.all())
 
 def follows(request: HttpRequest):
-    return response(Follow.objects.all())
+    username = request.GET['user']
+    user = django_user.objects.filter(username=username)
+    profile = UserProfile.objects.filter(user=user[0])
+
+    following = Follow.objects.filter(user=profile[0])
+    #print(following.values_list('following', flat=True)[0])
+
+    return response(following)
+
 
 # def posts(request: HttpRequest):
 #     return response(Post.objects.all())
@@ -160,11 +168,37 @@ def register_user(request: HttpRequest, ):
 @require_GET
 def get_posts(request: HttpRequest):
     if (username := request.GET.get("username")) is not None:
-        return response(Post.objects.filter(user_id__username=username))
+        return response(Post.objects.filter(user__user__username=username))
     elif request.user.is_authenticated:
         return response(Post.objects.filter(user_id=request.user.id))
     else:
         return response(Post.objects.all())
+
+@require_GET
+def get_is_following(request: HttpRequest):
+    if request.user.is_authenticated:
+        obj = Follow.objects.filter(user_id=request.user.id, following__user__username=request.GET.get("username"))
+        return JsonResponse({"following": len(obj) > 0}, status=200)
+    else:
+        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+
+@require_POST
+def follow_user(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+
+    user = UserProfile.objects.get(user_id=request.user.id)
+    following = UserProfile.objects.get(user__username=request.GET.get("username"))
+    follow = request.GET.get("follow") == "true"
+    if follow:
+        follow_obj = Follow(user=user, following=following)
+        follow_obj.save()
+    else:
+        follow_obj = Follow.objects.get(user_id=request.user.id, following__user__username=request.GET.get("username"))
+        follow_obj.delete()
+    return JsonResponse({"following": follow}, status=200)
+    
+        
 
 @require_POST
 @custom_login_required

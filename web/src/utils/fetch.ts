@@ -30,9 +30,6 @@ export const get_posts = async (username?: string) => {
    return res;
 }
 
-// next param is for redirects, if a post is submitted without a session, redirect to login, after login success
-// redirect back to original page
-
 export const submit_post = async (data: { text: string }) => {
    const res = await fetch_request('POST', createRedirectUrl(URLS.SUBMIT_POST), data)
    return res
@@ -40,5 +37,39 @@ export const submit_post = async (data: { text: string }) => {
 
 export const delete_post = async (data: { post_id: number }) => {
    const res = await fetch_request('DELETE', createRedirectUrl(URLS.DELETE_POST), data)
+   return res
+}
+
+export type follows = {
+   following: {
+      username: string,
+      pfp: string | null,
+   },
+   pk: number,
+   user: {
+      username: string,
+      pfp: string | null,
+   }
+}
+
+export const get_follows = async (user: string) => {
+   const url = new URL(URLS.GET_FOLLOWS)
+   url.searchParams.append('user', user)
+   const res = await fetch_request('GET', url.href)
+   return res as follows[]
+}
+
+export const get_is_following = async (user: string) => {
+   const url = new URL(URLS.GET_IS_FOLLOWING);
+   url.searchParams.append('username', user)
+   const res = await fetch_request('GET', url.href)
+   return res
+}
+
+export const follow_user = async (user: string, follow: boolean) => {
+   const url = new URL(URLS.FOLLOW_USER);
+   url.searchParams.append('username', user)
+   url.searchParams.append('follow', follow.toString())
+   const res = await fetch_request('POST', url.href)
    return res
 }
