@@ -52,7 +52,9 @@ function MessageBubble({ message }: { message: Message }) {
 
   return (
     <Grid container spacing={1} justifyItems={isSender ? "flex-end" : "flex-start"} justifyContent={isSender ? "flex-end" : "flex-start"}>
-      {!isSender && <Grid size={1}><Avatar src={message.pfp ?? undefined}>{message.username[0].toUpperCase()}</Avatar></Grid>}
+      {!isSender && <Grid size={1}>
+        <Avatar src={message.pfp ?? undefined} sx={{ float: "right" }}>{message.username[0].toUpperCase()}</Avatar>
+      </Grid>}
       <Grid>
         <Typography
           align={isSender ? "right" : "left"}
@@ -69,7 +71,9 @@ function MessageBubble({ message }: { message: Message }) {
           {message.text}
         </Typography>
       </Grid>
-      {isSender && <Grid size={1}><Avatar src={message.pfp ?? undefined}>{message.username[0].toUpperCase()}</Avatar></Grid>}
+      {isSender && <Grid size={1}>
+        <Avatar src={message.pfp ?? undefined}>{message.username[0].toUpperCase()}</Avatar>
+      </Grid>}
     </Grid>
   )
 }
@@ -86,10 +90,16 @@ function MessageInput({ onSend }: { onSend: (text: string) => void }) {
     setTextInput(event.target.value);
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      handleSend();
+    }
+  }
+
   return (
     <Grid container spacing={1} sx={{ marginTop: "auto" }} alignItems="center">
       <Grid size={11}>
-        <TextField label="Type something" fullWidth rows={2} maxRows={2} onChange={handleText} value={textInput} />
+        <TextField label="Type something" fullWidth rows={2} maxRows={2} onChange={handleText} value={textInput} onKeyDown={handleKeyDown} />
       </Grid>
       <Grid size={1}>
         <Button type="submit" variant="contained" onClick={handleSend} disabled={textInput === ""}>Send</Button>

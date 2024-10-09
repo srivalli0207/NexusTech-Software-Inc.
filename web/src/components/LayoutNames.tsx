@@ -1,8 +1,9 @@
-import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText } from "@mui/material";
+import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
 import { get_follows, follows } from "../utils/fetch";
+import { Link } from "react-router-dom";
 
 export default function LayoutNames() {
    const user = useUser()
@@ -26,9 +27,7 @@ export default function LayoutNames() {
          </Typography>
          <List>
             {following?.map((value, _) =>
-               <ListItem
-                
-               >
+               <ListItemButton component={Link} to={`/user-profile/${value.following.username}`}>
                   <ListItemAvatar>
                      <Avatar>
                         <PersonIcon />
@@ -37,7 +36,7 @@ export default function LayoutNames() {
                   <ListItemText
                      primary={value.following.username}
                   />
-               </ListItem>
+               </ListItemButton>
             )}
          </List>
       </>
