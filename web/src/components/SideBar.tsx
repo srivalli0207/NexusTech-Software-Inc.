@@ -22,7 +22,7 @@ export default function SideBar() {
             <Button component={Link} to='../' sx={{ width: '100%', justifyContent: 'flex-start' }} color="secondary" size="large" startIcon={<BookmarkIcon />}>
                Bookmarks
             </Button>
-            <Button component={Link} to='../' sx={{ width: '100%', justifyContent: 'flex-start' }} color="secondary" size="large" startIcon={<MessageIcon />}>
+            <Button component={Link} to='/messages' sx={{ width: '100%', justifyContent: 'flex-start' }} color="secondary" size="large" startIcon={<MessageIcon />}>
                Messages
             </Button>
          </>

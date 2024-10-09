@@ -83,7 +83,7 @@ def forum_moderators(request: HttpRequest):
     return response(ForumModerator.objects.all())
 
 def dms(request: HttpRequest):
-    return response(DirectMessage.objects.all())
+    return response(Message.objects.all())
 
 def reports(request: HttpRequest):
     return response(Report.objects.all())
@@ -198,7 +198,66 @@ def follow_user(request: HttpRequest):
         follow_obj.delete()
     return JsonResponse({"following": follow}, status=200)
     
-        
+
+@require_GET
+def get_conversations(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+    
+    conversations = []
+    for conversation in MessageConversation.objects.filter(members__in=[request.user.id]):
+        fields = {
+            "id": conversation.pk,
+            "name": conversation.name,
+            "group": conversation.group,
+            "members": [{
+                "username": member.user.username,
+                "pfp": member.profile_picture
+            } for member in conversation.members.all() if member.pk != request.user.pk]
+        }
+        conversations.append(fields)
+    
+    return HttpResponse(json.dumps(conversations, default=json_serial), content_type="application/json")
+
+@require_GET
+def get_messages(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+    
+    messages = []
+    for message in Message.objects.filter(conversation_id=int(request.GET.get("conversation"))).order_by("sent"):
+        fields = {
+            "id": message.pk,
+            "username": message.user.user.username,
+            "pfp": message.user.profile_picture,
+            "text": message.text,
+            "sent": message.sent
+        }
+        messages.append(fields)
+    
+    return HttpResponse(json.dumps(messages, default=json_serial), content_type="application/json")
+
+@require_POST
+def send_message(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+    
+    data: dict = json.loads(request.body)
+    text = data.get("text")
+    conversation = MessageConversation.objects.get(pk=data.get("conversation"))
+    user = UserProfile.objects.get(pk=request.user.pk)
+    message = Message(user=user, conversation=conversation, text=text)
+    message.save()
+
+    fields = {
+        "id": message.pk,
+        "username": user.user.username,
+        "pfp": user.profile_picture,
+        "text": message.text,
+        "sent": message.sent
+    }
+    return HttpResponse(json.dumps(fields, default=json_serial), content_type="application/json")
+
 
 @require_POST
 @custom_login_required

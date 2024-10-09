@@ -12,6 +12,8 @@ import SignUpPage from './pages/SignUpPage.tsx';
 import Layout from './components/Layout.tsx';
 import UserProfile from './pages/UserProfile.tsx';
 import { useUser } from './utils/auth-hooks.ts';
+import ConversationList from './pages/ConversationList.tsx';
+import MessageList from './pages/MessageList.tsx';
 
 function Main() {
 	const user = useUser()
@@ -63,6 +65,8 @@ function Main() {
 					{ path: "/", element: <HomePage /> },
 					{ path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
 					{ path: "/user-profile/:username", loader: protectedRoutes, element: <UserProfile /> },
+					{ path: "/messages", loader: protectedRoutes, element: <ConversationList /> },
+					{ path: "/messages/:conversation", loader: protectedRoutes, element: <MessageList /> },
 					{ path: "/test-chat/:room_id", loader: protectedRoutes, element: <TestChat /> },
 				]
 		},

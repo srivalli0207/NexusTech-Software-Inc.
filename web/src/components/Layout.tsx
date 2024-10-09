@@ -1,11 +1,8 @@
 import Grid from '@mui/material/Grid2'
 import { Outlet } from "react-router-dom"
 import SideBar from "./SideBar"
-import { Box, Typography, useTheme, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, IconButton, Avatar } from '@mui/material'
-import { get_follows, follows } from '../utils/fetch'
+import { Box, useTheme } from '@mui/material'
 import NexifyAppBar from './NexifyAppBar'
-import { useEffect, useState } from 'react'
-import { useUser } from '../utils/auth-hooks'
 import LayoutNames from './LayoutNames'
 
 export default function Layout() {

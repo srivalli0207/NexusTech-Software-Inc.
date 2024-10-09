@@ -19,7 +19,7 @@ class MessageConversationMember(models.Model):
 class Message(models.Model):
     message_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    conversation = models.ForeignKey(MessageConversation, on_delete=models.CASCADE)
+    conversation = models.ForeignKey(MessageConversation, on_delete=models.CASCADE, related_name="messages")
     text = models.TextField(null=True)
     sent = models.DateTimeField(auto_now_add=True)
 

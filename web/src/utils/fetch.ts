@@ -73,3 +73,22 @@ export const follow_user = async (user: string, follow: boolean) => {
    const res = await fetch_request('POST', url.href)
    return res
 }
+
+export const get_conversations = async () => {
+   const url = new URL(URLS.CONVERSATIONS);
+   const res = await fetch_request('GET', url.href)
+   return res
+}
+
+export const get_messages = async (conversation: number) => {
+   const url = new URL(URLS.MESSAGES);
+   url.searchParams.append("conversation", conversation.toString())
+   const res = await fetch_request('GET', url.href)
+   return res
+}
+
+export const send_message = async (conversation: number, text: string) => {
+   const url = new URL(URLS.SEND_MESSAGE);
+   const res = await fetch_request('POST', url.href, { conversation: conversation, text: text })
+   return res
+}

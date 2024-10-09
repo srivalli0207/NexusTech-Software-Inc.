@@ -26,6 +26,10 @@ urlpatterns = [
     path("post_submit", views.submit_post, name='submit_post'),
     path("post_delete", views.delete_post, name='delete_post'),
 
+    path("conversations", views.get_conversations, name="conversations"),
+    path("messages", views.get_messages, name="messages"),
+    path("send_message", views.send_message, name="send_message"),
+
     path("auth/csrf", views.get_csrf_token, name="get_csrf-token"),
     path("auth/session", views.get_session, name="get_session"),
     path("auth/signup", views.register_user, name="register_user"),

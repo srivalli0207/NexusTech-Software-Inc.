@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react"
-import { Box, CircularProgress, Button, TextField, Stack, useTheme } from '@mui/material'
+import { Box, CircularProgress, Button, TextField } from '@mui/material'
 import Grid from "@mui/material/Grid2";
 import PostFeedCard, { Post } from "../components/PostFeedCard"
 import { follow_user, get_is_following, get_posts } from "../utils/fetch"
@@ -15,7 +15,6 @@ export default function UserProfile() {
    const [posts, setPosts] = useState<Post[]>([]);
    const user = useUser();
    const { username } = useParams();
-   const theme = useTheme();
 
    const handleDelete = async (post: Post) => {
       await delete_post( {post_id: post.id} );
@@ -59,7 +58,7 @@ export default function UserProfile() {
    }
 
    return (
-      <Box bgcolor={theme.palette.background.default}>
+      <Box>
          {user && <Button variant="contained" disabled={followLoading} onClick={username !== undefined ? followUser : undefined}>{username === undefined || user?.username === username ? "Edit Profile" : (followLoading ? <CircularProgress color="inherit" size="1.5rem" /> : (following ? "Unfollow" : "Follow"))}</Button>}
          {(username === undefined || username === user!.username) && <UserProfilePost />}
          {loading && <CircularProgress />}

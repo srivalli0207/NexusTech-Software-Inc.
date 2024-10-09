@@ -1,5 +1,4 @@
-import { Typography, List, ListItem, IconButton, ListItemAvatar, Avatar, ListItemText } from "@mui/material";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
@@ -26,7 +25,7 @@ export default function LayoutNames() {
             Following
          </Typography>
          <List>
-            {following?.map((value, index) =>
+            {following?.map((value, _) =>
                <ListItem
                 
                >

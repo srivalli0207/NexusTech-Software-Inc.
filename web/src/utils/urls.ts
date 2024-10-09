@@ -20,6 +20,9 @@ export const URLS = Object.freeze({
    GET_FOLLOWS: `${BASE_URL}/api/test/follows`,
    GET_IS_FOLLOWING: `${BASE_URL}/api/test/is_following`,
    FOLLOW_USER: `${BASE_URL}/api/test/follow_user`,
+   CONVERSATIONS: `${BASE_URL}/api/test/conversations`,
+   MESSAGES: `${BASE_URL}/api/test/messages`,
+   SEND_MESSAGE: `${BASE_URL}/api/test/send_message`,
 })
 
 /**
