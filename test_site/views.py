@@ -1,6 +1,7 @@
 from django.core import serializers
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
+from django.db.models import Q
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.auth.models import User as django_user
@@ -197,6 +198,22 @@ def follow_user(request: HttpRequest):
         follow_obj = Follow.objects.get(user_id=request.user.id, following__user__username=request.GET.get("username"))
         follow_obj.delete()
     return JsonResponse({"following": follow}, status=200)
+
+
+@require_GET
+def get_conversation(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+    
+    user = UserProfile.objects.get(pk=request.user.pk)
+    target = UserProfile.objects.get(user__username=request.GET.get("username"))
+    conversation = MessageConversation.objects.filter(members=user).filter(members=target).first()
+    if conversation is None:
+        conversation = MessageConversation()
+        conversation.save()
+        conversation.members.add(user, target)
+    
+    return JsonResponse({"id": conversation.conversation_id}, status=200)
     
 
 @require_GET

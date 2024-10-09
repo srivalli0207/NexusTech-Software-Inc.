@@ -16,7 +16,7 @@ class MessageConversation(models.Model):
 
 class MessageConversationMember(models.Model):
     conversation = models.ForeignKey(MessageConversation, on_delete=models.CASCADE)
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="member")
 
     def __str__(self):
         return f"{self.conversation.conversation_id}-{self.pk}: {self.user.user.username}"

@@ -27,6 +27,7 @@ urlpatterns = [
     path("post_delete", views.delete_post, name='delete_post'),
 
     path("conversations", views.get_conversations, name="conversations"),
+    path("conversation", views.get_conversation, name="conversation"),
     path("messages", views.get_messages, name="messages"),
     path("send_message", views.send_message, name="send_message"),
 

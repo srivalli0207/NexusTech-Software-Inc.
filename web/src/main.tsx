@@ -63,7 +63,7 @@ function Main() {
 			children:
 				[
 					{ path: "/", element: <HomePage /> },
-					{ path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
+					// { path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
 					{ path: "/user-profile/:username", loader: protectedRoutes, element: <UserProfile /> },
 					{ path: "/messages", loader: protectedRoutes, element: <ConversationList /> },
 					{ path: "/messages/:conversation", loader: protectedRoutes, element: <MessageList /> },

@@ -74,6 +74,13 @@ export const follow_user = async (user: string, follow: boolean) => {
    return res
 }
 
+export const get_conversation = async (username: string) => {
+   const url = new URL(URLS.CONVERSATION);
+   url.searchParams.append("username", username)
+   const res = await fetch_request('GET', url.href)
+   return res
+}
+
 export const get_conversations = async () => {
    const url = new URL(URLS.CONVERSATIONS);
    const res = await fetch_request('GET', url.href)

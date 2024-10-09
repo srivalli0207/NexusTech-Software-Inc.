@@ -1,12 +1,12 @@
 import { FormEvent, useEffect, useState } from "react"
-import { Box, CircularProgress, Button, TextField } from '@mui/material'
+import { Box, CircularProgress, Button, TextField, Typography } from '@mui/material'
 import Grid from "@mui/material/Grid2";
 import PostFeedCard, { Post } from "../components/PostFeedCard"
-import { follow_user, get_is_following, get_posts } from "../utils/fetch"
+import { follow_user, get_conversation, get_is_following, get_posts } from "../utils/fetch"
 import { useUser } from "../utils/auth-hooks";
 import { submit_post, delete_post } from "../utils/fetch"
 import CSRF_Token from "../utils/csrf_token"
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function UserProfile() {
    const [loading, setLoading] = useState(true);
@@ -15,6 +15,7 @@ export default function UserProfile() {
    const [posts, setPosts] = useState<Post[]>([]);
    const user = useUser();
    const { username } = useParams();
+   const navigate = useNavigate();
 
    const handleDelete = async (post: Post) => {
       await delete_post( {post_id: post.id} );
@@ -57,9 +58,16 @@ export default function UserProfile() {
       setFollowLoading(false);
    }
 
+   const messageUser = async () => {
+      const res = await get_conversation(username!);
+      navigate(`/messages/${res.id}`);
+   }
+
    return (
       <Box>
-         {user && <Button variant="contained" disabled={followLoading} onClick={username !== undefined ? followUser : undefined}>{username === undefined || user?.username === username ? "Edit Profile" : (followLoading ? <CircularProgress color="inherit" size="1.5rem" /> : (following ? "Unfollow" : "Follow"))}</Button>}
+         <Typography variant="h1">{username}</Typography>
+         {user && <Button variant="contained" disabled={followLoading} onClick={user!.username !== username ? followUser : undefined}>{username === undefined || user?.username === username ? "Edit Profile" : (followLoading ? <CircularProgress color="inherit" size="1.5rem" /> : (following ? "Unfollow" : "Follow"))}</Button>}
+         {user && user!.username !== username && <Button variant="contained" onClick={messageUser} sx={{marginLeft: "4px"}}>Message</Button>}
          {(username === undefined || username === user!.username) && <UserProfilePost />}
          {loading && <CircularProgress />}
          <Grid container spacing={2}>
