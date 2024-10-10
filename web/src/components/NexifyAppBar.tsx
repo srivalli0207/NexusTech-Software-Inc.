@@ -1,10 +1,12 @@
-import { AppBar, Toolbar, IconButton, Typography, Avatar, Button, Menu, MenuItem } from "@mui/material";
+import { AppBar, Toolbar, IconButton, Typography, Avatar, Button, Menu, MenuItem, TextField, InputAdornment } from "@mui/material";
 //import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../utils/auth-hooks";
 import { log_out } from "../utils/auth";
 import HubIcon from '@mui/icons-material/Hub';
 import { useState } from "react";
+import PostDialog from "./PostDialog";
+import { Search } from "@mui/icons-material";
 
 
 export default function NexifyAppBar () {
@@ -28,7 +30,7 @@ export default function NexifyAppBar () {
    };
 
    return (
-      <AppBar id='Appbar-Header' position='static'>
+      <AppBar id='Appbar-Header' position='sticky'>
          <Toolbar>
             <IconButton
                size="large"
@@ -39,13 +41,31 @@ export default function NexifyAppBar () {
             >
                <HubIcon />
             </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexgrow: 1 }}>
+            <Typography variant="h6" component="div" sx={{ flexgrow: 1, color: '#E6E6FA'}}>
                Nexus
             </Typography>
+            <TextField
+               size="small"
+               sx={{marginLeft: "auto"}}
+               label="Search"
+               slotProps={{
+                  input: {
+                     startAdornment: (
+                        <InputAdornment position="start">
+                           <Search />
+                        </InputAdornment>
+                     )
+                  }
+               }}
+
+            />
             {
                user != null ?
                   <>
-                     <IconButton sx={{ marginLeft: 'auto', marginRight: '10px' }} onClick={handleClick}>
+                     <div style={{ marginLeft: "auto", marginRight: "16px" }}>
+                        <PostDialog />
+                     </div>
+                     <IconButton onClick={handleClick}>
                         <Avatar src={user!.pfp !== null ? user!.pfp : undefined}>{user!.username[0].toUpperCase()}</Avatar>
                      </IconButton>
                      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} onClick={handleClose}>

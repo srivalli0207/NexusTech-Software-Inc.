@@ -13,7 +13,6 @@ export default function LayoutNames() {
       const fetch_follows = async () => {
          if (user != null) {
             const res = await get_follows(user.username)
-            console.log('follows', res)
             setFollowing(res)
          }
       }
@@ -27,7 +26,7 @@ export default function LayoutNames() {
          </Typography>
          <List>
             {following?.map((value, _) =>
-               <ListItemButton component={Link} to={`/user-profile/${value.following.username}`}>
+               <ListItemButton key={value.pk} component={Link} to={`/user-profile/${value.following.username}`}>
                   <ListItemAvatar>
                      <Avatar>
                         <PersonIcon />

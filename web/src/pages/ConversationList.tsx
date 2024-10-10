@@ -8,6 +8,13 @@ interface Conversation {
   name: string | null,
   group: boolean,
   members: ConversationMember[]
+  last_message: {
+    id: number;
+    username: string;
+    pfp: string | null;
+    text: string;
+    sent: string;
+  } | null
 }
 
 interface ConversationMember {
@@ -45,12 +52,12 @@ function ConversationListItem({ conversation }: {conversation: Conversation}) {
         <Avatar src={conversation.members[0].pfp ?? undefined}>{conversation.members[0].username[0].toUpperCase()}</Avatar>
       </ListItemAvatar>
       <ListItemText
-        primary={conversation.name ?? conversation.members[0].username}
+        primary={conversation.name ?? conversation.members.map((member) => member.username).join(", ")}
         secondary={
-          <Fragment>
-            <Typography component="span" variant="body2" sx={{ color: "text.primary", display: "inline" }}>{conversation.members[0].username}</Typography>
-            {"— <last message here>"}
-          </Fragment>
+          conversation.last_message ? <Fragment>
+            <Typography component="span" variant="body2" sx={{ color: "text.primary", display: "inline" }}>{conversation.last_message.username}</Typography>
+            {` — ${conversation.last_message.text}`}
+          </Fragment> : "No messages"
         }
       >
       </ListItemText>

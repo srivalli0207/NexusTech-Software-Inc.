@@ -6,13 +6,13 @@ class ChatConsumer(WebsocketConsumer):
    def connect(self):
       self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
       self.room_group_name = f"chat_{self.room_name}"
+      self.user = self.scope['user']
 
       # connect to group
       async_to_sync(self.channel_layer.group_add)(
          self.room_group_name, self.channel_name
       )
 
-      print('connected')
       self.accept()
    
    def disconnect(self, close_code):
@@ -23,7 +23,6 @@ class ChatConsumer(WebsocketConsumer):
    def receive(self, text_data):
       text_data_json = json.loads(text_data)
       message = text_data_json["message"]
-      print("recieved message: ", message)
 
       # send message to group
       async_to_sync(self.channel_layer.group_send)(

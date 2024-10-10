@@ -223,10 +223,18 @@ def get_conversations(request: HttpRequest):
     
     conversations = []
     for conversation in MessageConversation.objects.filter(members__in=[request.user.id]):
+        last_message = conversation.last_message
         fields = {
             "id": conversation.pk,
             "name": conversation.name,
             "group": conversation.group,
+            "last_message": {
+                "id": last_message.pk,
+                "username": last_message.user.user.username,
+                "pfp": last_message.user.profile_picture,
+                "text": last_message.text,
+                "sent": last_message.sent
+            } if last_message is not None else None,
             "members": [{
                 "username": member.user.username,
                 "pfp": member.profile_picture
@@ -265,6 +273,8 @@ def send_message(request: HttpRequest):
     user = UserProfile.objects.get(pk=request.user.pk)
     message = Message(user=user, conversation=conversation, text=text)
     message.save()
+    conversation.last_message = message
+    conversation.save()
 
     fields = {
         "id": message.pk,

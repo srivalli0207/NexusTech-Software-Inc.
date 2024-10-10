@@ -12,14 +12,14 @@ export default function Layout() {
       <Box id='Page-Container' position='sticky' display='flex' flexDirection='column' height='100%'>
          <NexifyAppBar />
          <Box id='Page-Body' flexGrow={1}>
-            <Grid container height='100%'>
-               <Grid id='Side-Bar' bgcolor={theme.palette.background.default} size={2} sx={{ padding: '1.5rem', borderRight: 'solid 0.5px', borderColor: theme.palette.divider }}>
+            <Grid container>
+               <Grid id='Side-Bar' size={2} sx={{ padding: '1.5rem', borderRight: 'solid 0.5px', borderColor: theme.palette.divider }}>
                   <SideBar />
                </Grid>
-               <Grid id='Page-Content' bgcolor={theme.palette.background.default} size={8} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem' }}>
+               <Grid id='Page-Content' size={8} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', height: 'calc(100vh - 64px)', overflowY: "auto" }}>
                   <Outlet />
                </Grid>
-               <Grid id='Forum-Bar' bgcolor={theme.palette.background.default} size={2} sx={{ padding: '1.5rem', borderLeft: 'solid 0.5px', borderColor: theme.palette.divider }}>
+               <Grid id='Forum-Bar' size={2} sx={{ padding: '1.5rem', borderLeft: 'solid 0.5px', borderColor: theme.palette.divider }}>
                   <LayoutNames />
                </Grid>
             </Grid>

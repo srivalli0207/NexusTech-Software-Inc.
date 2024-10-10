@@ -9,6 +9,7 @@ class MessageConversation(models.Model):
     group = models.BooleanField(default=False)
     creator = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="creator", null=True, default=None)
     members = models.ManyToManyField(UserProfile, through="MessageConversationMember")
+    last_message = models.ForeignKey("Message", on_delete=models.SET_NULL, null=True, default=None)
 
     def __str__(self):
         return f"{self.conversation_id} ({self.name}): {', '.join([member.user.username for member in self.members.all()])}"
