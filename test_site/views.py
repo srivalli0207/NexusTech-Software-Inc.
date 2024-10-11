@@ -207,7 +207,7 @@ def get_conversation(request: HttpRequest):
     
     user = UserProfile.objects.get(pk=request.user.pk)
     target = UserProfile.objects.get(user__username=request.GET.get("username"))
-    conversation = MessageConversation.objects.filter(members=user).filter(members=target).first()
+    conversation = MessageConversation.objects.filter(members=user, group=False).filter(members=target).first()
     if conversation is None:
         conversation = MessageConversation()
         conversation.save()
