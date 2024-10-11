@@ -56,6 +56,12 @@ export default function MessageList() {
     };
   }, []);
 
+  useEffect(() => {
+    if (loading) return;
+    const messagesView = document.getElementById("messages-view")!;
+    messagesView.scrollTo(0, messagesView.scrollHeight)
+  }, [messages]);
+
   const handleSend = async (text: string) => {
     const res = await send_message(parseInt(conversation!), text);
     setMessages([...messages, res]);
@@ -67,7 +73,7 @@ export default function MessageList() {
       {loading && <CircularProgress />}
       {!loading && (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <div style={{ height: "100%", overflowY: "auto" }}>
+          <div style={{ height: "100%", overflowY: "auto" }} id="messages-view">
             {messages.map((message) => (
               <MessageBubble message={message} key={message.id} />
             ))}
