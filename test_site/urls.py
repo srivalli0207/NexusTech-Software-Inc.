@@ -35,5 +35,7 @@ urlpatterns = [
     path("auth/session", views.get_session, name="get_session"),
     path("auth/signup", views.register_user, name="register_user"),
     path("auth/login", views.login_user, name="login_user"),
-    path("auth/logout", views.logout_user, name="logout_user")
+    path("auth/logout", views.logout_user, name="logout_user"),
+
+    path("search_users", views.search_users, name="search_users"),
 ]

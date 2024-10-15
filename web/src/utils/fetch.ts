@@ -99,3 +99,10 @@ export const send_message = async (conversation: number, text: string) => {
    const res = await fetch_request('POST', url.href, { conversation: conversation, text: text })
    return res
 }
+
+export const search_users = async (search_query: string) => {
+   const url = new URL(URLS.SEARCH_USERS)
+   url.searchParams.append("query", search_query)
+   const res = await fetch_request('GET', url.href)
+   return res
+}

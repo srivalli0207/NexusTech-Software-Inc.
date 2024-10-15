@@ -302,6 +302,16 @@ def delete_post(request: HttpRequest):
     data: dict = json.loads(request.body)
     post_id = data.get("post_id")
     post = Post.objects.get(pk=post_id)
-    print(post)
     post.delete()
     return JsonResponse({'message': 'post request processed'}, status=200)
+
+@require_GET
+def search_users(request: HttpRequest):
+    username_query = request.GET['query']
+    users = django_user.objects.filter(username__icontains=username_query)
+
+    print(username_query, users)
+
+
+    return JsonResponse([user.username for user in users], safe=False, status=200)
+
