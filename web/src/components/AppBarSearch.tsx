@@ -1,54 +1,77 @@
 import { Search } from "@mui/icons-material";
 import { Autocomplete, InputAdornment, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { search_users } from "../utils/fetch";
 
 export default function AppBarSearch() {
-  const [value, setValue] = useState("");
-  const navigate = useNavigate();
-  const [searchOptions, setSearchOptions] = useState<string[]>([])
+	const [searchString, setSearchString] = useState("");
+	const [isLoading, setIsLoading] = useState(false)
+	const navigate = useNavigate();
+	const [searchOptions, setSearchOptions] = useState<string[]>([])
 
+	useEffect(() => {
+		const timerCallback = async () => {
+			const res = await search_users(searchString);
 
-  return (
-    <Autocomplete
-      freeSolo={true}
-      disableClearable={true}
-      options={searchOptions}
-      sx={{ marginLeft: "auto", width: "20vw" }}
-      value={value}
-      onInputChange={async (_, value: string, __) => {
-        if (value) {
-          const res = await search_users(value);
-          setSearchOptions(res);
-        } else {
-          setSearchOptions([]);
-        }
-      }}
-      onChange={(_, value) => {
-        if (value) {
-          navigate("/user-profile/" + value);
-          setValue("");
-        }
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          size="small"
-          label="Search"
-          slotProps={{
-            input: {
-              ...params.InputProps,
-              type: "search",
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-      )}
-    />
-  );
+			if (res.length > 0) {
+				setSearchOptions(res)
+			}
+			else {
+				setSearchOptions(['No results'])
+			}
+
+			setIsLoading(false)
+		}
+
+		let timeout: number
+
+		if (searchString.length > 0) {
+			setIsLoading(true)
+			timeout = setTimeout(timerCallback, 1000)
+		}
+		else {
+			setSearchOptions([]);
+		}
+
+		return () => {
+			clearTimeout(timeout)
+		}
+	}, [searchString])
+
+	return (
+		<Autocomplete
+			filterOptions={(x) => x}
+			freeSolo={true}
+			disableClearable={true}
+			options={isLoading ? ['Loading...'] : searchOptions}
+			sx={{ marginLeft: "auto", width: "20vw" }}
+			value={searchString}
+			onInputChange={(_, value, __) => setSearchString(value)}
+			onChange={(_, value) => {
+				if (value) {
+					navigate("/user-profile/" + value);
+					setSearchString("");
+				}
+			}}
+			renderInput={(params) => (
+				<TextField
+					{...params}
+					size="small"
+					label="Search"
+					slotProps={{
+						input: {
+							...params.InputProps,
+							type: "search",
+							startAdornment: (
+								<InputAdornment position="start">
+									<Search />
+								</InputAdornment>
+							),
+						},
+					}}
+				/>
+			)}
+		/>
+	);
 }
