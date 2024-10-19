@@ -45,7 +45,6 @@ export default function AppBarSearch() {
 			freeSolo={true}
 			disableClearable={true}
 			options={isLoading ? ['Loading...'] : searchOptions}
-			sx={{ marginLeft: "auto", width: "20vw" }}
 			value={searchString}
 			onInputChange={(_, value, __) => setSearchString(value)}
 			onChange={(_, value) => {

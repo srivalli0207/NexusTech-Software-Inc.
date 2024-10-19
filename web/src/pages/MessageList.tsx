@@ -96,7 +96,6 @@ function MessageBubble({ message }: { message: Message }) {
       spacing={1}
       justifyItems={isSender ? "flex-end" : "flex-start"}
       justifyContent={isSender ? "flex-end" : "flex-start"}
-		//overflow={'hidden'}
     >
       {!isSender && (
         <Grid size={1}>
