@@ -118,9 +118,6 @@ function UserProfileInner() {
           Message
         </Button>
       )}
-      {(username === undefined || username === user!.username) && (
-        <UserProfilePost />
-      )}
       {loading && <CircularProgress />}
       <Grid container spacing={2}>
         {posts.map((post, index) => {
@@ -131,45 +128,6 @@ function UserProfileInner() {
           );
         })}
       </Grid>
-    </Box>
-  );
-}
-
-export function UserProfilePost() {
-  const submitPost = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    let formObject = Object.fromEntries(formData.entries()) as { text: string };
-    await submit_post({ text: formObject.text });
-  };
-
-  return (
-    <Box
-      component="form"
-      //sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' }}}
-      noValidate
-      autoComplete="off"
-      onSubmit={submitPost}
-    >
-      <CSRF_Token />
-      <TextField
-        sx={{ width: "100%" }}
-        name="text"
-        label="Text Post"
-        multiline
-        required
-        maxRows={5}
-      />
-      <div style={{ display: "flex" }}>
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{ margin: "1rem 0 1rem auto" }}
-        >
-          Make a Post
-        </Button>
-      </div>
     </Box>
   );
 }

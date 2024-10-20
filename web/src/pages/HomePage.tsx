@@ -1,7 +1,10 @@
 // import { useState } from 'react'
+import { Box, Fab } from '@mui/material'
 import '../styles/App.css'
 import '../styles/index.css'
 import Typography from '@mui/material/Typography'
+import CreateIcon from '@mui/icons-material/Create';
+import PostDialog from '../components/PostDialog';
 
 // type ButtonOptions = 
 // {
@@ -50,7 +53,12 @@ export default function HomePage() {
   // }
 
   return (
-    <Typography variant="h1">WIP :)</Typography>
+    <Box>
+      <Box sx={{ display: { md: "none", xs: "inline" } }}>
+        <PostDialog fab />
+      </Box>
+      <Typography variant="h1">WIP :)</Typography>
+    </Box>
   )
 /*
   return (

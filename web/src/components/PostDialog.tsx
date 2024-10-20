@@ -4,45 +4,65 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import ImageIcon from "@mui/icons-material/Image";
+import CreateIcon from '@mui/icons-material/Create';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Fragment, useState } from 'react';
-import { IconButton } from '@mui/material';
+import { CircularProgress, DialogContentText, Fab, IconButton, Typography } from '@mui/material';
+import { submit_post } from '../utils/fetch';
 
-export default function PostDialog() {
+export default function PostDialog({ fab = false }: { fab: boolean}) {
   const [open, setOpen] = useState(false);
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState("");
+  const [textInput, setTextInput] = useState("");
 
   const handleClickOpen = () => {
     setOpen(true);
+    setPosting(false);
+    setPostError("");
+    setTextInput("");
   };
 
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleText = (event: any) => {
+    setTextInput(event.target.value);
+  };
+
+  const handlePost = () => {
+    setPosting(true);
+    submit_post({ text: textInput }).then(() => {
+      setOpen(false);
+    }).catch((err) => {
+      setPostError(err);
+      setPosting(false);
+    });
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" && event.ctrlKey) {
+      console.log(event);
+      handlePost();
+    }
+  };
+
   return (
     <Fragment>
-      <Button variant="contained" onClick={handleClickOpen}>Create Post</Button>
+      {!fab 
+        ? <Button variant="contained" onClick={handleClickOpen}>Create Post</Button> 
+        : <Fab sx={{ position: "absolute", bottom: "72px", right: "16px", display: { md: "none", xs: "inline" } }} color="primary" onClick={handleClickOpen}>
+            <CreateIcon />
+          </Fab>
+      }
       <Dialog
         open={open}
         onClose={handleClose}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries((formData as any).entries());
-            const email = formJson.email;
-            console.log(email);
-            handleClose();
-          },
-        }}
       >
         <DialogTitle>Create Post</DialogTitle>
         <DialogContent sx={{ width: "50vh" }}>
-          {/* <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
-          </DialogContentText> */}
+          {postError && <DialogContentText>{postError}</DialogContentText>}
           <TextField
             autoFocus
             margin="dense"
@@ -51,18 +71,21 @@ export default function PostDialog() {
             label="Text"
             fullWidth
             multiline
-            maxRows={3}
             rows={3}
             variant="standard"
+            disabled={posting}
+            onChange={handleText}
+            onKeyDown={handleKeyDown}
           />
         </DialogContent>
         <DialogActions>
-          <IconButton onClick={() => console.log("ok")}>
+          <IconButton onClick={handlePost}>
             <ImageIcon color="primary" />
           </IconButton>
+          <Typography sx={{ color: textInput.length > 300 ? "red" : undefined }}>{300 - textInput.length}</Typography>
           <div style={{ flex: "1 0 0" }} />
           <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained">Post</Button>
+          <Button variant="contained" disabled={posting || !textInput || textInput.length > 300} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
         </DialogActions>
       </Dialog>
     </Fragment>
