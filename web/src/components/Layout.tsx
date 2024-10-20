@@ -17,7 +17,7 @@ export default function Layout() {
                <Grid size={{ md: 2, xs: 0 }} sx={{ p: 2, borderRight: 'solid 0.5px', borderColor: theme.palette.divider, display: { md: "inline", xs: "none" } }}>
                   <SideBar />
                </Grid>
-               <Grid size={{ md: 8, xs: 12 }} sx={{ p: 2, height: { md: 'calc(100vh - 64px)', xs: 'calc(100vh - 120px)' }, overflowY: "auto" }}>
+               <Grid size={{ md: 8, xs: 12 }} sx={{ p: 0, height: { md: 'calc(100vh - 64px)', xs: 'calc(100vh - 120px)' }, overflowY: "auto" }}>
                   <Outlet />
                </Grid>
                <Grid size={{ md: 2, xs: 0 }} sx={{ p: 2, borderLeft: 'solid 0.5px', borderColor: theme.palette.divider, display: { md: "inline", xs: "none" } }}>

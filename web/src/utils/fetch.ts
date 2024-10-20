@@ -106,3 +106,10 @@ export const search_users = async (search_query: string) => {
    const res = await fetch_request('GET', url.href)
    return res as string[]
 }
+
+export const get_user = async (username: string) => {
+   const url = new URL(URLS.GET_USER)
+   url.searchParams.append("username", username)
+   const res = await fetch_request('GET', url.href)
+   return res
+}

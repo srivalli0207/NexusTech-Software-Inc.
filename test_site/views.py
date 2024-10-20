@@ -309,9 +309,24 @@ def delete_post(request: HttpRequest):
 def search_users(request: HttpRequest):
     username_query = request.GET['query']
     users = django_user.objects.filter(username__icontains=username_query)
-
-    print(username_query, users)
-
-
     return JsonResponse([user.username for user in users], safe=False, status=200)
 
+@require_GET
+def get_user(request: HttpRequest):
+    username_query = request.GET['username']
+    profile = UserProfile.objects.get(user__username=username_query)
+    user = profile.user
+    fields = {
+        "username": user.username,
+        "displayName": profile.display_name,
+        "pfp": profile.profile_picture,
+        "banner": profile.banner,
+        "pronouns": profile.pronouns,
+        "verified": profile.verified,
+        "bio": profile.bio,
+        "following": None
+    }
+    if request.user.is_authenticated:
+        follow_obj = Follow.objects.filter(user_id=request.user.id, following__user__username=username_query).first()
+        fields["following"] = follow_obj is not None
+    return JsonResponse(fields, status=200)

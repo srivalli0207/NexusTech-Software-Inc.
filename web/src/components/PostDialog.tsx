@@ -59,9 +59,10 @@ export default function PostDialog({ fab = false }: { fab: boolean}) {
       <Dialog
         open={open}
         onClose={handleClose}
+        fullWidth
       >
         <DialogTitle>Create Post</DialogTitle>
-        <DialogContent sx={{ width: "50vh" }}>
+        <DialogContent>
           {postError && <DialogContentText>{postError}</DialogContentText>}
           <TextField
             autoFocus

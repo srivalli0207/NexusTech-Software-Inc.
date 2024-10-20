@@ -25,6 +25,7 @@ export const URLS = Object.freeze({
    MESSAGES: `${BASE_URL}/api/test/messages`,
    SEND_MESSAGE: `${BASE_URL}/api/test/send_message`,
    SEARCH_USERS: `${BASE_URL}/api/test/search_users`,
+   GET_USER: `${BASE_URL}/api/test/user`,
 })
 
 /**

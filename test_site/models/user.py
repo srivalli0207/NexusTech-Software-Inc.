@@ -6,11 +6,12 @@ from django.utils.translation import gettext_lazy as _
 class UserProfile(models.Model):
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, primary_key=True)
     profile_picture = models.URLField(null=True, default=None)
+    banner = models.URLField(null=True, default=None)
     bio = models.TextField(null=True, default=None)
     pronouns = models.CharField(max_length=32, null=True, default=None)
     verified = models.BooleanField(default=False)
     online_status = models.BooleanField(default=False)
-    real_name = models.CharField(max_length=128, null=True, default=None)
+    display_name = models.CharField(max_length=128, null=True, default=None)
     privacy = models.BooleanField(default=True)
 
     def natural_key(self):
