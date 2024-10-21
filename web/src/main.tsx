@@ -14,6 +14,8 @@ import UserProfile from './pages/UserProfile.tsx';
 import { useUser } from './utils/auth-hooks.ts';
 import ConversationList from './pages/ConversationList.tsx';
 import MessageList from './pages/MessageList.tsx';
+import { SnackbarProvider } from './utils/SnackbarContext.tsx';
+import BookmarksPage from './pages/BookmarksPage.tsx';
 
 function Main() {
 	const user = useUser()
@@ -64,9 +66,10 @@ function Main() {
 				[
 					{ path: "/", element: <HomePage /> },
 					// { path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
-					{ path: "/user-profile/:username",loader: protectedRoutes, element: <UserProfile/>},
+					{ path: "/user-profile/:username", loader: protectedRoutes, element: <UserProfile/>},
 					{ path: "/messages", loader: protectedRoutes, element: <ConversationList /> },
 					{ path: "/messages/:conversation", loader: protectedRoutes, element: <MessageList /> },
+					{ path: "/bookmarks", loader: protectedRoutes, element: <BookmarksPage /> },
 					{ path: "/test-chat/:room_id", loader: protectedRoutes, element: <TestChat /> },
 				]
 		},
@@ -97,8 +100,10 @@ function Main() {
 
 	return (
 		<ThemeProvider theme={theme}>
-			<CssBaseline />
-			<RouterProvider router={router} />
+			<SnackbarProvider>
+				<CssBaseline />
+				<RouterProvider router={router} />
+			</SnackbarProvider>
 		</ThemeProvider>
 	);
 }

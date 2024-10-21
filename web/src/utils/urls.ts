@@ -18,7 +18,8 @@ export const URLS = Object.freeze({
    SUBMIT_POST: `${BASE_URL}/api/test/post_submit`,
    DELETE_POST: `${BASE_URL}/api/test/post_delete`,
    GET_FOLLOWS: `${BASE_URL}/api/test/follows`,
-   GET_IS_FOLLOWING: `${BASE_URL}/api/test/is_following`,
+   GET_FOLLOWERS: `${BASE_URL}/api/test/followers`,
+   GET_FOLLOWING: `${BASE_URL}/api/test/following`,
    FOLLOW_USER: `${BASE_URL}/api/test/follow_user`,
    CONVERSATION: `${BASE_URL}/api/test/conversation`,
    CONVERSATIONS: `${BASE_URL}/api/test/conversations`,
@@ -26,6 +27,11 @@ export const URLS = Object.freeze({
    SEND_MESSAGE: `${BASE_URL}/api/test/send_message`,
    SEARCH_USERS: `${BASE_URL}/api/test/search_users`,
    GET_USER: `${BASE_URL}/api/test/user`,
+   GET_FEED: `${BASE_URL}/api/test/feed`,
+   GET_LIKES: `${BASE_URL}/api/test/likes`,
+   LIKE_POST: `${BASE_URL}/api/test/like_post`,
+   GET_BOOKMARKS: `${BASE_URL}/api/test/bookmarks`,
+   BOOKMARK_POST: `${BASE_URL}/api/test/bookmark_post`,
 })
 
 /**

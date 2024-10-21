@@ -2,12 +2,12 @@ import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton 
 import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
-import { get_follows, follows } from "../utils/fetch";
+import { get_follows, UserResponse } from "../utils/fetch";
 import { Link } from "react-router-dom";
 
 export default function LayoutNames() {
    const user = useUser()
-   const [following, setFollowing] = useState<follows[]>()
+   const [following, setFollowing] = useState<UserResponse[]>()
 
    useEffect(() => {
       const fetch_follows = async () => {
@@ -26,14 +26,14 @@ export default function LayoutNames() {
          </Typography>
          <List>
             {following?.map((value, _) =>
-               <ListItemButton key={value.pk} component={Link} to={`/user-profile/${value.following.username}`}>
+               <ListItemButton key={`layout-following-${value.username}`} component={Link} to={`/user-profile/${value.username}`} replace={true}>
                   <ListItemAvatar>
                      <Avatar>
                         <PersonIcon />
                      </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                     primary={value.following.username}
+                     primary={value.username}
                   />
                </ListItemButton>
             )}

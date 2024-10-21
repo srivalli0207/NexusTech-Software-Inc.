@@ -9,10 +9,11 @@ urlpatterns = [
     path("user_blocks", views.user_blocks, name="user_blocks"),
     path("comments", views.comments, name="comments"),
     # path("sessions", views.sessions, name="sessions"),
-    path("follows", views.follows, name="follows"),
+    path("follows", views.get_follows, name="follows"),
     path("posts", views.get_posts, name="posts"),
-    path("is_following", views.get_is_following, name="is_following"),
     path("follow_user", views.follow_user, name="follow_user"),
+    path("followers", views.get_followers, name="get_followers"),
+    path("following", views.get_following, name="get_following"),
     path("post_likes", views.post_likes, name="post_likes"),
     path("post_bookmarks", views.post_bookmarks, name="post_bookmarks"),
     path("post_medias", views.post_medias, name="post_medias"),
@@ -38,5 +39,10 @@ urlpatterns = [
     path("auth/logout", views.logout_user, name="logout_user"),
 
     path("search_users", views.search_users, name="search_users"),
-    path("user", views.get_user, name="get_user")
+    path("user", views.get_user, name="get_user"),
+    path("feed", views.get_feed, name="get_feed"),
+    path("likes", views.get_likes, name="get_likes"),
+    path("bookmarks", views.get_bookmarks, name="get_bookmarks"),
+    path("like_post", views.like_post, name="like_post"),
+    path("bookmark_post", views.bookmark_post, name="bookmark_post"),
 ]

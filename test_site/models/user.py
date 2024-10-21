@@ -13,6 +13,10 @@ class UserProfile(models.Model):
     online_status = models.BooleanField(default=False)
     display_name = models.CharField(max_length=128, null=True, default=None)
     privacy = models.BooleanField(default=True)
+    likes = models.ManyToManyField("Post", through="PostLike", related_name="liked_posts")
+    bookmarks = models.ManyToManyField("Post", through="PostBookmark", related_name="bookmarked_posts")
+    followers = models.ManyToManyField("UserProfile", through="Follow", through_fields=("following", "user"), related_name="following_users")
+    following = models.ManyToManyField("UserProfile", through="Follow", through_fields=("user", "following"), related_name="followed_users")
 
     def natural_key(self):
         return {

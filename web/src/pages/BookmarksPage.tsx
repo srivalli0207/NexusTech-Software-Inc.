@@ -5,10 +5,10 @@ import Typography from '@mui/material/Typography'
 import PostDialog from '../components/PostDialog';
 import { useUser } from '../utils/auth-hooks';
 import { useEffect, useState } from 'react';
-import { get_feed, PostResponse } from '../utils/fetch';
+import { get_bookmarks, PostResponse } from '../utils/fetch';
 import PostFeedCard from '../components/PostFeedCard';
 
-export default function HomePage() {
+export default function BookmarksPage() {
   const user = useUser();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useState<PostResponse[]>([])
@@ -17,7 +17,7 @@ export default function HomePage() {
     if (!user) return;
 
     setLoading(true);
-    get_feed().then((res) => {
+    get_bookmarks().then((res) => {
       setPosts(res);
       setLoading(false);
     }).catch((err) => {
@@ -31,14 +31,13 @@ export default function HomePage() {
 
   return (
     <Box p={2}>
-      {!user && <Typography variant="h1">WIP :)</Typography>}
       {user &&
         <>
           <Box sx={{ display: { md: "none", xs: "inline" } }}>
             <PostDialog fab />
           </Box>
           {loading && <CircularProgress />}
-          {!loading && posts.length === 0 && <Typography>No posts found.</Typography>}
+          {!loading && posts.length === 0 && <Typography>No bookmarks found.</Typography>}
           <Stack spacing={2}>
             {posts.map((post, index) => {
               return (

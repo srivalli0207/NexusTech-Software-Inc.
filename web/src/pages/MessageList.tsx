@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { get_messages, send_message } from "../utils/fetch";
+import { get_messages, MessageResponse, send_message } from "../utils/fetch";
 import { useParams } from "react-router-dom";
 import {
   Avatar,
@@ -15,17 +15,9 @@ import {
 import { useUser } from "../utils/auth-hooks";
 import { blue, grey } from "@mui/material/colors";
 
-interface Message {
-  id: number;
-  username: string;
-  pfp: string | null;
-  text: string;
-  sent: string;
-}
-
 export default function MessageList() {
   const [loading, setLoading] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageResponse[]>([]);
   const { conversation } = useParams();
   const chatSocket = useRef<WebSocket>();
   const user = useUser();
@@ -44,8 +36,8 @@ export default function MessageList() {
     chatSocket.current.onmessage = (e: MessageEvent) => {
       const data = JSON.parse(e.data);
       if ("message" in data) {
-        const msg: Message = data.message;
-        if (msg.username !== user!.username) {
+        const msg: MessageResponse = data.message;
+        if (msg.user.username !== user!.username) {
           setMessages((messages) => [...messages, msg])
         }
       }
@@ -69,7 +61,7 @@ export default function MessageList() {
   };
 
   return (
-    <Box sx={{ height: "100%" }}>
+    <Box sx={{ height: "100%", p: 2 }}>
       {loading && <CircularProgress />}
       {!loading && (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -85,10 +77,10 @@ export default function MessageList() {
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({ message }: { message: MessageResponse }) {
   const user = useUser();
   const theme = useTheme();
-  const isSender = message.username === user!.username;
+  const isSender = message.user.username === user!.username;
 
   return (
     <Grid
@@ -99,9 +91,9 @@ function MessageBubble({ message }: { message: Message }) {
     >
       {!isSender && (
         <Grid size={1}>
-          <Tooltip title={message.username}>
-            <Avatar src={message.pfp ?? undefined} sx={{ float: "right" }}>
-              {message.username[0].toUpperCase()}
+          <Tooltip title={message.user.username}>
+            <Avatar src={message.user.profilePicture ?? undefined} sx={{ float: "right" }}>
+              {message.user.username[0].toUpperCase()}
             </Avatar>
           </Tooltip>
         </Grid>
@@ -124,9 +116,9 @@ function MessageBubble({ message }: { message: Message }) {
       </Grid>
       {isSender && (
         <Grid size={1}>
-          <Tooltip title={message.username}>
-            <Avatar src={message.pfp ?? undefined}>
-              {message.username[0].toUpperCase()}
+          <Tooltip title={message.user.username}>
+            <Avatar src={message.user.profilePicture ?? undefined}>
+              {message.user.username[0].toUpperCase()}
             </Avatar>
           </Tooltip>
         </Grid>

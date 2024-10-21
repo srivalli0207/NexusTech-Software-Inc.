@@ -18,6 +18,8 @@ class Post(models.Model):
     location_tag = models.TextField(null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+    likers = models.ManyToManyField(UserProfile, through="PostLike", related_name="liker")
+    bookmarkers = models.ManyToManyField(UserProfile, through="PostBookmark", related_name="bookmarker")
 
     def __str__(self):
         return f"{self.post_id}: {self.user.user.username} - {self.text}"
@@ -34,6 +36,7 @@ class PostLike(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     like = models.BooleanField(default=True)
+    datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
@@ -44,6 +47,7 @@ class PostLike(models.Model):
 class PostBookmark(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [

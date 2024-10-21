@@ -48,17 +48,6 @@ def comments(request: HttpRequest):
 # def sessions(request: HttpRequest):
 #     return response(Session.objects.all())
 
-def follows(request: HttpRequest):
-    username = request.GET['user']
-    user = django_user.objects.filter(username=username)
-    profile = UserProfile.objects.filter(user=user[0])
-
-    following = Follow.objects.filter(user=profile[0])
-    #print(following.values_list('following', flat=True)[0])
-
-    return response(following)
-
-
 # def posts(request: HttpRequest):
 #     return response(Post.objects.all())
 
@@ -166,22 +155,87 @@ def register_user(request: HttpRequest, ):
     else:
         return JsonResponse({"message": "Login failed!","user": None}, status=409)
 
+def serialize_user(user: UserProfile):
+    fields = {
+        "username": user.user.username,
+        "displayName": user.display_name,
+        "profilePicture": user.profile_picture,
+        "bio": user.bio,
+        "verified": user.verified
+    }
+    return fields
+
+def serialize_user_profile(user: UserProfile, auth_user: django_user = None):
+    fields = {
+        **serialize_user(user),
+        "banner": user.banner,
+        "pronouns": user.pronouns,
+        "following": None,
+        "followingYou": None,
+        "followerCount": user.followers.count(),
+        "followingCount": user.following.count(),
+        "blocking": None,
+        "blockingYou": None
+    }
+
+    if auth_user is not None:
+        following_obj = Follow.objects.filter(user_id=auth_user.id, following=user).first()
+        follows_obj = Follow.objects.filter(user=user, following__user=auth_user.id).first()
+        fields["following"] = following_obj is not None
+        fields["followingYou"] = follows_obj is not None
+
+    return fields
+
+def serialize_post(post: Post, request: HttpRequest = None):
+    fields = {
+        "id": post.post_id,
+        "user": serialize_user(post.user),
+        "text": post.text,
+        "date": post.creation_date,
+        "media": [],
+        "actions": None
+    }
+
+    if request is not None and request.user.is_authenticated:
+        actions = {
+            "liked": like.like if (like := PostLike.objects.filter(user_id=request.user.id, post_id=post.post_id).first()) is not None else None,
+            "bookmarked": post.bookmarkers.filter(user_id=request.user.id).first() is not None,
+        }
+        fields["actions"] = actions
+
+    return fields
+
+def serialize_message(message: Message):
+    fields = {
+        "id": message.pk,
+        "user": serialize_user(message.user),
+        "text": message.text,
+        "sent": message.sent,
+        "media": []
+    }
+    return fields
+
+def serialize_conversation(conversation: MessageConversation, request: HttpRequest):
+    fields = {
+        "id": conversation.conversation_id,
+        "name": conversation.name,
+        "group": conversation.group,
+        "lastMessage": serialize_message(conversation.last_message) if conversation.last_message is not None else None,
+        "members": [serialize_user(member) for member in conversation.members.all() if member.pk != request.user.pk]
+    }
+    return fields
+
 @require_GET
 def get_posts(request: HttpRequest):
     if (username := request.GET.get("username")) is not None:
-        return response(Post.objects.filter(user__user__username=username))
+        posts = Post.objects.filter(user__user__username=username)
     elif request.user.is_authenticated:
-        return response(Post.objects.filter(user_id=request.user.id))
+        posts = Post.objects.filter(user_id=request.user.id)
     else:
-        return response(Post.objects.all())
-
-@require_GET
-def get_is_following(request: HttpRequest):
-    if request.user.is_authenticated:
-        obj = Follow.objects.filter(user_id=request.user.id, following__user__username=request.GET.get("username"))
-        return JsonResponse({"following": len(obj) > 0}, status=200)
-    else:
-        return JsonResponse({"message": "User is unauthenticated"}, status=401)
+        posts = Post.objects.all()
+    
+    posts_response = [serialize_post(post, request) for post in posts.order_by("-creation_date")]
+    return HttpResponse(json.dumps(posts_response, default=json_serial), content_type="application/json")
 
 @require_POST
 def follow_user(request: HttpRequest):
@@ -199,6 +253,13 @@ def follow_user(request: HttpRequest):
         follow_obj.delete()
     return JsonResponse({"following": follow}, status=200)
 
+
+def get_follows(request: HttpRequest):
+    username = request.GET['user']
+    profile = UserProfile.objects.get(user__username=username)
+    following = profile.following.all()
+    fields = [serialize_user(user) for user in following]
+    return JsonResponse(fields, status=200, safe=False)
 
 @require_GET
 def get_conversation(request: HttpRequest):
@@ -221,27 +282,7 @@ def get_conversations(request: HttpRequest):
     if not request.user.is_authenticated:
         return JsonResponse({"message": "User is unauthenticated"}, status=401)
     
-    conversations = []
-    for conversation in MessageConversation.objects.filter(members__in=[request.user.id]):
-        last_message = conversation.last_message
-        fields = {
-            "id": conversation.pk,
-            "name": conversation.name,
-            "group": conversation.group,
-            "last_message": {
-                "id": last_message.pk,
-                "username": last_message.user.user.username,
-                "pfp": last_message.user.profile_picture,
-                "text": last_message.text,
-                "sent": last_message.sent
-            } if last_message is not None else None,
-            "members": [{
-                "username": member.user.username,
-                "pfp": member.profile_picture
-            } for member in conversation.members.all() if member.pk != request.user.pk]
-        }
-        conversations.append(fields)
-    
+    conversations = [serialize_conversation(conversation, request) for conversation in MessageConversation.objects.filter(members__in=[request.user.id])]
     return HttpResponse(json.dumps(conversations, default=json_serial), content_type="application/json")
 
 @require_GET
@@ -249,17 +290,7 @@ def get_messages(request: HttpRequest):
     if not request.user.is_authenticated:
         return JsonResponse({"message": "User is unauthenticated"}, status=401)
     
-    messages = []
-    for message in Message.objects.filter(conversation_id=int(request.GET.get("conversation"))).order_by("sent"):
-        fields = {
-            "id": message.pk,
-            "username": message.user.user.username,
-            "pfp": message.user.profile_picture,
-            "text": message.text,
-            "sent": message.sent
-        }
-        messages.append(fields)
-    
+    messages = [serialize_message(message) for message in Message.objects.filter(conversation_id=int(request.GET.get("conversation"))).order_by("sent")]
     return HttpResponse(json.dumps(messages, default=json_serial), content_type="application/json")
 
 @require_POST
@@ -276,13 +307,7 @@ def send_message(request: HttpRequest):
     conversation.last_message = message
     conversation.save()
 
-    fields = {
-        "id": message.pk,
-        "username": user.user.username,
-        "pfp": user.profile_picture,
-        "text": message.text,
-        "sent": message.sent
-    }
+    fields = serialize_message(message)
     return HttpResponse(json.dumps(fields, default=json_serial), content_type="application/json")
 
 
@@ -294,7 +319,7 @@ def submit_post(request: HttpRequest):
     user = UserProfile.objects.filter(user__username=request.user.username)[0]
     post = Post(user=user,text=text, comment_setting=Post.PostCommentSetting.NONE)
     post.save()
-    return JsonResponse({'message': 'post request processed'}, status=200)
+    return JsonResponse(serialize_post(post, request), status=200)
 
 @require_http_methods(['DELETE'])
 @custom_login_required
@@ -308,25 +333,88 @@ def delete_post(request: HttpRequest):
 @require_GET
 def search_users(request: HttpRequest):
     username_query = request.GET['query']
-    users = django_user.objects.filter(username__icontains=username_query)
-    return JsonResponse([user.username for user in users], safe=False, status=200)
+    users = UserProfile.objects.filter(user__username__icontains=username_query)
+    return JsonResponse([serialize_user(user) for user in users], safe=False, status=200)
 
 @require_GET
 def get_user(request: HttpRequest):
     username_query = request.GET['username']
     profile = UserProfile.objects.get(user__username=username_query)
-    user = profile.user
-    fields = {
-        "username": user.username,
-        "displayName": profile.display_name,
-        "pfp": profile.profile_picture,
-        "banner": profile.banner,
-        "pronouns": profile.pronouns,
-        "verified": profile.verified,
-        "bio": profile.bio,
-        "following": None
-    }
-    if request.user.is_authenticated:
-        follow_obj = Follow.objects.filter(user_id=request.user.id, following__user__username=username_query).first()
-        fields["following"] = follow_obj is not None
+    fields = serialize_user_profile(profile, request.user if request.user.is_authenticated else None)
     return JsonResponse(fields, status=200)
+
+@require_GET
+def get_followers(request: HttpRequest):
+    username_query = request.GET['username']
+    profile = UserProfile.objects.get(user__username=username_query)
+    followers = profile.followers.all()
+    fields = [serialize_user(user) for user in followers]
+    return JsonResponse(fields, status=200, safe=False)
+
+@require_GET
+def get_following(request: HttpRequest):
+    username_query = request.GET['username']
+    profile = UserProfile.objects.get(user__username=username_query)
+    following = profile.following.all()
+    fields = [serialize_user(user) for user in following]
+    return JsonResponse(fields, status=200, safe=False)
+
+@require_GET
+def get_feed(request: HttpRequest):
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    following_ids = [following.pk for following in profile.following.all()]
+    following_ids.append(request.user.id)
+    posts = [serialize_post(post, request) for post in Post.objects.filter(user__in=following_ids).order_by("-creation_date")]
+    return JsonResponse(posts, status=200, safe=False)
+
+@require_GET
+def get_likes(request: HttpRequest):
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    likes = profile.likes.all().order_by("-postlike__datetime")
+    posts = [serialize_post(like, request) for like in likes]
+    return JsonResponse(posts, status=200, safe=False)
+
+@require_POST
+def like_post(request: HttpRequest):
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    post_id = int(request.GET.get("post"))
+    liked = request.GET.get("like") == "true"
+    post = Post.objects.get(post_id=post_id)
+
+    res = None
+    if (like := PostLike.objects.filter(user=profile, post_id=post_id).first()) is not None:
+        if like.like != liked:
+            like.like = liked
+            like.save()
+            res = liked
+        else:
+            like.delete()
+            res = None
+    else:
+        like = PostLike(post=post, user=profile, like=liked)
+        like.save()
+        res = liked
+    return JsonResponse({"liked": res}, status=200)
+
+@require_GET
+def get_bookmarks(request: HttpRequest):
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    bookmarks = profile.bookmarks.all().order_by("-postlike__datetime")
+    posts = [serialize_post(bookmark, request) for bookmark in bookmarks]
+    return JsonResponse(posts, status=200, safe=False)
+
+@require_POST
+def bookmark_post(request: HttpRequest):
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    post_id = int(request.GET.get("post"))
+    post = Post.objects.get(post_id=post_id)
+
+    res = None
+    if (bookmark := profile.bookmarks.filter(post_id=post_id).first()) is not None:
+        profile.bookmarks.remove(bookmark)
+        res = False
+    else:
+        bookmark = PostBookmark(post=post, user=profile)
+        bookmark.save()
+        res = True
+    return JsonResponse({"bookmarked": res}, status=200)

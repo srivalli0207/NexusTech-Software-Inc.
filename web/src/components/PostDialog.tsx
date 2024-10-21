@@ -9,12 +9,14 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Fragment, useState } from 'react';
 import { CircularProgress, DialogContentText, Fab, IconButton, Typography } from '@mui/material';
 import { submit_post } from '../utils/fetch';
+import { useSnackbar } from '../utils/SnackbarContext';
 
-export default function PostDialog({ fab = false }: { fab: boolean}) {
+export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [open, setOpen] = useState(false);
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState("");
   const [textInput, setTextInput] = useState("");
+  const snackbar = useSnackbar();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -35,6 +37,7 @@ export default function PostDialog({ fab = false }: { fab: boolean}) {
     setPosting(true);
     submit_post({ text: textInput }).then(() => {
       setOpen(false);
+      snackbar({ open: true, message: "Post sent!" })
     }).catch((err) => {
       setPostError(err);
       setPosting(false);
@@ -77,6 +80,8 @@ export default function PostDialog({ fab = false }: { fab: boolean}) {
             disabled={posting}
             onChange={handleText}
             onKeyDown={handleKeyDown}
+            error={textInput.length > 300}
+            helperText={textInput.length > 300 ? "Max text length is 300." : undefined}
           />
         </DialogContent>
         <DialogActions>
