@@ -369,7 +369,8 @@ def get_feed(request: HttpRequest):
 
 @require_GET
 def get_likes(request: HttpRequest):
-    profile = UserProfile.objects.get(user_id=request.user.id)
+    username_query = request.GET['username']
+    profile = UserProfile.objects.get(user__username=username_query)
     likes = profile.likes.all().order_by("-postlike__datetime")
     posts = [serialize_post(like, request) for like in likes]
     return JsonResponse(posts, status=200, safe=False)
