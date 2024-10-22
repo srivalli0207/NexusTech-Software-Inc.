@@ -1,6 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
+from test_site.models.user import UserProfile
 
 class ChatConsumer(WebsocketConsumer):
    def connect(self):
@@ -35,4 +36,33 @@ class ChatConsumer(WebsocketConsumer):
       message = event["message"]
       self.send(text_data=json.dumps({"message": message}))
 
+
+online: set[str] = set()
+
+class StatusConsumer(WebsocketConsumer):
+   profile: UserProfile
+
+   def connect(self):
+      username = str(self.scope["user"])
+      self.profile = UserProfile.objects.get(user__username=username)
+      print("connected:", self.profile.display_name or self.profile.user.username)
+
+      # connect to group
+      async_to_sync(self.channel_layer.group_add)(
+         'status_group', self.channel_name
+      )
+
+      self.accept()
+      online.add(username)
+      async_to_sync(self.channel_layer.group_send)(
+         "status_group", {"type": "status.message", "message": "+" + username}
+      )
    
+   def disconnect(self, close_code):
+      username = str(self.scope["user"])
+      async_to_sync(self.channel_layer.group_discard)(
+         "status_group", self.channel_name
+      )
+      async_to_sync(self.channel_layer.group_send)(
+         "status_group", {"type": "status.message", "message": "-" + username}
+      )

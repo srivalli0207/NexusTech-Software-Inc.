@@ -16,9 +16,9 @@ import Menu from "@mui/material/Menu";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { blue, green, red, yellow } from "@mui/material/colors";
-import { CardActionArea } from "@mui/material";
+import { CardActionArea, Tooltip } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { bookmark_post, delete_post, like_post, PostResponse } from "../utils/fetch";
+import { bookmark_post, delete_post, get_user, like_post, PostResponse, UserProfileResponse } from "../utils/fetch";
 
 export default function PostFeedCard({ post, onDelete }: { post: PostResponse, onDelete: (post: PostResponse) => void }) {
     const [liked, setPostLiked] = useState(post.actions?.liked);
@@ -26,6 +26,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
     const date = new Date(post.date);
     const user = useUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [profile, setProfile] = useState<UserProfileResponse | null>(null);
     const open = Boolean(anchorEl);
     const snackbar = useSnackbar();
 
@@ -64,11 +65,49 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
       })
     }
 
+    const handleTooltipOpen = async () => {
+      if (profile !== null) return;
+
+      const res = await get_user(post.user.username);
+      setProfile(res);
+    }
+
+    const handleAvatarClick = (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      console.log("ok2");
+    }
+
     return (
       <Card sx={{ textAlign: "left" }}>
         <CardActionArea onClick={() => console.log("ok")}>
           <CardHeader
-            avatar={<Avatar aria-label="pfp" src={post.user.profilePicture ?? undefined}>{post.user.username[0].toUpperCase()}</Avatar>}
+            avatar={
+              <Tooltip enterDelay={500} onOpen={handleTooltipOpen} slotProps={profile === null ? {} : {tooltip: { sx: { width: 200 } }}} title={
+                profile ? <>
+                  <Card>
+                    <CardHeader
+                      title={profile.displayName ?? profile.username}
+                      subheader={`@${profile.username}`}
+                      avatar={
+                        <Avatar aria-label="pfp" src={profile.profilePicture ?? undefined}>
+                          {profile.username[0].toUpperCase()}
+                        </Avatar>
+                      }
+                      sx={{ backgroundImage: `url(${profile.banner})`, backgroundSize: "cover", backdropFilter: "blur(8px)" }}
+                    />
+                    <CardContent>
+                      <Typography variant="body2">{profile.bio ?? "No information given."}</Typography>
+                    </CardContent>
+                  </Card>
+                </> : "Loading..."
+              }>
+                {/* <IconButton onClick={() => console.log("ok2")}> */}
+                  <Avatar aria-label="pfp" src={post.user.profilePicture ?? undefined} onClick={handleAvatarClick}>
+                    {post.user.username[0].toUpperCase()}
+                  </Avatar>
+                {/* </IconButton> */}
+              </Tooltip>
+            }
             action={
               <IconButton
                 aria-label="settings"

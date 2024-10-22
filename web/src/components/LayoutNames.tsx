@@ -1,8 +1,7 @@
-import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton, Badge } from "@mui/material";
-import PersonIcon from '@mui/icons-material/Person';
+import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton, Badge } from "@mui/material"; 
 import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
-import { get_follows, UserResponse } from "../utils/fetch";
+import { get_follows, UserResponse} from "../utils/fetch";
 import { Link } from "react-router-dom";
 
 export default function LayoutNames() {
@@ -44,8 +43,8 @@ export default function LayoutNames() {
                            },
                         }}
                      >
-                        <Avatar>
-                           <PersonIcon />
+                        <Avatar aria-label="pfp" src={value.profilePicture ?? undefined}>
+                           {value.profilePicture ? null : value.username[0].toUpperCase()}
                         </Avatar>
                      </Badge>
                   </ListItemAvatar>

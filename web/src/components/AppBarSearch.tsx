@@ -32,6 +32,7 @@ export default function AppBarSearch() {
 		}
 		else {
 			setSearchOptions([]);
+			setIsLoading(false)
 		}
 
 		return () => {
