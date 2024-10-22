@@ -1,4 +1,4 @@
-import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton } from "@mui/material";
+import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton, Badge } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
@@ -6,18 +6,18 @@ import { get_follows, UserResponse } from "../utils/fetch";
 import { Link } from "react-router-dom";
 
 export default function LayoutNames() {
-   const user = useUser()
-   const [following, setFollowing] = useState<UserResponse[]>()
+   const user = useUser();
+   const [following, setFollowing] = useState<UserResponse[]>();
 
    useEffect(() => {
       const fetch_follows = async () => {
          if (user != null) {
-            const res = await get_follows(user.username)
-            setFollowing(res)
+            const res = await get_follows(user.username);
+            setFollowing(res);
          }
-      }
-      fetch_follows()
-   }, [])
+      };
+      fetch_follows();
+   }, []);
 
    return (
       <>
@@ -25,19 +25,34 @@ export default function LayoutNames() {
             Following
          </Typography>
          <List>
-            {following?.map((value, _) =>
+            {following?.map((value) => (
                <ListItemButton key={`layout-following-${value.username}`} component={Link} to={`/user-profile/${value.username}`} replace={true}>
                   <ListItemAvatar>
-                     <Avatar>
-                        <PersonIcon />
-                     </Avatar>
+                     <Badge
+                        overlap="circular"
+                        anchorOrigin={{
+                           vertical: 'bottom',
+                           horizontal: 'right',
+                        }}
+                        variant="dot"
+                        sx={{
+                           '& .MuiBadge-dot': {
+                              backgroundColor: value.isOnline ? 'green' : 'red',
+                              height: '12px',
+                              width: '12px',
+                              borderRadius: '50%',
+                           },
+                        }}
+                     >
+                        <Avatar>
+                           <PersonIcon />
+                        </Avatar>
+                     </Badge>
                   </ListItemAvatar>
-                  <ListItemText
-                     primary={value.username}
-                  />
+                  <ListItemText primary={value.username} />
                </ListItemButton>
-            )}
+            ))}
          </List>
       </>
-   )
+   );
 }
