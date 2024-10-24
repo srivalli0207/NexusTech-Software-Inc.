@@ -16,6 +16,7 @@ import ConversationList from './pages/ConversationList.tsx';
 import MessageList from './pages/MessageList.tsx';
 import { SnackbarProvider } from './utils/SnackbarContext.tsx';
 import BookmarksPage from './pages/BookmarksPage.tsx';
+import { StatusProvider } from './utils/StatusContext.tsx';
 
 function Main() {
 	const user = useUser()
@@ -113,7 +114,9 @@ ReactDOM.createRoot(
 ).render(
 	<React.StrictMode>
 		<AuthContextProvider>
-			<Main />
+			<StatusProvider>
+				<Main />
+			</StatusProvider>
 		</AuthContextProvider>
 	</React.StrictMode>
 );

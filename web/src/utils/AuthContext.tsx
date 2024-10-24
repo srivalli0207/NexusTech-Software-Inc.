@@ -16,20 +16,12 @@ type AuthContextProviderProp = {
 export function AuthContextProvider({children}: AuthContextProviderProp) {
    const [auth, setAuth] = useState<UserAuth>(null)
    const [loading, setLoading] = useState(true)
-   const statusSocket = useRef<WebSocket>();
 
    const on_auth_changed = (e: any) => {
-      if (e.detail.user === null) {
+      if (e.detail.user === undefined) {
          setAuth(null);
-         if (statusSocket.current?.readyState === WebSocket.OPEN) {
-            statusSocket.current.close();
-            statusSocket.current = undefined;
-         }
       } else {
          setAuth(e.detail.user);
-         if (!statusSocket.current) {
-            statusSocket.current = new WebSocket(`ws://${window.location.host}/ws/status/`);
-         }
       }
    }
 
@@ -44,10 +36,6 @@ export function AuthContextProvider({children}: AuthContextProviderProp) {
 
       return () => {
          document.removeEventListener('nexify.auth.changed', on_auth_changed);
-         if (statusSocket.current?.readyState === WebSocket.OPEN) {
-            statusSocket.current.close();
-            statusSocket.current = undefined;
-         }
       }
    }, [])
 

@@ -3,10 +3,13 @@ import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
 import { get_follows, UserResponse} from "../utils/fetch";
 import { Link } from "react-router-dom";
+import { useStatus } from "../utils/StatusContext";
 
 export default function LayoutNames() {
    const user = useUser();
    const [following, setFollowing] = useState<UserResponse[]>();
+   const statuses = useStatus();
+   console.log(statuses);
 
    useEffect(() => {
       const fetch_follows = async () => {
@@ -36,7 +39,7 @@ export default function LayoutNames() {
                         variant="dot"
                         sx={{
                            '& .MuiBadge-dot': {
-                              backgroundColor: value.isOnline ? 'green' : 'red',
+                              backgroundColor: statuses.has(value.username) ? 'green' : 'red',
                               height: '12px',
                               width: '12px',
                               borderRadius: '50%',

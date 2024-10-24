@@ -6,8 +6,7 @@ export type UserResponse = {
    displayName: string | null,
    profilePicture: string | null,
    bio: string | null,
-   verified: boolean,
-   isOnline: boolean
+   verified: boolean
 }
 
 export type UserProfileResponse = UserResponse & {
