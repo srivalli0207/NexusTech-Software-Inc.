@@ -32,6 +32,7 @@ export const URLS = Object.freeze({
    LIKE_POST: `${BASE_URL}/api/test/like_post`,
    GET_BOOKMARKS: `${BASE_URL}/api/test/bookmarks`,
    BOOKMARK_POST: `${BASE_URL}/api/test/bookmark_post`,
+   UPDATE_PROFILE: `${BASE_URL}/api/test/update_profile`,
 })
 
 /**

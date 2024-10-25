@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   Box,
   CircularProgress,
@@ -12,6 +12,11 @@ import {
   IconButton,
   Chip,
   List,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  DialogActions,
 } from "@mui/material";
 import MessageIcon from "@mui/icons-material/Message";
 import PostFeedCard from "../components/PostFeedCard";
@@ -24,12 +29,15 @@ import {
   get_posts,
   get_user,
   PostResponse,
+  SetProfileRequest,
+  update_profile,
   UserProfileResponse,
   UserResponse,
 } from "../utils/fetch";
 import { useUser } from "../utils/auth-hooks";
 import { useNavigate, useParams } from "react-router-dom";
 import UserListItem from "../components/UserListItem";
+import { useSnackbar } from "../utils/SnackbarContext";
 
 export default function UserProfile() {
   const { username } = useParams();
@@ -63,6 +71,7 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
   const [followLoading, setFollowLoading] = useState(false);
   const navigate = useNavigate();
   const isSelf = user?.username === username;
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
 
   const followUser = async () => {
     setFollowLoading(true);
@@ -75,6 +84,15 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
     const res = await get_conversation(username!);
     navigate(`/messages/${res.id}`);
   };
+
+  const onProfileUpdate = (formData: SetProfileRequest) => {
+    profile.displayName = formData.displayName;
+    profile.pronouns = formData.pronouns;
+    profile.bio = formData.bio;
+    profile.profilePicture = formData.profilePicture;
+    profile.banner = formData.banner;
+    forceUpdate();
+  }
 
   return (
     <Box sx={{ textAlign: "left" }}>
@@ -89,9 +107,10 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
           {user?.username !== username && <IconButton onClick={messageUser}>
             <MessageIcon />
           </IconButton>}
+          {isSelf ? <UserProfileEditButton profile={profile} onUpdate={onProfileUpdate} /> : 
           <Button sx={{ marginLeft: "16px" }} variant="contained" onClick={!isSelf ? followUser : undefined} disabled={followLoading}>
-            {!followLoading ? (isSelf ? "Edit Profile" : !profile.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
-          </Button>
+            {!followLoading ? (!profile.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
+          </Button>}
         </Box>
         <Box sx={{ height: "56px" }} />
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
@@ -232,5 +251,137 @@ function UserProfileFollowTab({ following }: { following: boolean }) {
         {follows.map((user) => <UserListItem user={user} key={`user-list-item-${user.username}`} />)}
       </List>
     </Box>
+  )
+}
+
+function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: UserProfileResponse, onUpdate?: (profile: SetProfileRequest) => void }) {
+  const [open, setOpen] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [formState, setFormState] = useState<SetProfileRequest>({
+    displayName: null,
+    pronouns: null,
+    bio: null,
+    profilePicture: null,
+    banner: null
+  })
+  const snackbar = useSnackbar();
+
+  const handleClickOpen = () => {
+    setFormState({
+      displayName: profile.displayName,
+      pronouns: profile.pronouns,
+      bio: profile.bio,
+      profilePicture: profile.profilePicture,
+      banner: profile.banner
+    })
+    
+    setUpdating(false);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleUpdate = async () => {
+    setUpdating(true);
+    update_profile(formState).then(() => {
+      setOpen(false);
+      setUpdating(false);
+      snackbar({ open: true, message: "Profile updated!" });
+      if (onUpdate) onUpdate(formState);
+    }).catch((err) => {
+      console.error(err);
+      setUpdating(false);
+    })
+  }
+
+  const handleText = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    console.log(event)
+    setFormState((state) => {
+      const old = Object.assign({}, state);
+      (old as any)[event.target.name] = event.target.value ?? null;
+      return old;
+    })
+  }
+
+  return (
+    <>
+      <Button variant="contained" onClick={handleClickOpen}>Edit Profile</Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullWidth
+      >
+        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="displayName"
+            name="displayName"
+            label="Display Name"
+            variant="standard"
+            disabled={updating}
+            value={formState.displayName}
+            onChange={handleText}
+          />
+          <br />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="pronounns"
+            name="pronouns"
+            label="Pronouns"
+            variant="standard"
+            disabled={updating}
+            value={formState.pronouns}
+            onChange={handleText}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="bio"
+            name="bio"
+            label="Bio"
+            fullWidth
+            multiline
+            rows={3}
+            variant="standard"
+            disabled={updating}
+            value={formState.bio}
+            onChange={handleText}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="profilePicture"
+            name="profilePicture"
+            label="Profile Picture URL"
+            fullWidth
+            variant="standard"
+            disabled={updating}
+            value={formState.profilePicture}
+            onChange={handleText}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="banner"
+            name="banner"
+            label="Banner URL"
+            fullWidth
+            variant="standard"
+            disabled={updating}
+            value={formState.banner}
+            onChange={handleText}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button variant="contained" disabled={updating} onClick={handleUpdate}>{!updating ? "Submit" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   )
 }

@@ -376,6 +376,16 @@ def get_likes(request: HttpRequest):
     return JsonResponse(posts, status=200, safe=False)
 
 @require_POST
+def update_profile(request: HttpRequest):
+    data: dict = json.loads(request.body)
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    profile.display_name = data["displayName"]
+    profile.bio = data["bio"]
+    profile.pronouns = data["pronouns"]
+    profile.save()
+    return JsonResponse({"message": "Profile updated!"}, status=200)
+
+@require_POST
 def like_post(request: HttpRequest):
     profile = UserProfile.objects.get(user_id=request.user.id)
     post_id = int(request.GET.get("post"))
@@ -400,7 +410,7 @@ def like_post(request: HttpRequest):
 @require_GET
 def get_bookmarks(request: HttpRequest):
     profile = UserProfile.objects.get(user_id=request.user.id)
-    bookmarks = profile.bookmarks.all().order_by("-postlike__datetime")
+    bookmarks = profile.bookmarks.all().order_by("-postbookmark__datetime")
     posts = [serialize_post(bookmark, request) for bookmark in bookmarks]
     return JsonResponse(posts, status=200, safe=False)
 
