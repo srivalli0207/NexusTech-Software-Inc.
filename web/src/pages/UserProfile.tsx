@@ -300,7 +300,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     console.log(event)
     setFormState((state) => {
       const old = Object.assign({}, state);
-      (old as any)[event.target.name] = event.target.value ?? null;
+      (old as any)[event.target.name] = event.target.value || null;
       return old;
     })
   }
