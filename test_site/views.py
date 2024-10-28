@@ -382,6 +382,8 @@ def update_profile(request: HttpRequest):
     profile.display_name = data["displayName"]
     profile.bio = data["bio"]
     profile.pronouns = data["pronouns"]
+    profile.profile_picture = data["profilePicture"]
+    profile.banner = data["banner"]
     profile.save()
     return JsonResponse({"message": "Profile updated!"}, status=200)
 
