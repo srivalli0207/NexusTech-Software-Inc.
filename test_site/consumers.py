@@ -1,6 +1,10 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nexus_site.settings")
+django.setup()
 from test_site.models.user import UserProfile
 
 class ChatConsumer(WebsocketConsumer):
