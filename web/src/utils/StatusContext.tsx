@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useUser } from "./auth-hooks";
 
 export type StatusProps = Set<String>;
 
@@ -11,6 +12,7 @@ type StatusProviderProp = {
 export function StatusProvider({ children }: StatusProviderProp) {
     const [online, setOnline] = useState<StatusProps>(new Set());
     const statusSocket = useRef<WebSocket>();
+    const user = useUser();
 
     const onSocketOpen = (_: Event)=> {
         statusSocket.current!.onmessage = onSocketMessage;
@@ -20,8 +22,8 @@ export function StatusProvider({ children }: StatusProviderProp) {
         setOnline(new Set(JSON.parse(ev.data).message))
     }
 
-    const onAuthChanged = (e: any) => {
-        if (e.detail.user === undefined) {
+    const onAuthChanged = () => {
+        if (user === undefined) {
             if (statusSocket.current?.readyState === WebSocket.OPEN) {
                statusSocket.current.close();
                statusSocket.current = undefined;
@@ -35,16 +37,15 @@ export function StatusProvider({ children }: StatusProviderProp) {
     }
 
     useEffect(() => {
-        document.addEventListener('nexify.auth.changed', onAuthChanged)
+        onAuthChanged();
   
         return () => {
-           document.removeEventListener('nexify.auth.changed', onAuthChanged);
            if (statusSocket.current?.readyState === WebSocket.OPEN) {
               statusSocket.current.close();
               statusSocket.current = undefined;
            }
         }
-     }, [])
+     }, [user])
 
     return (
         <StatusContext.Provider value={online}>
