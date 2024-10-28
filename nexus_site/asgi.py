@@ -13,7 +13,8 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from channels.auth import AuthMiddlewareStack
-from chat.routing import websocket_urlpatterns
+from django.urls import re_path
+from test_site import consumers
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nexus_site.settings")
 
@@ -23,7 +24,10 @@ application = ProtocolTypeRouter(
    {
       "http": django_asgi_app,
       "websocket": AllowedHostsOriginValidator(
-         AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+         AuthMiddlewareStack(URLRouter([
+            re_path(r"ws/chat/(?P<room_name>\w+)/$", consumers.ChatConsumer.as_asgi()),
+            re_path(r"ws/status/$", consumers.StatusConsumer.as_asgi())
+         ]))
       ), 
    }
 )

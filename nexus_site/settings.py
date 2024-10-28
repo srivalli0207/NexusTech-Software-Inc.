@@ -37,7 +37,6 @@ INSTALLED_APPS = [
 
     # User apps
     "test_site",
-    "chat",
 
     "django.contrib.admin",
     "django.contrib.auth",
