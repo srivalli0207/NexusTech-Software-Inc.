@@ -45,4 +45,5 @@ urlpatterns = [
     path("bookmarks", views.get_bookmarks, name="get_bookmarks"),
     path("like_post", views.like_post, name="like_post"),
     path("bookmark_post", views.bookmark_post, name="bookmark_post"),
+    path("update_profile", views.update_profile, name="update_profile")
 ]

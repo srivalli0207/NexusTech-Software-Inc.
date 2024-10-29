@@ -1,6 +1,10 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nexus_site.settings")
+django.setup()
 from test_site.models.user import UserProfile
 
 class ChatConsumer(WebsocketConsumer):
@@ -55,14 +59,20 @@ class StatusConsumer(WebsocketConsumer):
       self.accept()
       online.add(username)
       async_to_sync(self.channel_layer.group_send)(
-         "status_group", {"type": "status.message", "message": "+" + username}
+         "status_group", {"type": "status.message", "message": list(online)}
       )
    
    def disconnect(self, close_code):
       username = str(self.scope["user"])
+      print("disconect")
+      online.discard(username)
+      async_to_sync(self.channel_layer.group_send)(
+         "status_group", {"type": "status.message", "message": list(online)}
+      )
       async_to_sync(self.channel_layer.group_discard)(
          "status_group", self.channel_name
       )
-      async_to_sync(self.channel_layer.group_send)(
-         "status_group", {"type": "status.message", "message": "-" + username}
-      )
+
+   def status_message(self, event):
+      message = event["message"]
+      self.send(text_data=json.dumps({"message": message}))

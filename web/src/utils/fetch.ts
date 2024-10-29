@@ -6,8 +6,7 @@ export type UserResponse = {
    displayName: string | null,
    profilePicture: string | null,
    bio: string | null,
-   verified: boolean,
-   isOnline: boolean
+   verified: boolean
 }
 
 export type UserProfileResponse = UserResponse & {
@@ -64,7 +63,15 @@ export type ConversationResponse = {
    members: UserResponse[]
 }
 
-const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number }) => {
+export type SetProfileRequest = {
+   displayName: string | null,
+   pronouns: string | null,
+   bio: string | null,
+   profilePicture: string | null,
+   banner: string | null
+}
+
+const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number | null }) => {
    const options: { [key: string]: any } = {
       method,
       headers: {
@@ -204,5 +211,11 @@ export const bookmark_post = async (postId: number): Promise<BookmarkResponse> =
    url.searchParams.append("post", postId.toString())
    const res = await fetch_request('POST', url.href)
    return res
+}
+
+export const update_profile = async (profile: SetProfileRequest): Promise<void> => {
+   const url = new URL(URLS.UPDATE_PROFILE);
+   const res = await fetch_request("POST", url.href, profile);
+   return res;
 }
 
