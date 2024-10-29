@@ -1,11 +1,11 @@
-// UserProfileBuilder.ts
+
 interface UserProfile {
     username: string;
     email: string;
     password: string;
-    // Additional fields can be added here as optional
+    // Any other fields but I'm keeping it the same for now
  }
- 
+ // Builder pattern class allowing profile building with step-by-step construction
  class UserProfileBuilder {
     private userProfile: Partial<UserProfile> = {};
  
@@ -24,7 +24,7 @@ interface UserProfile {
        return this;
     }
  
-    // Add methods for any additional optional fields as needed
+    // Can add other methods if we decide to put optional fields in create account
  
     build(): UserProfile {
        if (!this.userProfile.username || !this.userProfile.email || !this.userProfile.password) {
