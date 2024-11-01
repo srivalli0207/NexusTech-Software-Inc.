@@ -3,7 +3,11 @@ interface UserProfile {
     username: string;
     email: string;
     password: string;
-    // Any other fields but I'm keeping it the same for now
+    displayName?: string;
+    pronouns?: string;
+    bio?: string;
+    profilePicture?: string;
+    banner?: string;
  }
  // Builder pattern class allowing profile building with step-by-step construction
  class UserProfileBuilder {
@@ -24,7 +28,30 @@ interface UserProfile {
        return this;
     }
  
-    // Can add other methods if we decide to put optional fields in create account
+    setDisplayName(displayName: string): UserProfileBuilder {
+      this.userProfile.displayName = displayName;
+      return this;
+    }
+
+    setPronouns(pronouns: string): UserProfileBuilder {
+      this.userProfile.pronouns = pronouns;
+      return this;
+    }
+
+    setBio(bio: string): UserProfileBuilder {
+      this.userProfile.bio = bio;
+      return this;
+    }
+
+    setProfilePicture(profilePicture: string): UserProfileBuilder {
+      this.userProfile.profilePicture = profilePicture;
+      return this;
+    }
+
+    setBanner(banner: string): UserProfileBuilder {
+      this.userProfile.banner = banner;
+      return this;
+    }
  
     build(): UserProfile {
        if (!this.userProfile.username || !this.userProfile.email || !this.userProfile.password) {
