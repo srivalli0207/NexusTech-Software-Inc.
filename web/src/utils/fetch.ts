@@ -71,7 +71,7 @@ export type SetProfileRequest = {
    banner: string | null
 }
 
-const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number | null }) => {
+const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number | File[] | null }) => {
    const options: { [key: string]: any } = {
       method,
       headers: {
@@ -100,7 +100,7 @@ export const get_posts = async (username?: string): Promise<PostResponse[]> => {
    return res;
 }
 
-export const submit_post = async (data: { text: string }): Promise<PostResponse> => {
+export const submit_post = async (data: { text: string, files: File[] | null }): Promise<PostResponse> => {
    const res = await fetch_request('POST', createRedirectUrl(URLS.SUBMIT_POST), data)
    return res
 }
@@ -108,6 +108,20 @@ export const submit_post = async (data: { text: string }): Promise<PostResponse>
 export const delete_post = async (data: { post_id: number }): Promise<void> => {
    const res = await fetch_request('DELETE', createRedirectUrl(URLS.DELETE_POST), data)
    return res
+}
+
+export const upload_file = async (file: File): Promise<void> => {
+   const formData = new FormData();
+   formData.append("file", file, file.name);
+   const res = await fetch(URLS.UPLOAD_FILE, {
+      method: "POST",
+      body: formData,
+      headers: {
+         "X-CSRFToken": getCSRFTokenFromCookie(),
+      }
+   });
+   console.log(res);
+   // return res;
 }
 
 export const get_follows = async (user: string): Promise<UserResponse[]> => {

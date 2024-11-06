@@ -6,6 +6,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.auth.models import User as django_user
 from django.contrib.auth import authenticate, login, logout
+from django.core.files.storage import FileSystemStorage
 from datetime import datetime, date, time
 import json
 from .models import *
@@ -31,7 +32,6 @@ def response(objects):
         fields = {"pk": d.get("pk"), **d["fields"]}
         ret.append(fields)
     return HttpResponse(json.dumps(ret, default=json_serial), content_type="application/json")
-
 
 def users(request: HttpRequest):
     return response(UserProfile.objects.all())
@@ -329,6 +329,18 @@ def delete_post(request: HttpRequest):
     post = Post.objects.get(pk=post_id)
     post.delete()
     return JsonResponse({'message': 'post request processed'}, status=200)
+
+@require_POST
+@custom_login_required
+def upload_file(request: HttpRequest):
+    file = request.FILES["file"]
+    # with open(f"static/{file.name}", "wb") as dest:
+    #     for chunk in file.chunks():
+    #         dest.write(chunk)
+    fs = FileSystemStorage()
+    fs_file = fs.save(file.name, file)
+    file_url = fs.url(fs_file)
+    return JsonResponse({"message": file_url}, status=200)
 
 @require_GET
 def search_users(request: HttpRequest):

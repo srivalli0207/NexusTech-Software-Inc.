@@ -17,6 +17,7 @@ export const URLS = Object.freeze({
    POSTS: `${BASE_URL}/api/test/posts`,
    SUBMIT_POST: `${BASE_URL}/api/test/post_submit`,
    DELETE_POST: `${BASE_URL}/api/test/post_delete`,
+   UPLOAD_FILE: `${BASE_URL}/api/test/upload_file`,
    GET_FOLLOWS: `${BASE_URL}/api/test/follows`,
    GET_FOLLOWERS: `${BASE_URL}/api/test/followers`,
    GET_FOLLOWING: `${BASE_URL}/api/test/following`,

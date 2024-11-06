@@ -6,9 +6,9 @@ import DialogContent from '@mui/material/DialogContent';
 import ImageIcon from "@mui/icons-material/Image";
 import CreateIcon from '@mui/icons-material/Create';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Fragment, useState } from 'react';
-import { CircularProgress, DialogContentText, Fab, IconButton, Typography } from '@mui/material';
-import { submit_post } from '../utils/fetch';
+import React, { Fragment, useState } from 'react';
+import { CircularProgress, DialogContentText, Fab, IconButton, ImageList, ImageListItem, styled, Typography } from '@mui/material';
+import { submit_post, upload_file } from '../utils/fetch';
 import { useSnackbar } from '../utils/SnackbarContext';
 
 export default function PostDialog({ fab = false }: { fab?: boolean}) {
@@ -16,26 +16,42 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState("");
   const [textInput, setTextInput] = useState("");
+  const [imageFile, setImageFile] = useState<FileList | null>(null)
   const snackbar = useSnackbar();
+  const maxWords = 300;
+
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  const wordCount = getWordCount(textInput);
+  const remainingWords = maxWords - wordCount;
 
   const handleClickOpen = () => {
     setOpen(true);
     setPosting(false);
+    setImageFile(null);
     setPostError("");
     setTextInput("");
   };
 
   const handleClose = () => {
     setOpen(false);
+    setImageFile(null);
   };
 
   const handleText = (event: any) => {
     setTextInput(event.target.value);
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     setPosting(true);
-    submit_post({ text: textInput }).then(() => {
+    if (imageFile) {
+      for (const file of imageFile) {
+        await upload_file(file)
+      }
+    }
+    submit_post({ text: textInput, files: imageFile ? Array.from(imageFile) : null }).then(() => {
       setOpen(false);
       snackbar({ open: true, message: "Post sent!" })
     }).catch((err) => {
@@ -50,6 +66,26 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
       handlePost();
     }
   };
+
+  const handleFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null || event.target.files.length > 4) return;
+    
+    setImageFile(event.target.files);
+    
+
+  }
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
 
   return (
     <Fragment>
@@ -80,18 +116,43 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
             disabled={posting}
             onChange={handleText}
             onKeyDown={handleKeyDown}
-            error={textInput.length > 300}
-            helperText={textInput.length > 300 ? "Max text length is 300." : undefined}
-          />
-        </DialogContent>
+            error={wordCount > maxWords}
+            helperText={wordCount > maxWords ? "Max text length is 300." : undefined} />
+          {imageFile && (
+            <>
+              <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
+                Selected Images: {Array.from(imageFile).slice(0, 4).map((file) => file.name).join(", ")}
+              </Typography>
+              <ImageList cols={2} gap={8} sx={{ width: 400, height: 400 }}>
+                {Array.from(imageFile).slice(0, 4).map((file) => (
+                  <ImageListItem key={file.name} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                    <img 
+                      src={URL.createObjectURL(file)}
+                      alt={file.name} 
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
+            </>
+          )}
+          </DialogContent>
         <DialogActions>
-          <IconButton onClick={handlePost}>
+          <IconButton component="label" role={undefined}>
             <ImageIcon color="primary" />
+            <VisuallyHiddenInput
+              type="file"
+              onChange={handleFiles}
+              multiple
+              accept="image/png, image/jpeg"
+            />
           </IconButton>
-          <Typography sx={{ color: textInput.length > 300 ? "red" : undefined }}>{300 - textInput.length}</Typography>
+          <Typography sx={{ color: wordCount > maxWords ? "red" : undefined }}>
+            {remainingWords >= 0 ? `${remainingWords} words remaining` : "Word limit exceeded"}
+          </Typography>
           <div style={{ flex: "1 0 0" }} />
           <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" disabled={posting || !textInput || textInput.length > 300} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
+          <Button variant="contained" disabled={posting || !textInput || wordCount > maxWords} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
         </DialogActions>
       </Dialog>
     </Fragment>
