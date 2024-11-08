@@ -1,5 +1,5 @@
 from django.test import TestCase
-from test_site.models.user import UserProfile
+from test_site.models.user import UserProfile, Follow, UserBlock
 from django.contrib.auth import get_user_model
 from django.test import Client
 
@@ -48,13 +48,17 @@ class UserProfileTests(TestCase):
         self.assertEqual(user.bio, None)
     
     def test_user_follow(self):
-        ...
-    
+        Follow.objects.create(user=self.user1, following=self.user2)
+        self.assertTrue(Follow.objects.filter(user=self.user1, following=self.user2).exists(), "User 1 follows User 2")
+
     def test_user_unfollow(self):
-        ...
+        Follow.objects.create(user=self.user1, following=self.user2)
+        Follow.objects.filter(user=self.user1, following=self.user2).delete()
+        self.assertFalse(Follow.objects.filter(user=self.user1, following=self.user2).exists(), "User 1 no longer follows User 2")
     
     def test_user_block(self):
-        ...
+        UserBlock.objects.create(user=self.user1, blocked=self.user2)
+        self.assertTrue(UserBlock.objects.filter(user=self.user1, blocked=self.user2).exists(), "User 1 blocked User 2")
     
     def test_user_report(self):
         ...
