@@ -10,7 +10,6 @@ class UserProfileTests(TestCase):
     user1: UserProfile
     user2: UserProfile
     
-    # Test 1
     def setUp(self):
         self.user1 = UserProfile.create_user("tester", "test@gmail.com", "testing123")
         self.user2 = UserProfile.create_user("tester2", "test2@gmail.com", "testing456")
@@ -61,6 +60,12 @@ class UserProfileTests(TestCase):
         self.assertTrue(UserBlock.objects.filter(user=self.user1, blocked=self.user2).exists(), "User 1 blocked User 2")
     
     def test_user_report(self):
+        ...
+
+class PostTests(TestCase):
+    def setUp(self):
+        ... 
+    def test_create_post(self):
         ...
 
     
