@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User as DjangoUser
 from django.utils.translation import gettext_lazy as _
+import re
 
 
 class UserProfile(models.Model):
@@ -23,6 +24,73 @@ class UserProfile(models.Model):
             "username": self.user.username,
             "pfp": self.profile_picture
         }
+    
+    @staticmethod
+    def create_user(username: str, email: str, password: str) -> "UserProfile":
+        if username == "" or username.isspace():
+            raise Exception("Usename is empty")
+        if email == "" or email.isspace():
+            raise Exception("Email is empty")
+        if password == "" or password.isspace():
+            raise Exception("Password is empty")
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            raise Exception("Email is invalid")
+        if UserProfile.objects.filter(user__username=username).exists():
+            raise Exception("Username already exists")
+        if UserProfile.objects.filter(user__email=email).exists():
+            raise Exception("Email already exists")
+
+        user = DjangoUser.objects.create_user(username=username, email=email, password=password)
+        user_profile = UserProfile.objects.create(user=user)
+        user_profile.save()
+        return user_profile
+    
+    def update_profile(self,
+                       display_name: str | None = None,
+                       profile_picture: str | None = None,
+                       banner: str | None = None,
+                       bio: str | None = None,
+                       pronouns: str | None = None,
+                       ):
+        self.display_name = display_name if display_name != "" and not display_name.isspace() else None
+        self.profile_picture = profile_picture if profile_picture != "" and not profile_picture.isspace() else None
+        self.banner = banner if banner != "" and not banner.isspace() else None
+        self.bio = bio if bio != "" and not bio.isspace() else None
+        self.pronouns = pronouns if pronouns != "" and not pronouns.isspace() else None
+        self.save()
+
+    def set_display_name(self, display_name: str | None):
+        if display_name == "":
+            display_name = None
+        self.display_name = display_name
+        self.save() 
+    
+    def set_profile_picture(self, profile_picture: str | None):
+        if profile_picture == "":
+            profile_picture = None
+        self.profile_picture = profile_picture
+        self.save()
+
+    def set_banner(self, banner: str | None):
+        if banner == "":
+            banner = None
+        self.banner = banner
+        self.save()
+
+    def set_bio(self, bio: str | None):
+        if bio == "":
+            bio = None
+        self.bio = bio
+        self.save()
+    
+    def set_pronouns(self, pronouns: str | None):
+        if pronouns == "":
+            pronouns = None
+        self.pronouns = pronouns
+        self.save()
+
+    def get_display_name(self) -> str:
+        return self.display_name if self.display_name is not None else self.user.username
     
     def __str__(self):
         return f"{self.user.username} ({self.pk})"
