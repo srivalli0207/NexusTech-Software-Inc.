@@ -25,6 +25,25 @@ class Post(models.Model):
         return f"{self.post_id}: {self.user.user.username} - {self.text}"
 
 
+    @staticmethod
+    def create_post_text(text: str) -> "Post":
+        if (text == "" or text.isspace()):
+            raise Exception("text is empty")
+        
+    def __create_like(self, user: UserProfile, like: bool) -> "PostLike":
+        like_obj = PostLike.objects.create(post=self, user=user, like=like)
+        return like_obj
+    
+    def dislike_post(self, user: UserProfile) -> "PostLike":
+        return self.__create_like(user, False)
+
+    def like_post(self, user: UserProfile) -> "PostLike":
+        return self.__create_like(user, True)
+    
+    def unlike_post(self, user: UserProfile):
+        PostLike.objects.filter(post=self, user=user).first().delete()
+        
+
 class PostMedia(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     media_type = models.CharField(max_length=8)

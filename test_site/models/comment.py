@@ -21,3 +21,11 @@ class CommentLike(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["comment", "user"], name="comment_like_unq_constraint")
         ]
+    
+    @staticmethod
+    def __create_like(self, user: UserProfile, like: bool) -> "CommentLike":
+        like_obj = CommentLike.objects.create(comment=self, user=user, like=like)
+        return like_obj
+
+    def dislike_comment(self, user: UserProfile) -> "CommentLike":
+        return self.__create_like(user, False)

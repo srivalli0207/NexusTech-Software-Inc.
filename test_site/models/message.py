@@ -13,12 +13,44 @@ class MessageConversation(models.Model):
 
     def __str__(self):
         return f"{self.conversation_id} ({self.name}): {', '.join([member.user.username for member in self.members.all()])}"
+    
+    def send_message(self, user: UserProfile, text: str) -> "Message":
+        message = Message.objects.create(user=user, conversation=self, text=text)
+        self.last_message = message
+        return message
+    
+    def add_member(self, *members: list[UserProfile]):
+        self.members.add(members)
+        if self.members.all().count() > 2:
+            self.group = True
+            self.save()
+
+    def remove_member(self, member: UserProfile):
+        self.members.remove(member)
+
+    @staticmethod
+    def create_conversation(user: UserProfile, target: UserProfile) -> "MessageConversation":
+        conversation = MessageConversation.objects.create()
+        conversation.add_member(user, target)
+        conversation.creator = user
+        return conversation
+    
+    @staticmethod
+    def get_conversation(user: UserProfile, target: UserProfile) -> "MessageConversation":
+        conversation = MessageConversation.objects.filter(members=user, group=False).filter(members=target).first()
+        if conversation is None:
+            conversation = MessageConversation.create_conversation(user, target)
+        return conversation
+    
+    @staticmethod
+    def get_conversation_exists(user: UserProfile, target: UserProfile) -> bool:
+        return MessageConversation.objects.filter(members=user, group=False).filter(members=target).exists()
 
 
 class MessageConversationMember(models.Model):
     conversation = models.ForeignKey(MessageConversation, on_delete=models.CASCADE)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="member")
-
+        
     def __str__(self):
         return f"{self.conversation.conversation_id}-{self.pk}: {self.user.user.username}"
 
