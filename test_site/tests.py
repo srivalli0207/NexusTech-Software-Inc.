@@ -6,6 +6,8 @@ from test_site.models.comment import Comment, CommentLike
 from test_site.models.report import Report
 from test_site.models.forum import Forum, ForumFollow, ForumModerator 
 from django.contrib.auth import get_user_model
+import datetime
+from django.utils import timezone
 
 USER_MODEL = get_user_model()
 
@@ -241,17 +243,17 @@ class TestReport(TestCase):
         self.post = Post.objects.create(user=self.user1, text="This is a post.")
 
     def test_report_user(self):
-        test_report = Report.objects.create(report_user=self.user1, reported_user= self.user2, reason="test reason", reported_at="2023-11-13 14:25:45")
+        test_report = Report.objects.create(report_user=self.user1, reported_user= self.user2, reason="test reason", reported_at=timezone.make_aware(datetime.datetime(2023, 11, 13, 14, 25, 45)))
         self.assertTrue(Report.objects.filter(report_id=test_report.report_id))
 
 
     def test_report_post(self):
-        test_report_post = Report.objects.create(report_user=self.user1, reported_post=self.post, reason="test post reason", reported_at="2023-11-13 14:25:45")
+        test_report_post = Report.objects.create(report_user=self.user2, reported_user=self.user1, post=self.post, reason="test post reason", reported_at=timezone.make_aware(datetime.datetime(2023, 11, 13, 14, 25, 45)))
         self.assertTrue(Report.objects.filter(report_id=test_report_post.report_id))
 
     def test_report_comment(self):
         comment = Comment.objects.create(post=self.post, user=self.user1, content="Test comment")
-        test_report_comment = Report.objects.create(report_user=self.user1, reported_comment=comment, reason="test comment reason", reported_at="2023-11-13 14:25:45")
+        test_report_comment = Report.objects.create(report_user=self.user2, reported_user=self.user1, comment=comment, reason="test comment reason", reported_at=timezone.make_aware(datetime.datetime(2023, 11, 13, 14, 25, 45)))
         self.assertTrue(Report.objects.filter(report_id=test_report_comment.report_id))
 
         
