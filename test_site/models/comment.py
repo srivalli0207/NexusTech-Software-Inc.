@@ -11,6 +11,21 @@ class Comment(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     content = models.TextField()
 
+    @staticmethod
+    def create_comment(user: UserProfile, post: Post, content: str) -> "Comment":
+        comment_obj = Comment.objects.create(post=post, user=user, content=content)
+        return comment_obj
+
+    def __create_like(self, user: UserProfile, like: bool) -> "CommentLike":
+        like_obj = CommentLike.objects.create(comment=self, user=user, like=like)
+        return like_obj
+    
+    def like_comment(self, user: UserProfile) -> "CommentLike":
+        return self.__create_like(user, True)
+
+    def dislike_comment(self, user: UserProfile) -> "CommentLike":
+        return self.__create_like(user, False)
+
 
 class CommentLike(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
@@ -22,10 +37,3 @@ class CommentLike(models.Model):
             models.UniqueConstraint(fields=["comment", "user"], name="comment_like_unq_constraint")
         ]
     
-    @staticmethod
-    def __create_like(self, user: UserProfile, like: bool) -> "CommentLike":
-        like_obj = CommentLike.objects.create(comment=self, user=user, like=like)
-        return like_obj
-
-    def dislike_comment(self, user: UserProfile) -> "CommentLike":
-        return self.__create_like(user, False)
