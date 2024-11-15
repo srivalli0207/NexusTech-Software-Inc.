@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import { get_csrf_token } from "./auth"
 
 export default function CSRF_Token() {

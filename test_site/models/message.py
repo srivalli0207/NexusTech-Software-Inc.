@@ -20,13 +20,17 @@ class MessageConversation(models.Model):
         return message
     
     def add_member(self, *members: list[UserProfile]):
-        self.members.add(members)
+        for member in members:
+            self.members.add(member)
         if self.members.all().count() > 2:
             self.group = True
             self.save()
 
     def remove_member(self, member: UserProfile):
         self.members.remove(member)
+        if self.members.all().count() == 2:
+            self.group = False
+            self.save()
 
     @staticmethod
     def create_conversation(user: UserProfile, target: UserProfile) -> "MessageConversation":

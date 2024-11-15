@@ -16,7 +16,6 @@ class TestReport(TestCase):
         test_report = Report.objects.create(report_user=self.user1, reported_user= self.user2, reason="test reason", reported_at=timezone.make_aware(datetime.datetime(2023, 11, 13, 14, 25, 45)))
         self.assertTrue(Report.objects.filter(report_id=test_report.report_id))
 
-
     def test_report_post(self):
         test_report_post = Report.objects.create(report_user=self.user2, reported_user=self.user1, post=self.post, reason="test post reason", reported_at=timezone.make_aware(datetime.datetime(2023, 11, 13, 14, 25, 45)))
         self.assertTrue(Report.objects.filter(report_id=test_report_post.report_id))

@@ -1,11 +1,11 @@
-import json
+import json, os
 from datetime import datetime, date, time
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from storages.backends.s3 import S3Storage
 
-from test_site.models.post import Post, PostBookmark, PostLike
+from test_site.models.post import Post, PostBookmark, PostLike, PostMedia
 from test_site.models.user import UserProfile
 from .serializers import serialize_post
 from nexus_site.custom_decorators import custom_login_required
@@ -31,11 +31,31 @@ def json_serial(obj):
 @require_POST
 @custom_login_required
 def upload_file(request: HttpRequest):
-    file = request.FILES["file"]
+    entity_type = request.GET.get("type")
+    entity_id = request.GET.get("id") or request.user.username
     fs = S3Storage()
-    fs_file = fs.save(file.name, file)
-    file_url = fs.url(fs_file)
-    return JsonResponse({"message": file_url}, status=200)
+    urls = []
+
+    for i, file in enumerate(request.FILES.getlist("file")):
+        filename, file_extension = os.path.splitext(file.name)
+        filename = f"{entity_type}_{entity_id}_{i}{file_extension}"
+        fs_file = fs.save(filename, file)
+        file_url = fs.url(fs_file)
+        urls.append(file_url)
+    
+    match entity_type:
+        case "post":
+            post = Post.objects.get(post_id=int(entity_id))
+            for i, url in enumerate(urls):
+                PostMedia.objects.create(post=post, media_type="image", url=url, index=i)
+        case "pfp" | "banner":
+            profile = UserProfile.objects.get(user__username=request.user.username)
+            match entity_type:
+                case "pfp": profile.profile_picture = file_url
+                case "banner": profile.banner = file_url
+            profile.save()
+    
+    return JsonResponse({"urls": urls}, status=200)
 
 @require_GET
 def get_posts(request: HttpRequest):

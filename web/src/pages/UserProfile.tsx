@@ -17,8 +17,10 @@ import {
   DialogContent,
   TextField,
   DialogActions,
+  styled,
 } from "@mui/material";
 import MessageIcon from "@mui/icons-material/Message";
+import UploadIcon from "@mui/icons-material/Upload";
 import PostFeedCard from "../components/PostFeedCard";
 import {
   follow_user,
@@ -31,6 +33,7 @@ import {
   PostResponse,
   SetProfileRequest,
   update_profile,
+  upload_file,
   UserProfileResponse,
   UserResponse,
 } from "../utils/fetch";
@@ -265,6 +268,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     banner: null
   })
   const snackbar = useSnackbar();
+  const [pfpImage, setPfpImage] = useState<FileList | null>(null)
 
   const handleClickOpen = () => {
     setFormState({
@@ -285,15 +289,19 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
 
   const handleUpdate = async () => {
     setUpdating(true);
-    update_profile(formState).then(() => {
+    try {
+      await update_profile(formState);
+      if (pfpImage) {
+        await upload_file(Array.from(pfpImage), "pfp")
+      }
       setOpen(false);
       setUpdating(false);
       snackbar({ open: true, message: "Profile updated!" });
       if (onUpdate) onUpdate(formState);
-    }).catch((err) => {
+    } catch (err) {
       console.error(err);
       setUpdating(false);
-    })
+    }
   }
 
   const handleText = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -304,6 +312,24 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
       return old;
     })
   }
+
+  const handlePfpFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null || event.target.files.length > 4) return;
+    setPfpImage(event.target.files);
+    console.log(event.target.files);
+  }
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
 
   return (
     <>
@@ -352,7 +378,22 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
             value={formState.bio}
             onChange={handleText}
           />
-          <TextField
+          <Button variant="contained" startIcon={<UploadIcon />} component="label">
+            Profile Picture
+            <VisuallyHiddenInput
+              type="file"
+              onChange={handlePfpFile}
+              accept="image/png, image/jpeg"
+            />
+          </Button>
+          {pfpImage && <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
+                {pfpImage.item(0)?.name}
+          </Typography>}
+          <br /><br />
+          <Button variant="contained" startIcon={<UploadIcon />}>
+            Banner
+          </Button>
+          {/* <TextField
             autoFocus
             margin="dense"
             id="profilePicture"
@@ -375,7 +416,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
             disabled={updating}
             value={formState.banner}
             onChange={handleText}
-          />
+          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

@@ -22,7 +22,11 @@ class TestForums(TestCase):
         self.assertFalse(ForumFollow.objects.filter(user=self.user1, forum=self.test_forum).exists(), "User 1 no longer follows a forum")
 
     def test_create_forum(self):
-        ...
+        Forum.objects.create(name="forum1", description="this is forum1", creator=self.forum_owner)
+        self.assertTrue(Forum.objects.filter(name="forum1", creator=self.forum_owner).exists(), "Forum1 is created")
 
     def test_delete_forum(self):
-        ...
+        forum1=Forum.objects.create(name="forum1", description="this is forum1", creator=self.forum_owner)
+        forum1.delete()
+        self.assertFalse(Forum.objects.filter(name="forum1", creator=self.forum_owner).exists(), "Forum1 is gone")
+

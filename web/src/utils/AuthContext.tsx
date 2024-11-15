@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { get_auth } from "./auth";
 
 export type UserAuth = {

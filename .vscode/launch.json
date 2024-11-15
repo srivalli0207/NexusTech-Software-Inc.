@@ -5,12 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File with Arguments",
+            "name": "Python Debugger: Django",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "console": "integratedTerminal",
             "args": ["runserver"],
+            "django": true,
+            "justMyCode": true
+        },
+        {
+            "name": "Python Debugger: Django Test",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "console": "integratedTerminal",
+            "args": ["test", "test_site.tests", "-v", "2"],
             "django": true,
             "justMyCode": true
         }

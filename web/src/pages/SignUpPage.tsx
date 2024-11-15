@@ -1,6 +1,6 @@
 import { Box, TextField, Stack, Button, useTheme, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { FormEvent, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { signup } from "../utils/auth";
 import CSRF_Token from "../utils/csrf_token";
 import UserProfileBuilder from "../utils/UserProfileBuilder";
@@ -18,6 +18,7 @@ export default function SignUpPage() {
       const username = (event.currentTarget.elements.namedItem("username") as HTMLFormElement).value;
       const email = (event.currentTarget.elements.namedItem("email") as HTMLFormElement).value;
       const password = (event.currentTarget.elements.namedItem("password") as HTMLFormElement).value;
+      // const confirmPassword = (event.currentTarget.elements.namedItem("confirm_password") as HTMLFormElement).value;
 
       try {
          const userProfile = new UserProfileBuilder()
@@ -32,7 +33,7 @@ export default function SignUpPage() {
             console.log('signed up', response.user);
             navigate('/');
          } else {
-            console.log('signup failed', response.message);
+            // console.log('signup failed', response.message);
          }
       } catch (error) {
          console.error("Profile creation failed:", error);
@@ -43,6 +44,7 @@ export default function SignUpPage() {
 
    return (
       <Box display='flex' height='100%'>
+         <h2 role="alert"></h2>
          <Box
             component="form"
             autoComplete="on"
@@ -59,7 +61,7 @@ export default function SignUpPage() {
          >
             <Stack spacing={2.5} width="80%">
                <CSRF_Token />
-               <h2>Sign Up</h2>
+               <h2 role="heading">Sign Up</h2>
                <TextField required id="username" label="Username" />
                <TextField required id="email" type="email" label="Email" />
                <TextField required id="password" type="password" label="Password" />

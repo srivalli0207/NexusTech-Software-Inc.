@@ -28,7 +28,7 @@ export type PostResponse = {
    user: UserResponse
    text: string | null,
    date: string,
-   media: string[],
+   media: { id: number, type: string, url: string }[],
    actions: UserPostActionsResponse | null;
 }
 
@@ -84,6 +84,7 @@ const fetch_request = async (method: string, path: string, data?: { [key: string
       options.body = JSON.stringify(data)
       options.headers['Content-Type'] = 'application/json'
    }
+   console.log(options);
 
    const response = await fetch(path, options)
 
@@ -100,7 +101,8 @@ export const get_posts = async (username?: string): Promise<PostResponse[]> => {
    return res;
 }
 
-export const submit_post = async (data: { text: string, files: File[] | null }): Promise<PostResponse> => {
+export const submit_post = async (data: { text: string }): Promise<PostResponse> => {
+   console.log(data.text);
    const res = await fetch_request('POST', createRedirectUrl(URLS.SUBMIT_POST), data)
    return res
 }
@@ -110,18 +112,25 @@ export const delete_post = async (data: { post_id: number }): Promise<void> => {
    return res
 }
 
-export const upload_file = async (file: File): Promise<void> => {
+export const upload_file = async (files: File[], entityType: string, entityId?: string): Promise<void> => {
    const formData = new FormData();
-   formData.append("file", file, file.name);
-   const res = await fetch(URLS.UPLOAD_FILE, {
+   for (const file of files) {
+      formData.append("file", file);
+   }
+   const url = new URL(URLS.UPLOAD_FILE)
+   url.searchParams.append("type", entityType);
+   if (entityId) url.searchParams.append("id", entityId);
+   const res = await fetch(url, {
       method: "POST",
       body: formData,
       headers: {
          "X-CSRFToken": getCSRFTokenFromCookie(),
       }
    });
+   if (res.status !== 200) {
+      throw "h";
+   }
    console.log(res);
-   // return res;
 }
 
 export const get_follows = async (user: string): Promise<UserResponse[]> => {

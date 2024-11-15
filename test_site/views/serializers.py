@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User as DjangoUser
 from django.http import HttpRequest
 from test_site.models.user import Follow, UserProfile
-from test_site.models.post import Post, PostLike
+from test_site.models.post import Post, PostLike, PostMedia
 from test_site.models.message import Message, MessageConversation
 
 def serialize_user(user: UserProfile):
@@ -41,7 +41,7 @@ def serialize_post(post: Post, request: HttpRequest = None):
         "user": serialize_user(post.user),
         "text": post.text,
         "date": post.creation_date,
-        "media": [],
+        "media": [serialize_post_media(media) for media in post.get_media()],
         "actions": None
     }
 
@@ -52,6 +52,14 @@ def serialize_post(post: Post, request: HttpRequest = None):
         }
         fields["actions"] = actions
 
+    return fields
+
+def serialize_post_media(media: PostMedia):
+    fields = {
+        "id": media.id,
+        "type": media.media_type,
+        "url": media.url
+    }
     return fields
 
 def serialize_message(message: Message):

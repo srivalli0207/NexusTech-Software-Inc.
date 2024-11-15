@@ -17,7 +17,7 @@ class TestComments(TestCase):
  
     def test_like_comment(self):
         comment = Comment.objects.create(post=self.post, user=self.user1, content="Test comment")
-        comment.like_comment(comment)
+        comment.like_comment(self.user1)
         self.assertTrue(CommentLike.objects.filter(comment_id=comment.comment_id).exists())
 
     def test_remove_like_comment(self):
