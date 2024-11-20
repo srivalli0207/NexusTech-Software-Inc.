@@ -1,7 +1,7 @@
 import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton, Badge } from "@mui/material"; 
 import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
-import { get_follows, UserResponse} from "../utils/fetch";
+import { get_following, UserResponse} from "../utils/fetch";
 import { Link } from "react-router-dom";
 import { useStatus } from "../utils/StatusContext";
 
@@ -14,7 +14,7 @@ export default function LayoutNames() {
       const fetch_follows = async () => {
          setFollowing(undefined);
          if (user != null) {
-            const res = await get_follows(user.username);
+            const res = await get_following(user.username);
             setFollowing(res);
          }
       };

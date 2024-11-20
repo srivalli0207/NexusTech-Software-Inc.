@@ -8,7 +8,6 @@ from .serializers import serialize_post, serialize_user, serialize_user_profile
 
 def get_user_views():
     return [
-        path("follows", get_follows, name="follows"),
         path("follow_user", follow_user, name="follow_user"),
         path("followers", get_followers, name="get_followers"),
         path("following", get_following, name="get_following"),
@@ -20,15 +19,6 @@ def get_user_views():
         path("update_profile", update_profile, name="update_profile")
     ]
 
-
-
-@require_GET
-def get_follows(request: HttpRequest):
-    username = request.GET['user']
-    profile = UserProfile.objects.get(user__username=username)
-    following = profile.following.all()
-    fields = [serialize_user(user) for user in following]
-    return JsonResponse(fields, status=200, safe=False)
 
 @require_GET
 def get_followers(request: HttpRequest):

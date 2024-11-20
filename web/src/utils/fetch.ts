@@ -147,13 +147,6 @@ export const upload_file = async (files: File[], entityType: string, entityId?: 
    return await res.json();
 }
 
-export const get_follows = async (user: string): Promise<UserResponse[]> => {
-   const url = new URL(URLS.GET_FOLLOWS)
-   url.searchParams.append('user', user)
-   const res = await fetch_request('GET', url.href)
-   return res as UserResponse[]
-}
-
 export const get_followers = async (user: string): Promise<UserResponse[]> => {
    const url = new URL(URLS.GET_FOLLOWERS)
    url.searchParams.append('username', user)
