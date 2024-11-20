@@ -15,6 +15,7 @@ export const URLS = Object.freeze({
    
    // add rest of api endpoint urls
    POSTS: `${BASE_URL}/api/test/posts`,
+   GET_POST: `${BASE_URL}/api/test/get_post`,
    SUBMIT_POST: `${BASE_URL}/api/test/post_submit`,
    DELETE_POST: `${BASE_URL}/api/test/post_delete`,
    UPLOAD_FILE: `${BASE_URL}/api/test/upload_file`,

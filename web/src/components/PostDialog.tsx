@@ -4,6 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import ImageIcon from "@mui/icons-material/Image";
+import MovieIcon from "@mui/icons-material/Movie";
 import CreateIcon from '@mui/icons-material/Create';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { Fragment, useState } from 'react';
@@ -16,7 +17,8 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState("");
   const [textInput, setTextInput] = useState("");
-  const [imageFile, setImageFile] = useState<FileList | null>(null)
+  const [imageFile, setImageFile] = useState<FileList | null>(null);
+  const [videoFile, setVideoFile] = useState<FileList | null>(null);
   const snackbar = useSnackbar();
   const maxWords = 300;
 
@@ -31,6 +33,7 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
     setOpen(true);
     setPosting(false);
     setImageFile(null);
+    setVideoFile(null);
     setPostError("");
     setTextInput("");
   };
@@ -46,18 +49,20 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
 
   const handlePost = async () => {
     setPosting(true);
-    if (imageFile) {
-      for (const file of imageFile) {
-        await upload_file(file)
+    try {
+      const post = await submit_post({ text: textInput });
+      if (imageFile) {
+        await upload_file(Array.from(imageFile), "post", post.id.toString(), "image")
       }
-    }
-    submit_post({ text: textInput, files: imageFile ? Array.from(imageFile) : null }).then(() => {
+      if (videoFile) {
+        await upload_file(Array.from(videoFile), "post", post.id.toString(), "video")
+      }
       setOpen(false);
       snackbar({ open: true, message: "Post sent!" })
-    }).catch((err) => {
-      setPostError(err);
+    } catch (err) {
+      setPostError(err as any);
       setPosting(false);
-    });
+    }
   }
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -67,12 +72,16 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
     }
   };
 
-  const handleFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length > 4) return;
-    
+    setVideoFile(null);
     setImageFile(event.target.files);
-    
+  }
 
+  const handleVideoFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null) return;
+    setImageFile(null);
+    setVideoFile(event.target.files);
   }
 
   const VisuallyHiddenInput = styled('input')({
@@ -121,30 +130,50 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
           {imageFile && (
             <>
               <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
-                Selected Images: {Array.from(imageFile).slice(0, 4).map((file) => file.name).join(", ")}
+                Selected images: {Array.from(imageFile).slice(0, 4).map((file) => file.name).join(", ")}
               </Typography>
-              <ImageList cols={2} gap={8} sx={{ width: 400, height: 400 }}>
+              <ImageList cols={2} gap={8}>
                 {Array.from(imageFile).slice(0, 4).map((file) => (
                   <ImageListItem key={file.name} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                     <img 
                       src={URL.createObjectURL(file)}
                       alt={file.name} 
-                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+                      style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "8px", maxHeight: "200px" }}
                     />
                   </ImageListItem>
                 ))}
               </ImageList>
             </>
           )}
+          {videoFile && (
+            <>
+              <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
+                Selected video: {videoFile.item(0)?.name}
+              </Typography>
+              <video 
+                src={URL.createObjectURL(videoFile.item(0)!)}
+                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+                controls
+              />
+            </>
+          )}
           </DialogContent>
         <DialogActions>
-          <IconButton component="label" role={undefined}>
-            <ImageIcon color="primary" />
+          <IconButton component="label" disabled={posting}>
+            <ImageIcon color={!posting ? "primary" : "disabled"} />
             <VisuallyHiddenInput
               type="file"
-              onChange={handleFiles}
+              onChange={handleImageFiles}
               multiple
-              accept="image/png, image/jpeg"
+              accept="image/png, image/jpeg, image/gif"
+            />
+          </IconButton>
+          <IconButton component="label" disabled={posting}>
+            <MovieIcon color={!posting ? "primary" : "disabled"} />
+            <VisuallyHiddenInput
+              type="file"
+              onChange={handleVideoFile}
+              accept="video/mp4, video/mpeg, video/webm"
             />
           </IconButton>
           <Typography sx={{ color: wordCount > maxWords ? "red" : undefined }}>
@@ -152,7 +181,7 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
           </Typography>
           <div style={{ flex: "1 0 0" }} />
           <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" disabled={posting || !textInput || wordCount > maxWords} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
+          <Button variant="contained" disabled={(posting || !textInput || wordCount > maxWords) && !imageFile && !videoFile} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
         </DialogActions>
       </Dialog>
     </Fragment>

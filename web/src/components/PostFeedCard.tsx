@@ -3,9 +3,9 @@ import CardHeader from "@mui/material/CardHeader";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
+import CommentIcon from "@mui/icons-material/Comment";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import ShareIcon from "@mui/icons-material/Share";
@@ -15,13 +15,14 @@ import { useUser } from "../utils/auth-hooks";
 import Menu from "@mui/material/Menu";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
-import { blue, green, red, yellow } from "@mui/material/colors";
-import { CardActionArea, Tooltip } from "@mui/material";
+import { blue, green, purple, red, yellow } from "@mui/material/colors";
+import { CardActionArea, ImageList, ImageListItem, Tooltip } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { bookmark_post, delete_post, get_user, like_post, PostResponse, UserProfileResponse } from "../utils/fetch";
+import { useNavigate } from "react-router-dom";
+import { bookmark_post, delete_post, get_user, like_post, LikeResponse, PostResponse, UserProfileResponse } from "../utils/fetch";
 
 export default function PostFeedCard({ post, onDelete }: { post: PostResponse, onDelete: (post: PostResponse) => void }) {
-    const [liked, setPostLiked] = useState(post.actions?.liked);
+    const [likeState, setLikeState] = useState<LikeResponse>({ liked: post.actions?.liked!, likeCount: post.likeCount, dislikeCount: post.dislikeCount })
     const [bookmarked, setPostBookmarked] = useState(post.actions?.bookmarked);
     const date = new Date(post.date);
     const user = useUser();
@@ -29,6 +30,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
     const [profile, setProfile] = useState<UserProfileResponse | null>(null);
     const open = Boolean(anchorEl);
     const snackbar = useSnackbar();
+    const navigate = useNavigate();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
@@ -58,11 +60,13 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
 
     const handleLike = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
       event.stopPropagation();
-      like_post(post.id, like).then((res) => {
-        setPostLiked(res.liked);
-      }).catch((err) => {
+      try {
+        const res = await like_post(post.id, like);
+        setLikeState(res);
+      } catch (err) {
+        snackbar({ open: true, message: err as any })
         console.error(err);
-      })
+      }
     }
 
     const handleTooltipOpen = async () => {
@@ -79,7 +83,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
 
     return (
       <Card sx={{ textAlign: "left" }}>
-        <CardActionArea onClick={() => console.log("ok")}>
+        <CardActionArea onClick={() => navigate(`/post/${post.id}`)}>
           <CardHeader
             avatar={
               <Tooltip enterDelay={500} onOpen={handleTooltipOpen} slotProps={profile === null ? {} : {tooltip: { sx: { width: 200 } }}} title={
@@ -123,32 +127,42 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
                 </Menu>
               </IconButton>
             }
-            title={post.user.username}
-            subheader={date.toLocaleString()}
+            title={post.user.displayName ?? post.user.username}
+            subheader={`@${post.user.username}, ${date.toLocaleString()}`}
           />
-          {post.media.map((photo, index) => {
-            return (
-              <CardMedia
-                key={index}
-                component="img"
-                sx={{width: "200px", height: "auto"}}
-                image={photo}
-              />
-            );
-        })}
         
           <CardContent>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {post.text}
             </Typography>
+            {post.media.length !== 0 && post.media[0].type === "video" 
+              ? <video key={post.media[0].url} src={post.media[0].url} controls />
+              : <ImageList cols={2} gap={8} sx={{ maxWidth: "50%" }}>
+                {post.media.map((media) => (
+                  <ImageListItem key={media.id} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                    <img 
+                      src={media.url}
+                      alt={media.url}
+                      style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "8px", maxHeight: "150px" }}
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
+            }
           </CardContent>
           <CardActions>
-            <IconButton aria-label="like" sx={{ color: liked === true ? green[500] : undefined, "&:hover": { color: green[500] } }} onClick={(event) => handleLike(event, true)}>
+            <IconButton aria-label="comment" sx={{ color: false ? purple[500] : undefined, "&:hover": { color: purple[500] } }} onClick={(event) => handleLike(event, true)}>
+              <CommentIcon />
+            </IconButton>
+            <Typography>{0}</Typography>
+            <IconButton aria-label="like" sx={{ color: likeState.liked === true ? green[500] : undefined, "&:hover": { color: green[500] } }} onClick={(event) => handleLike(event, true)}>
               <ThumbUpIcon />
             </IconButton>
-            <IconButton aria-label="dislike" sx={{ color: liked === false ? red[500] : undefined, "&:hover": { color: red[400] } }} onClick={(event) => handleLike(event, false)}>
+            <Typography>{likeState.likeCount}</Typography>
+            <IconButton aria-label="dislike" sx={{ color: likeState.liked === false ? red[500] : undefined, "&:hover": { color: red[400] } }} onClick={(event) => handleLike(event, false)}>
               <ThumbDownIcon />
             </IconButton>
+            <Typography>{likeState.dislikeCount}</Typography>
             <IconButton aria-label="bookmark" sx={{ color: bookmarked === true ? blue[500] : undefined, "&:hover": { color: blue[400] } }} onClick={handleBookmark}>
               <BookmarkIcon />
             </IconButton>

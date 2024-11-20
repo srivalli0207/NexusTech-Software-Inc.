@@ -30,6 +30,8 @@ export type PostResponse = {
    date: string,
    media: { id: number, type: string, url: string }[],
    actions: UserPostActionsResponse | null;
+   likeCount: number;
+   dislikeCount: number
 }
 
 export type FollowResponse = {
@@ -38,6 +40,8 @@ export type FollowResponse = {
 
 export type LikeResponse = {
    liked: boolean | null;
+   likeCount: number;
+   dislikeCount: number
 }
 
 export type BookmarkResponse = {
@@ -71,6 +75,10 @@ export type SetProfileRequest = {
    banner: string | null
 }
 
+export type MediaResponse = {
+   urls: string[]
+}
+
 const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number | File[] | null }) => {
    const options: { [key: string]: any } = {
       method,
@@ -96,6 +104,11 @@ const fetch_request = async (method: string, path: string, data?: { [key: string
    return msg
 }
 
+export const get_post = async (post_id: string): Promise<PostResponse> => {
+   const res = await fetch_request('GET',  `${URLS.GET_POST}?post_id=${post_id}`)
+   return res;
+}
+
 export const get_posts = async (username?: string): Promise<PostResponse[]> => {
    const res = await fetch_request('GET', URLS.POSTS + (username !== undefined ? `?username=${username}` : ""))
    return res;
@@ -112,13 +125,14 @@ export const delete_post = async (data: { post_id: number }): Promise<void> => {
    return res
 }
 
-export const upload_file = async (files: File[], entityType: string, entityId?: string): Promise<void> => {
+export const upload_file = async (files: File[], entityType: string, entityId?: string, mediaType: string = "image"): Promise<MediaResponse> => {
    const formData = new FormData();
    for (const file of files) {
       formData.append("file", file);
    }
    const url = new URL(URLS.UPLOAD_FILE)
    url.searchParams.append("type", entityType);
+   url.searchParams.append("media_type", mediaType);
    if (entityId) url.searchParams.append("id", entityId);
    const res = await fetch(url, {
       method: "POST",
@@ -130,7 +144,7 @@ export const upload_file = async (files: File[], entityType: string, entityId?: 
    if (res.status !== 200) {
       throw "h";
    }
-   console.log(res);
+   return await res.json();
 }
 
 export const get_follows = async (user: string): Promise<UserResponse[]> => {

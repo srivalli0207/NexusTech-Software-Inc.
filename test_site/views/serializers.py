@@ -42,7 +42,9 @@ def serialize_post(post: Post, request: HttpRequest = None):
         "text": post.text,
         "date": post.creation_date,
         "media": [serialize_post_media(media) for media in post.get_media()],
-        "actions": None
+        "actions": None,
+        "likeCount": post.likers.filter(postlike__like=True).count(),
+        "dislikeCount": post.likers.filter(postlike__like=False).count()
     }
 
     if request is not None and request.user.is_authenticated:

@@ -17,8 +17,9 @@ import MessageList from './pages/MessageList.tsx';
 import { SnackbarProvider } from './utils/SnackbarContext.tsx';
 import BookmarksPage from './pages/BookmarksPage.tsx';
 import { StatusProvider } from './utils/StatusContext.tsx';
+import PostPage from './pages/PostPage.tsx';
 
-function Main() {
+export function Main() {
 	const user = useUser()
 
 	// redirect to another page if user is already logged in
@@ -72,6 +73,7 @@ function Main() {
 					{ path: "/messages/:conversation", loader: protectedRoutes, element: <MessageList /> },
 					{ path: "/bookmarks", loader: protectedRoutes, element: <BookmarksPage /> },
 					{ path: "/test-chat/:room_id", loader: protectedRoutes, element: <TestChat /> },
+					{ path: "post/:post_id", loader: protectedRoutes, element: <PostPage/> }
 				]
 		},
 	]);

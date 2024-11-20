@@ -13,6 +13,7 @@ from nexus_site.custom_decorators import custom_login_required
 def get_post_views():
     return [
         path("posts", get_posts, name="posts"),
+        path("get_post", get_post, name='get_post'),
         path("post_submit", submit_post, name='submit_post'),
         path("post_delete", delete_post, name='delete_post'),
         path("upload_file", upload_file, name='upload_file'),
@@ -33,12 +34,13 @@ def json_serial(obj):
 def upload_file(request: HttpRequest):
     entity_type = request.GET.get("type")
     entity_id = request.GET.get("id") or request.user.username
+    media_type = request.GET.get("media_type") or "image"
     fs = S3Storage()
     urls = []
 
     for i, file in enumerate(request.FILES.getlist("file")):
         filename, file_extension = os.path.splitext(file.name)
-        filename = f"{entity_type}_{entity_id}_{i}{file_extension}"
+        filename = f"{entity_type}_{entity_id}_{i if entity_type not in {"pfp", "banner"} else int(datetime.now().timestamp())}{file_extension}"
         fs_file = fs.save(filename, file)
         file_url = fs.url(fs_file)
         urls.append(file_url)
@@ -47,7 +49,7 @@ def upload_file(request: HttpRequest):
         case "post":
             post = Post.objects.get(post_id=int(entity_id))
             for i, url in enumerate(urls):
-                PostMedia.objects.create(post=post, media_type="image", url=url, index=i)
+                PostMedia.objects.create(post=post, media_type=media_type, url=url, index=i)
         case "pfp" | "banner":
             profile = UserProfile.objects.get(user__username=request.user.username)
             match entity_type:
@@ -56,6 +58,13 @@ def upload_file(request: HttpRequest):
             profile.save()
     
     return JsonResponse({"urls": urls}, status=200)
+
+@require_GET
+def get_post(request: HttpRequest):
+    id = request.GET.get("post_id")
+    post = Post.objects.filter(post_id=id)
+    post_response = serialize_post(post[0], request)
+    return HttpResponse(json.dumps(post_response, default=json_serial), content_type="application/json")
 
 @require_GET
 def get_posts(request: HttpRequest):
@@ -108,7 +117,7 @@ def like_post(request: HttpRequest):
         like = PostLike(post=post, user=profile, like=liked)
         like.save()
         res = liked
-    return JsonResponse({"liked": res}, status=200)
+    return JsonResponse({"liked": res, "likeCount": post.get_like_count(), "dislikeCount": post.get_dislike_count()}, status=200)
 
 @require_POST
 def bookmark_post(request: HttpRequest):

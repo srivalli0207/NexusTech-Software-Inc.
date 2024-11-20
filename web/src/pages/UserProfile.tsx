@@ -268,7 +268,8 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     banner: null
   })
   const snackbar = useSnackbar();
-  const [pfpImage, setPfpImage] = useState<FileList | null>(null)
+  const [pfpImage, setPfpImage] = useState<FileList | null>(null);
+  const [bannerImage, setBannerImage] = useState<FileList | null>(null);
 
   const handleClickOpen = () => {
     setFormState({
@@ -279,6 +280,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
       banner: profile.banner
     })
     
+    setPfpImage(null);
     setUpdating(false);
     setOpen(true);
   };
@@ -292,7 +294,12 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     try {
       await update_profile(formState);
       if (pfpImage) {
-        await upload_file(Array.from(pfpImage), "pfp")
+        const res = await upload_file(Array.from(pfpImage), "pfp");
+        formState.profilePicture = res.urls[0];
+      }
+      if (bannerImage) {
+        const res = await upload_file(Array.from(bannerImage), "banner");
+        formState.banner = res.urls[0];
       }
       setOpen(false);
       setUpdating(false);
@@ -314,9 +321,13 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
   }
 
   const handlePfpFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files === null || event.target.files.length > 4) return;
+    if (event.target.files === null) return;
     setPfpImage(event.target.files);
-    console.log(event.target.files);
+  }
+
+  const handleBannerFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null) return;
+    setBannerImage(event.target.files);
   }
 
   const VisuallyHiddenInput = styled('input')({
@@ -378,45 +389,35 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
             value={formState.bio}
             onChange={handleText}
           />
-          <Button variant="contained" startIcon={<UploadIcon />} component="label">
-            Profile Picture
-            <VisuallyHiddenInput
-              type="file"
-              onChange={handlePfpFile}
-              accept="image/png, image/jpeg"
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            <Button variant="contained" startIcon={<UploadIcon />} component="label" sx={{ marginBottom: "4px" }}>
+              Profile Picture
+              <VisuallyHiddenInput
+                type="file"
+                onChange={handlePfpFile}
+                accept="image/png, image/jpeg, image/gif"
+              />
+            </Button>
+            <img
+              src={pfpImage ? URL.createObjectURL(pfpImage.item(0)!) : formState.profilePicture ?? "" }
+              style={{ maxHeight: "100px", objectFit: "contain" }}
             />
-          </Button>
-          {pfpImage && <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
-                {pfpImage.item(0)?.name}
-          </Typography>}
-          <br /><br />
-          <Button variant="contained" startIcon={<UploadIcon />}>
-            Banner
-          </Button>
-          {/* <TextField
-            autoFocus
-            margin="dense"
-            id="profilePicture"
-            name="profilePicture"
-            label="Profile Picture URL"
-            fullWidth
-            variant="standard"
-            disabled={updating}
-            value={formState.profilePicture}
-            onChange={handleText}
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="banner"
-            name="banner"
-            label="Banner URL"
-            fullWidth
-            variant="standard"
-            disabled={updating}
-            value={formState.banner}
-            onChange={handleText}
-          /> */}
+
+            <Button variant="contained" startIcon={<UploadIcon />} component="label" sx={{ marginBottom: "4px" }}>
+              Banner
+              <VisuallyHiddenInput
+                type="file"
+                onChange={handleBannerFile}
+                accept="image/png, image/jpeg"
+              />
+            </Button>
+            <img
+              src={bannerImage ? URL.createObjectURL(bannerImage.item(0)!) : formState.banner ?? "" }
+              style={{ maxHeight: "100px", objectFit: "contain" }}
+            />
+          </div>
+          
+          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

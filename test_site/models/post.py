@@ -42,6 +42,17 @@ class Post(models.Model):
     
     def unlike_post(self, user: UserProfile):
         PostLike.objects.filter(post=self, user=user).first().delete()
+
+    def get_like_count(self) -> int:
+        return self.likers.filter(postlike__like=True).count()
+    
+    def get_dislike_count(self) -> int:
+        return self.likers.filter(postlike__like=False).count()
+
+    def get_media(self) -> list["PostMedia"]:
+        medias = PostMedia.objects.filter(post=self).order_by("index")
+        return medias
+
         
 
 class PostMedia(models.Model):
