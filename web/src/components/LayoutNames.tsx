@@ -9,17 +9,17 @@ export default function LayoutNames() {
    const user = useUser();
    const [following, setFollowing] = useState<UserResponse[]>();
    const statuses = useStatus();
-   console.log(statuses);
 
    useEffect(() => {
       const fetch_follows = async () => {
+         setFollowing(undefined);
          if (user != null) {
             const res = await get_follows(user.username);
             setFollowing(res);
          }
       };
       fetch_follows();
-   }, []);
+   }, [user]);
 
    return (
       <>
