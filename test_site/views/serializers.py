@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User as DjangoUser
 from django.http import HttpRequest
+from test_site.models.forum import Forum
 from test_site.models.user import Follow, UserProfile
 from test_site.models.post import Post, PostLike, PostMedia
 from test_site.models.message import Message, MessageConversation
@@ -39,6 +40,7 @@ def serialize_post(post: Post, request: HttpRequest = None):
     fields = {
         "id": post.post_id,
         "user": serialize_user(post.user),
+        "forum": post.forum.name if post.forum is not None else None,
         "text": post.text,
         "date": post.creation_date,
         "media": [serialize_post_media(media) for media in post.get_media()],
@@ -81,5 +83,15 @@ def serialize_conversation(conversation: MessageConversation, request: HttpReque
         "group": conversation.group,
         "lastMessage": serialize_message(conversation.last_message) if conversation.last_message is not None else None,
         "members": [serialize_user(member) for member in conversation.members.all() if member.pk != request.user.pk]
+    }
+    return fields
+
+def serialize_forum(forum: Forum):
+    fields = {
+        "name": forum.name,
+        "description": forum.description,
+        "creator": serialize_user(forum.creator),
+        "banner": forum.banner,
+        "icon": forum.icon
     }
     return fields

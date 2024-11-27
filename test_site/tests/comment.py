@@ -4,7 +4,6 @@ from test_site.models.comment import Comment, CommentLike
 from test_site.models.post import Post
 from test_site.models.user import UserProfile
 
-
 class TestComments(TestCase):
     def setUp(self):
         self.user1 = UserProfile.create_user("tester", "test@gmail.com", "testing123")

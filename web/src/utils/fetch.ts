@@ -25,7 +25,8 @@ export type UserPostActionsResponse = {
 
 export type PostResponse = {
    id: number,
-   user: UserResponse
+   user: UserResponse,
+   forum: string | null,
    text: string | null,
    date: string,
    media: { id: number, type: string, url: string }[],
@@ -52,7 +53,7 @@ export type MessageResponse = {
    id: number;
    user: UserResponse;
    text: string;
-   sent: string;
+   sent: string; 
 }
 
 export type ConversationIdResponse = {
@@ -79,6 +80,19 @@ export type MediaResponse = {
    urls: string[]
 }
 
+export type ForumResponse = {
+   name: string,
+   description: string,
+   icon: string | null,
+   banner: string | null
+}
+
+export type Comment = {
+   id: number,
+   creation_date: string,
+   content: string,
+}
+
 const fetch_request = async (method: string, path: string, data?: { [key: string]: string | number | File[] | null }) => {
    const options: { [key: string]: any } = {
       method,
@@ -92,7 +106,6 @@ const fetch_request = async (method: string, path: string, data?: { [key: string
       options.body = JSON.stringify(data)
       options.headers['Content-Type'] = 'application/json'
    }
-   console.log(options);
 
    const response = await fetch(path, options)
 
@@ -114,9 +127,9 @@ export const get_posts = async (username?: string): Promise<PostResponse[]> => {
    return res;
 }
 
-export const submit_post = async (data: { text: string }): Promise<PostResponse> => {
-   console.log(data.text);
-   const res = await fetch_request('POST', createRedirectUrl(URLS.SUBMIT_POST), data)
+export const submit_post = async (data: { text: string, forum: string | null }): Promise<PostResponse> => {
+   const url = new URL(URLS.SUBMIT_POST);
+   const res = await fetch_request('POST', url.href, data)
    return res
 }
 
@@ -249,3 +262,42 @@ export const update_profile = async (profile: SetProfileRequest): Promise<void> 
    return res;
 }
 
+export const get_forums = async (): Promise<ForumResponse[]> => {
+   const url = new URL(URLS.GET_FORUMS);
+   const res = await fetch_request("GET", url.href);
+   return res
+}
+
+export const get_forum = async (forum_name: string): Promise<ForumResponse> => {
+   const url = new URL(URLS.GET_FORUMS + `/${forum_name}`);
+   const res = await fetch_request("GET", url.href);
+   return res
+}
+
+export const get_forum_posts = async (forum_name: string): Promise<PostResponse[]> => {
+   const url = new URL(URLS.GET_FORUMS + `/${forum_name}/posts`);
+   const res = await fetch_request("GET", url.href);
+   return res
+}
+
+export const get_comments = async (post_id: string): Promise<Comment[]> => {
+   const url = new URL(URLS.GET_POST_COMMENTS)
+   url.searchParams.append("post_id", post_id)
+   const res = await fetch_request("GET", url.href)
+   return res
+}
+
+export const post_comment = async (post_id: string, content: string): Promise<void> => {
+   const url = new URL(URLS.POST_COMMENT)
+   url.searchParams.append("post_id", post_id)
+   const res = await fetch_request("POST", url.href, content)
+   return res
+}
+
+export const like_comment = async (commentId: number, like: boolean): Promise<LikeResponse> => {
+   const url = new URL(URLS.LIKE_COMMENT)
+   url.searchParams.append("comment", commentId.toString())
+   url.searchParams.append("like", like ? "true" : "false");
+   const res = await fetch_request('POST', url.href)
+   return res
+}

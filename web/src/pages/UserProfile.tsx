@@ -281,6 +281,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     })
     
     setPfpImage(null);
+    setBannerImage(null);
     setUpdating(false);
     setOpen(true);
   };

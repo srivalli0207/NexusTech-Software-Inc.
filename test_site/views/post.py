@@ -85,6 +85,9 @@ def submit_post(request: HttpRequest):
     text = data.get("text")
     user = UserProfile.objects.filter(user__username=request.user.username)[0]
     post = Post(user=user,text=text, comment_setting=Post.PostCommentSetting.NONE)
+    if (forum := data.get("forum")) is not None:
+        from test_site.models.forum import Forum
+        post.forum = Forum.get_forum(forum)
     post.save()
     return JsonResponse(serialize_post(post, request), status=200)
 

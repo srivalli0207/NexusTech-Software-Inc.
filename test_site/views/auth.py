@@ -10,11 +10,11 @@ from test_site.models.user import UserProfile
 
 def get_auth_views():
     return [
-        path("auth/csrf", get_csrf_token, name="get_csrf-token"),
-        path("auth/session", get_session, name="get_session"),
-        path("auth/signup", register_user, name="register_user"),
-        path("auth/login", login_user, name="login_user"),
-        path("auth/logout", logout_user, name="logout_user"),
+        path("csrf", get_csrf_token, name="get_csrf-token"),
+        path("session", get_session, name="get_session"),
+        path("signup", register_user, name="register_user"),
+        path("login", login_user, name="login_user"),
+        path("logout", logout_user, name="logout_user"),
     ]
 
 @ensure_csrf_cookie

@@ -53,8 +53,6 @@ class Post(models.Model):
         medias = PostMedia.objects.filter(post=self).order_by("index")
         return medias
 
-        
-
 class PostMedia(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     media_type = models.CharField(max_length=8)

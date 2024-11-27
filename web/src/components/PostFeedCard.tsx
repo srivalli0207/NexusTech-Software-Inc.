@@ -20,6 +20,7 @@ import { CardActionArea, ImageList, ImageListItem, Tooltip } from "@mui/material
 import { useSnackbar } from "../utils/SnackbarContext";
 import { useNavigate } from "react-router-dom";
 import { bookmark_post, delete_post, get_user, like_post, LikeResponse, PostResponse, UserProfileResponse } from "../utils/fetch";
+import { Link } from "react-router-dom";
 
 export default function PostFeedCard({ post, onDelete }: { post: PostResponse, onDelete: (post: PostResponse) => void }) {
     const [likeState, setLikeState] = useState<LikeResponse>({ liked: post.actions?.liked!, likeCount: post.likeCount, dislikeCount: post.dislikeCount })
@@ -33,7 +34,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
     const navigate = useNavigate();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
+      event.preventDefault();
       if (!open) setAnchorEl(event.currentTarget);
     }
 
@@ -49,7 +50,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
     }
 
     const handleBookmark = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
+      event.preventDefault();
       bookmark_post(post.id).then((res) => {
         setPostBookmarked(res.bookmarked);
         snackbar({ message: `Post ${!res.bookmarked ? "un" : ""}bookmarked.`, open: true });
@@ -59,7 +60,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
     }
 
     const handleLike = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
-      event.stopPropagation();
+      event.preventDefault();
       try {
         const res = await like_post(post.id, like);
         setLikeState(res);
@@ -77,13 +78,13 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
     }
 
     const handleAvatarClick = (event: React.MouseEvent<HTMLDivElement>) => {
-      event.stopPropagation();
+      event.preventDefault();
       console.log("ok2");
     }
 
     return (
       <Card sx={{ textAlign: "left" }}>
-        <CardActionArea onClick={() => navigate(`/post/${post.id}`)}>
+        <CardActionArea component={Link} to={`/post/${post.id}`}>
           <CardHeader
             avatar={
               <Tooltip enterDelay={500} onOpen={handleTooltipOpen} slotProps={profile === null ? {} : {tooltip: { sx: { width: 200 } }}} title={
@@ -97,7 +98,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
                           {profile.username[0].toUpperCase()}
                         </Avatar>
                       }
-                      sx={{ backgroundImage: `url(${profile.banner})`, backgroundSize: "cover", backdropFilter: "blur(8px)" }}
+                      sx={{ backgroundImage: `url(${profile.banner})`, backgroundSize: "cover", backdropFilter: "blur(16px)" }}
                     />
                     <CardContent>
                       <Typography variant="body2">{profile.bio ?? "No information given."}</Typography>
@@ -113,26 +114,29 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
               </Tooltip>
             }
             action={
-              <IconButton
-                aria-label="settings"
-                aria-controls={open ? 'basic-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                onClick={handleClick}
-              >
-                <MoreVertIcon />
-                <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
-                  {user?.username == post.user.username && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
-                  <MenuItem>Report</MenuItem>
-                </Menu>
-              </IconButton>
+              <>
+                {date.toLocaleString()}
+                <IconButton
+                  aria-label="settings"
+                  aria-controls={open ? 'basic-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? 'true' : undefined}
+                  onClick={handleClick}
+                >
+                  <MoreVertIcon />
+                  <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
+                    {user?.username == post.user.username && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
+                    <MenuItem>Report</MenuItem>
+                  </Menu>
+                </IconButton>
+              </>
             }
             title={post.user.displayName ?? post.user.username}
-            subheader={`@${post.user.username}, ${date.toLocaleString()}`}
+            subheader={`@${post.user.username}`}
           />
         
           <CardContent>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            <Typography variant="body1" sx={{ color: "text.primary" }}>
               {post.text}
             </Typography>
             {post.media.length !== 0 && post.media[0].type === "video" 
@@ -169,6 +173,8 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
             <IconButton aria-label="share" sx={{ "&:hover": { color: yellow[500] } }}>
               <ShareIcon />
             </IconButton>
+            <div style={{ flex: "1 0 0" }} />
+            {post.forum && <Typography sx={{ marginRight: "8px" }}>Posted to <Link to={`/forums/${post.forum}`}>/f/{post.forum}</Link></Typography>}
           </CardActions>
         </CardActionArea>
       </Card>

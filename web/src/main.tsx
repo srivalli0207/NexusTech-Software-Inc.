@@ -18,6 +18,8 @@ import { SnackbarProvider } from './utils/SnackbarContext.tsx';
 import BookmarksPage from './pages/BookmarksPage.tsx';
 import { StatusProvider } from './utils/StatusContext.tsx';
 import PostPage from './pages/PostPage.tsx';
+import ForumsPage from './pages/ForumsPage.tsx';
+import ForumPage from './pages/ForumPage.tsx';
 
 export function Main() {
 	const user = useUser()
@@ -73,7 +75,9 @@ export function Main() {
 					{ path: "/messages/:conversation", loader: protectedRoutes, element: <MessageList /> },
 					{ path: "/bookmarks", loader: protectedRoutes, element: <BookmarksPage /> },
 					{ path: "/test-chat/:room_id", loader: protectedRoutes, element: <TestChat /> },
-					{ path: "post/:post_id", loader: protectedRoutes, element: <PostPage/> }
+					{ path: "/post/:post_id", loader: protectedRoutes, element: <PostPage/> },
+					{ path: "/forums", loader: protectedRoutes, element: <ForumsPage /> },
+					{ path: "/forums/:forum_name", loader: protectedRoutes, element: <ForumPage /> }
 				]
 		},
 	]);

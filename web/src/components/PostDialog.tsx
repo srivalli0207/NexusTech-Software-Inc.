@@ -11,6 +11,7 @@ import React, { Fragment, useState } from 'react';
 import { CircularProgress, DialogContentText, Fab, IconButton, ImageList, ImageListItem, styled, Typography } from '@mui/material';
 import { submit_post, upload_file } from '../utils/fetch';
 import { useSnackbar } from '../utils/SnackbarContext';
+import { useLocation } from 'react-router-dom';
 
 export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [open, setOpen] = useState(false);
@@ -20,6 +21,7 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [imageFile, setImageFile] = useState<FileList | null>(null);
   const [videoFile, setVideoFile] = useState<FileList | null>(null);
   const snackbar = useSnackbar();
+  const location = useLocation();
   const maxWords = 300;
 
   const getWordCount = (text: string) => {
@@ -50,7 +52,12 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const handlePost = async () => {
     setPosting(true);
     try {
-      const post = await submit_post({ text: textInput });
+      const data = { text: textInput, forum: null };
+      const split = location.pathname.split("/");
+      if (split.length === 3 && split[1] === "forums") {
+        (data as any).forum = split[2];
+      }
+      const post = await submit_post(data);
       if (imageFile) {
         await upload_file(Array.from(imageFile), "post", post.id.toString(), "image")
       }

@@ -40,34 +40,32 @@ export default function PostPage() {
   const [post, setPost] = useState<PostResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [likeState, setLikeState] = useState<LikeResponse>({
-   liked: false,
-   likeCount: 0,
-   dislikeCount: 0,
- });
- const [bookmarked, setPostBookmarked] = useState(false);
- const [date, setDate] = useState<Date>();
- const user = useUser();
- const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
- const [profile, setProfile] = useState<UserProfileResponse | null>(null);
- const [showCommentDialog, setShowCommentDialog] = useState(false)
- const open = Boolean(anchorEl);
- const snackbar = useSnackbar();
+    liked: false,
+    likeCount: 0,
+    dislikeCount: 0,
+  });
+  const [bookmarked, setPostBookmarked] = useState(false);
+  const [date, setDate] = useState<Date>();
+  const user = useUser();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null);
+  const [showCommentDialog, setShowCommentDialog] = useState(false);
+  const open = Boolean(anchorEl);
+  const snackbar = useSnackbar();
 
   useEffect(() => {
     get_post(post_id as string)
       .then((res) => {
         setPost(res);
         setLoading(false);
-
-         setDate(new Date(res.date))
-         setPostBookmarked(res.actions?.bookmarked!)
-         setLikeState(
-            {
-               liked: res.actions?.liked!,
-               likeCount: res.likeCount,
-               dislikeCount: res.dislikeCount,
-            }
-         )
+         
+        setDate(new Date(res.date));
+        setPostBookmarked(res.actions?.bookmarked!);
+        setLikeState({
+          liked: res.actions?.liked!,
+          likeCount: res.likeCount,
+          dislikeCount: res.dislikeCount,
+        });        
       })
       .catch((err) => {
         console.log(err);
@@ -75,8 +73,8 @@ export default function PostPage() {
   }, []);
 
   const handleComment = (event: React.MouseEvent<HTMLButtonElement>) => {
-      setShowCommentDialog(!showCommentDialog);
-  }
+    setShowCommentDialog(!showCommentDialog);
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -135,177 +133,177 @@ export default function PostPage() {
   };
 
   return (
-      <>
-         {
-            !loading &&
-            <>
-               <Card sx={{ textAlign: "left" }}>
-               <CardHeader
-                  avatar={
-                     <Tooltip
-                     enterDelay={500}
-                     onOpen={handleTooltipOpen}
-                     slotProps={
-                        profile === null ? {} : { tooltip: { sx: { width: 200 } } }
-                     }
-                     title={
-                        profile ? (
-                           <>
-                              <Card>
-                                 <CardHeader
-                                    title={profile.displayName ?? profile.username}
-                                    subheader={`@${profile.username}`}
-                                    avatar={
-                                    <Avatar
-                                       aria-label="pfp"
-                                       src={profile.profilePicture ?? undefined}
-                                    >
-                                       {profile.username[0].toUpperCase()}
-                                    </Avatar>
-                                    }
-                                    sx={{
-                                    backgroundImage: `url(${profile.banner})`,
-                                    backgroundSize: "cover",
-                                    backdropFilter: "blur(8px)",
-                                    }}
-                                 />
-                                 <CardContent>
-                                    <Typography variant="body2">
-                                    {profile.bio ?? "No information given."}
-                                    </Typography>
-                                 </CardContent>
-                              </Card>
-                              </>
-                           ) : (
-                              "Loading..."
-                           )
-                        }
-                        >
-                        {/* <IconButton onClick={() => console.log("ok2")}> */}
-                        <Avatar
-                           aria-label="pfp"
-                           src={post.user.profilePicture ?? undefined}
-                           onClick={handleAvatarClick}
-                        >
-                           {post.user.username[0].toUpperCase()}
-                        </Avatar>
-                        {/* </IconButton> */}
-                        </Tooltip>
-                     }
-                     action={
-                        <IconButton
-                        aria-label="settings"
-                        aria-controls={open ? "basic-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? "true" : undefined}
-                        onClick={handleClick}
-                        >
-                        <MoreVertIcon />
-                        <Menu
-                           id={`post-menu-${post.id}`}
-                           anchorEl={anchorEl}
-                           open={open}
-                           onClose={handleClose}
-                        >
-                           {user?.username == post.user.username && (
-                              <MenuItem onClick={handleDelete}>Delete</MenuItem>
-                           )}
-                           <MenuItem>Report</MenuItem>
-                        </Menu>
-                        </IconButton>
-                     }
-                     title={post.user.username}
-                     subheader={date.toLocaleString()}
-                  />
+    <>
+      {!loading && (
+        <>
+          <Card sx={{ textAlign: "left" }}>
+            <CardHeader
+              avatar={
+                <Tooltip
+                  enterDelay={500}
+                  onOpen={handleTooltipOpen}
+                  slotProps={
+                    profile === null ? {} : { tooltip: { sx: { width: 200 } } }
+                  }
+                  title={
+                    profile ? (
+                      <>
+                        <Card>
+                          <CardHeader
+                            title={profile.displayName ?? profile.username}
+                            subheader={`@${profile.username}`}
+                            avatar={
+                              <Avatar
+                                aria-label="pfp"
+                                src={profile.profilePicture ?? undefined}
+                              >
+                                {profile.username[0].toUpperCase()}
+                              </Avatar>
+                            }
+                            sx={{
+                              backgroundImage: `url(${profile.banner})`,
+                              backgroundSize: "cover",
+                              backdropFilter: "blur(8px)",
+                            }}
+                          />
+                          <CardContent>
+                            <Typography variant="body2">
+                              {profile.bio ?? "No information given."}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </>
+                    ) : (
+                      "Loading..."
+                    )
+                  }
+                >
+                  {/* <IconButton onClick={() => console.log("ok2")}> */}
+                  <Avatar
+                    aria-label="pfp"
+                    src={post.user.profilePicture ?? undefined}
+                    onClick={handleAvatarClick}
+                  >
+                    {post.user.username[0].toUpperCase()}
+                  </Avatar>
+                  {/* </IconButton> */}
+                </Tooltip>
+              }
+              action={
+                <IconButton
+                  aria-label="settings"
+                  aria-controls={open ? "basic-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? "true" : undefined}
+                  onClick={handleClick}
+                >
+                  <MoreVertIcon />
+                  <Menu
+                    id={`post-menu-${post.id}`}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                  >
+                    {user?.username == post.user.username && (
+                      <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                    )}
+                    <MenuItem>Report</MenuItem>
+                  </Menu>
+                </IconButton>
+              }
+              title={post.user.username}
+              subheader={date.toLocaleString()}
+            />
 
-                  <CardContent>
-                     <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                        {post.text}
-                     </Typography>
-                     {post.media.length !== 0 && post.media[0].type === "video" ? (
-                        <video key={post.media[0].url} src={post.media[0].url} controls />
-                     ) : (
-                        <ImageList cols={2} gap={8} sx={{ maxWidth: "50%" }}>
-                        {post.media.map((media) => (
-                           <ImageListItem
-                              key={media.id}
-                              sx={{ borderRadius: 2, overflow: "hidden" }}
-                           >
-                              <img
-                              src={media.url}
-                              alt={media.url}
-                              style={{
-                                 width: "100%",
-                                 height: "100%",
-                                 objectFit: "contain",
-                                 borderRadius: "8px",
-                                 maxHeight: "150px",
-                              }}
-                              />
-                           </ImageListItem>
-                        ))}
-                        </ImageList>
-                     )}
-                  </CardContent>
-                  <CardActions>
-                     <IconButton
-                        aria-label="comment"
-                        sx={{
-                        color: false ? purple[500] : undefined,
-                        "&:hover": { color: purple[500] },
+            <CardContent>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                {post.text}
+              </Typography>
+              {post.media.length !== 0 && post.media[0].type === "video" ? (
+                <video
+                  key={post.media[0].url}
+                  src={post.media[0].url}
+                  controls
+                />
+              ) : (
+                <ImageList cols={2} gap={8} sx={{ maxWidth: "50%" }}>
+                  {post.media.map((media) => (
+                    <ImageListItem
+                      key={media.id}
+                      sx={{ borderRadius: 2, overflow: "hidden" }}
+                    >
+                      <img
+                        src={media.url}
+                        alt={media.url}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                          maxHeight: "150px",
                         }}
-                        onClick={(event) => handleComment(event)}
-                     >
-                        <CommentIcon />
-                     </IconButton>
-                     <Typography>{0}</Typography>
-                     <IconButton
-                        aria-label="like"
-                        sx={{
-                        color: likeState.liked === true ? green[500] : undefined,
-                        "&:hover": { color: green[500] },
-                        }}
-                        onClick={(event) => handleLike(event, true)}
-                     >
-                        <ThumbUpIcon />
-                     </IconButton>
-                     <Typography>{likeState.likeCount}</Typography>
-                     <IconButton
-                        aria-label="dislike"
-                        sx={{
-                        color: likeState.liked === false ? red[500] : undefined,
-                        "&:hover": { color: red[400] },
-                        }}
-                        onClick={(event) => handleLike(event, false)}
-                     >
-                        <ThumbDownIcon />
-                     </IconButton>
-                     <Typography>{likeState.dislikeCount}</Typography>
-                     <IconButton
-                        aria-label="bookmark"
-                        sx={{
-                        color: bookmarked === true ? blue[500] : undefined,
-                        "&:hover": { color: blue[400] },
-                        }}
-                        onClick={handleBookmark}
-                     >
-                        <BookmarkIcon />
-                     </IconButton>
-                     <IconButton
-                        aria-label="share"
-                        sx={{ "&:hover": { color: yellow[500] } }}
-                     >
-                        <ShareIcon />
-                     </IconButton>
-                  </CardActions>
-               </Card>
-               
-               {
-                 
-                  <CommentDialog/>
-               }
-            </>
-         }
-      </>
+                      />
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              )}
+            </CardContent>
+            <CardActions>
+              <IconButton
+                aria-label="comment"
+                sx={{
+                  color: false ? purple[500] : undefined,
+                  "&:hover": { color: purple[500] },
+                }}
+                onClick={(event) => handleComment(event)}
+              >
+                <CommentIcon />
+              </IconButton>
+              <Typography>{0}</Typography>
+              <IconButton
+                aria-label="like"
+                sx={{
+                  color: likeState.liked === true ? green[500] : undefined,
+                  "&:hover": { color: green[500] },
+                }}
+                onClick={(event) => handleLike(event, true)}
+              >
+                <ThumbUpIcon />
+              </IconButton>
+              <Typography>{likeState.likeCount}</Typography>
+              <IconButton
+                aria-label="dislike"
+                sx={{
+                  color: likeState.liked === false ? red[500] : undefined,
+                  "&:hover": { color: red[400] },
+                }}
+                onClick={(event) => handleLike(event, false)}
+              >
+                <ThumbDownIcon />
+              </IconButton>
+              <Typography>{likeState.dislikeCount}</Typography>
+              <IconButton
+                aria-label="bookmark"
+                sx={{
+                  color: bookmarked === true ? blue[500] : undefined,
+                  "&:hover": { color: blue[400] },
+                }}
+                onClick={handleBookmark}
+              >
+                <BookmarkIcon />
+              </IconButton>
+              <IconButton
+                aria-label="share"
+                sx={{ "&:hover": { color: yellow[500] } }}
+              >
+                <ShareIcon />
+              </IconButton>
+            </CardActions>
+          </Card>
+
+          {<CommentDialog post_id={post_id}/>}
+        </>
+      )}
+    </>
   );
 }
