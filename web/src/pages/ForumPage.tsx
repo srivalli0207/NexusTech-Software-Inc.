@@ -5,6 +5,7 @@ import PostCard from "../components/PostCard";
 import { Forum, ForumManager } from "../api/forum";
 import { useUser } from "../utils/AuthContext";
 import { Post } from "../api/post";
+import PostList from "../components/PostList";
 
 
 export default function ForumPage() {
@@ -30,7 +31,7 @@ export default function ForumPage() {
             {/* <UserProfileHeader profile={userProfile!} />
             <UserProfileTabs profile={userProfile!} /> */}
             <ForumHeader forum={forum} />
-            <ForumPosts forum={forum} />
+            <PostList requester={forumManager.getForumPosts(forum.name)} />
           </Box>
       }
     </Box>

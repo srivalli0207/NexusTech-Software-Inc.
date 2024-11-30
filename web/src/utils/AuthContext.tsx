@@ -5,16 +5,16 @@ export type UserAuth = {
    username: string,
    email: string,
    pfp: string | null
-} | null
+}
 
-export const AuthContext = createContext<UserAuth>(null)
+export const AuthContext = createContext<UserAuth | null>(null)
 
 type AuthContextProviderProp = {
    children: React.ReactNode
 }
 
 export function AuthContextProvider({children}: AuthContextProviderProp) {
-   const [auth, setAuth] = useState<UserAuth>(null)
+   const [auth, setAuth] = useState<UserAuth | null>(null)
    const [loading, setLoading] = useState(true)
 
    const on_auth_changed = (e: any) => {

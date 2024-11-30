@@ -103,6 +103,14 @@ export class UserManager extends RequestManager<"user"> {
             .setAction("following")
             .fetchJSON();
     }
+
+    public async getFriends(username: string): Promise<UserResponse[]> {
+        return await this.createRequestBuilder()
+            .setMethod("GET")
+            .setResource(username)
+            .setAction("friends")
+            .fetchJSON();
+    }
     
     public async followUser(username: string): Promise<FollowResponse> {
         return await this.createRequestBuilder()

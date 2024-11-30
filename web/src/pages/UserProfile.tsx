@@ -18,9 +18,11 @@ import {
   TextField,
   DialogActions,
   styled,
+  Tooltip,
 } from "@mui/material";
 import MessageIcon from "@mui/icons-material/Message";
 import UploadIcon from "@mui/icons-material/Upload";
+import VerifiedIcon from "@mui/icons-material/Verified";
 import PostCard from "../components/PostCard";
 import { useNavigate, useParams } from "react-router-dom";
 import UserListItem from "../components/UserListItem";
@@ -29,6 +31,9 @@ import { SetProfileData, SetProfileRequest, UserManager, UserProfileResponse, Us
 import { useUser } from "../utils/AuthContext";
 import { Post } from "../api/post";
 import { MessageManager } from "../api/message";
+import { blue } from "@mui/material/colors";
+import PostList from "../components/PostList";
+import UserList from "../components/UserList";
 
 export default function UserProfile() {
   const { username } = useParams();
@@ -90,7 +95,7 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
 
   return (
     <Box sx={{ textAlign: "left" }}>
-      <Box sx={{ height: "200px", width: "100%", objectFit: "cover" }}>
+      <Box sx={{ height: "200px", width: "100%", objectFit: "cover", backgroundColor: profile.banner ? undefined : blue[500] }}>
         {profile.banner && <img height="200px" width="100%" style={{ objectFit: "cover" }} src={profile.banner!} />}
       </Box>
       <Box sx={{ position: "relative", mx: "16px" }}>
@@ -109,6 +114,7 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
         <Box sx={{ height: "56px" }} />
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
           <Typography variant="h4">{profile.displayName ?? profile.username}</Typography>
+          {profile.verified && <Tooltip title={"Verified"}><VerifiedIcon /></Tooltip>}
           {profile.pronouns && <Typography>({profile.pronouns})</Typography>}
         </Stack>
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
@@ -149,6 +155,7 @@ function CustomTabPanel(props: TabPanelProps) {
 
 function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
   const [value, setValue] = useState(0);
+  const userManager = UserManager.getInstance();
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -165,79 +172,18 @@ function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
         </Tabs>
       </Paper>
       <CustomTabPanel value={value} index={0}>
-        <UserProfilePostsTab resource="posts" />
+        <PostList requester={userManager.getUserPosts(profile.username)} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <UserProfileFollowTab following={false} />
+        <UserList requester={userManager.getFollowers(profile.username)} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        <UserProfileFollowTab following={true} />
+        <UserList requester={userManager.getFollowing(profile.username)} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
-        <UserProfilePostsTab resource="likes" />
+        <PostList requester={userManager.getLikes(profile.username)} />
       </CustomTabPanel>
     </>
-  )
-}
-
-function UserProfilePostsTab({ resource = "posts" }: { resource?: string }) {
-  const { username } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const userManager = UserManager.getInstance();
-
-  const handleDelete = async (post: Post) => {
-    setPosts(posts.filter((p) => p.id != post.id));
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    (async () => {
-      const posts = await userManager.getUserResource(username!, resource);
-      setPosts(posts);
-      setLoading(false);
-    })();
-  }, [username]);
-
-  return (
-    <Box>
-      {loading && <CircularProgress />}
-      {!loading && posts.length === 0 && <Typography>No posts found.</Typography>}
-      <Stack spacing={2}>
-        {posts.map((post, index) => {
-          return (
-              <PostCard key={index} post={post} onDelete={handleDelete} />
-          );
-        })}
-      </Stack>
-    </Box>
-  );
-}
-
-function UserProfileFollowTab({ following }: { following: boolean }) {
-  const { username } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [follows, setFollows] = useState<UserResponse[]>([]);
-  const userManager = UserManager.getInstance();
-
-  useEffect(() => {
-    setLoading(true);
-    const promise = !following ? userManager.getFollowers(username!) : userManager.getFollowing(username!);
-    (async () => {
-      const res = await promise;
-      setFollows(res);
-      setLoading(false);
-    })();
-  }, [username]);
-
-  return (
-    <Box>
-      {loading && <CircularProgress />}
-      {!loading && follows.length === 0 && <Typography>No followers found.</Typography>}
-      <List>
-        {follows.map((user) => <UserListItem user={user} key={`user-list-item-${user.username}`} />)}
-      </List>
-    </Box>
   )
 }
 
@@ -302,6 +248,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
   }
 
   const handlePfpFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.files);
     if (event.target.files === null) return;
     setPfpImage(event.target.files);
   }

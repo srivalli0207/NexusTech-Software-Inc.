@@ -17,7 +17,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { blue, green, purple, red, yellow } from "@mui/material/colors";
 import { CardActionArea, ImageList, ImageListItem, Tooltip } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useUser } from "../utils/AuthContext";
 import { UserManager, UserProfileResponse } from "../api/user";
 import { Post, PostLike, PostManager } from "../api/post";
@@ -66,6 +66,13 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
         snackbar({ open: true, message: err as any })
         console.error(err);
       }
+    }
+
+    const handleShare = async (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      const url = new URL(`/post/${post.id}`, window.location.origin);
+      await navigator.clipboard.writeText(url.href);
+      snackbar({ open: true, message: "Post link copied to clipboard!" });
     }
 
     const handleTooltipOpen = async () => {
@@ -167,11 +174,11 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
             <IconButton aria-label="bookmark" sx={{ color: bookmarked === true ? blue[500] : undefined, "&:hover": { color: blue[400] } }} onClick={handleBookmark}>
               <BookmarkIcon />
             </IconButton>
-            <IconButton aria-label="share" sx={{ "&:hover": { color: yellow[500] } }}>
+            <IconButton aria-label="share" sx={{ "&:hover": { color: yellow[500] } }} onClick={handleShare}>
               <ShareIcon />
             </IconButton>
             <div style={{ flex: "1 0 0" }} />
-            {post.forum && <Typography sx={{ marginRight: "8px" }}>Posted to <Link to={`/forums/${post.forum}`}>/f/{post.forum}</Link></Typography>}
+            {post.forum && <Typography sx={{ marginRight: "8px", ":hover": { "textDecoration": "underline" } }}><Link to={`/forums/${post.forum}`}>/f/{post.forum}</Link></Typography>}
           </CardActions>
         </CardActionArea>
       </Card>

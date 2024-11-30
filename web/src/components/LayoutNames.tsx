@@ -12,20 +12,19 @@ export default function LayoutNames() {
    const userManager = UserManager.getInstance();
 
    useEffect(() => {
-      const fetch_follows = async () => {
+      (async () => {
          setFollowing(undefined);
          if (user != null) {
-            const res = await userManager.getFollowing(user.username);
+            const res = await userManager.getFriends(user.username);
             setFollowing(res);
          }
-      };
-      fetch_follows();
+      })();
    }, [user]);
 
    return (
       <>
          <Typography sx={{ mt: 1, mb: 2 }} variant="h6" component="div">
-            Following
+            Friends
          </Typography>
          <List>
             {following?.map((value) => (

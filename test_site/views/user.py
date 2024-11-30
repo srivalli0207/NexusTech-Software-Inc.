@@ -14,6 +14,7 @@ def get_user_views():
         path("<str:username>/posts", get_posts, name="get_posts"),
         path("<str:username>/followers", get_followers, name="get_followers"),
         path("<str:username>/following", get_following, name="get_following"),
+        path("<str:username>/friends", get_friends, name="get_friends"),
         path("<str:username>/follow", follow_user, name="follow_user"),
         path("<str:username>/likes", get_likes, name="get_likes"),
         path("bookmarks", get_bookmarks, name="get_bookmarks"),
@@ -46,21 +47,27 @@ def get_following(request: HttpRequest, username: str):
     fields = [serialize_user(user) for user in following]
     return JsonResponse(fields, status=200, safe=False)
 
+@require_GET
+def get_friends(request: HttpRequest, username: str):
+    profile = UserProfile.objects.get(user__username=username)
+    friends = profile.followers.all() & profile.following.all()
+    return JsonResponse([serialize_user(user) for user in friends], status=200, safe=False)
+
 @require_POST
 def follow_user(request: HttpRequest, username: str):
     if not request.user.is_authenticated:
         return JsonResponse({"message": "User is unauthenticated"}, status=401)
 
     user = UserProfile.objects.get(user_id=request.user.id)
-    following = UserProfile.objects.get(user__username=request.GET.get("username"))
-    follow = request.GET.get("follow") == "true"
-    if follow:
+    following = UserProfile.objects.get(user__username=username)
+    follow = Follow.objects.filter(user=user, following=following)
+    if not follow.exists():
         follow_obj = Follow(user=user, following=following)
         follow_obj.save()
+        return JsonResponse({"following": True}, status=200)
     else:
-        follow_obj = Follow.objects.get(user_id=request.user.id, following__user__username=username)
-        follow_obj.delete()
-    return JsonResponse({"following": follow}, status=200)
+        follow.first().delete()
+        return JsonResponse({"following": False}, status=200)
 
 @require_GET
 def search_users(request: HttpRequest):
