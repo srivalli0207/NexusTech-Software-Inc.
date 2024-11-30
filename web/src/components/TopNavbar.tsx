@@ -1,23 +1,23 @@
 import { AppBar, Toolbar, IconButton, Typography, Avatar, Button, Menu, MenuItem, Box } from "@mui/material";
-//import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from "react-router-dom";
-import { useUser } from "../utils/auth-hooks";
-import { log_out } from "../utils/auth";
 import HubIcon from '@mui/icons-material/Hub';
 import { useState } from "react";
 import PostDialog from "./PostDialog"; 
 import AppBarSearch from "./AppBarSearch";
+import { useUser } from "../utils/AuthContext";
+import { AuthManager } from "../api/auth";
 
 
-export default function NexifyAppBar () {
+export default function TopNavbar() {
    const user = useUser();
    const navigate = useNavigate();
    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
    const open = Boolean(anchorEl);
+   const authManager = AuthManager.getInstance();
 
    const handleLogout = async () => {
       handleClose();
-      await log_out()
+      await authManager.logout();
       navigate('/')
    }
 
@@ -58,7 +58,7 @@ export default function NexifyAppBar () {
                         <Avatar src={user!.pfp !== null ? user!.pfp : undefined}>{user!.username[0].toUpperCase()}</Avatar>
                      </IconButton>
                      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} onClick={handleClose}>
-                        <MenuItem component={Link} to={`/user-profile/${user!.username}`}>Profile</MenuItem>
+                        <MenuItem component={Link} to={`/profile/${user!.username}`}>Profile</MenuItem>
                         <MenuItem onClick={handleLogout}>Logout</MenuItem>
                      </Menu>
                   </Box>

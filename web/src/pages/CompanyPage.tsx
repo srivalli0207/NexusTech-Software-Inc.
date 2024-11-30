@@ -67,7 +67,7 @@ const logs: {
     date: "09-06-24",
     start: "4:00 PM",
     end: "4:30 PM",
-    goal: "To finish the SRS and visualize the social media site Nexify. Add additional information to the company website.",
+    goal: "To finish the SRS and visualize the social media site Nexus. Add additional information to the company website.",
     team: [
       { name: "Jackie", yesterday: "Added to and refined the SRS. Set up node.js. Tested the AWS connections. ", today: "Continue working on the SRS. " },
       { name: "Srivalli", yesterday: "Worked on the SRS. Tested the AWS connections.", today: "Work on non-functional requirements SRS" },
@@ -163,7 +163,7 @@ export default function CompanyPage() {
               <Typography variant="h3" style={{marginBottom: "16px"}}>Projects</Typography>
               <Grid2 container spacing={2} style={{textAlign: "left"}}>
                 <Grid2 size={{ xs: 6, md: 4 }}>
-                  <ProjectCard name="Nexify" description="A social media site is a networking platform where users can interact with each other through posts, comments, likes, dislikes, and messaging features. Requested by telecommunications company." />
+                  <ProjectCard name="Nexus" description="A social media site is a networking platform where users can interact with each other through posts, comments, likes, dislikes, and messaging features. Requested by telecommunications company." />
                 </Grid2>
                 <Grid2 size={{ xs: 6, md: 4 }}>
                   <ProjectCard name="PlanIt" description="A comprehensive event tracker and planner. Requested by a professional event planning company." />

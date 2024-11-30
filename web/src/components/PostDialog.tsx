@@ -9,9 +9,9 @@ import CreateIcon from '@mui/icons-material/Create';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { Fragment, useState } from 'react';
 import { CircularProgress, DialogContentText, Fab, IconButton, ImageList, ImageListItem, styled, Typography } from '@mui/material';
-import { submit_post, upload_file } from '../utils/fetch';
 import { useSnackbar } from '../utils/SnackbarContext';
 import { useLocation } from 'react-router-dom';
+import { CreatePost, PostManager } from '../api/post';
 
 export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [open, setOpen] = useState(false);
@@ -22,14 +22,8 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [videoFile, setVideoFile] = useState<FileList | null>(null);
   const snackbar = useSnackbar();
   const location = useLocation();
-  const maxWords = 300;
-
-  const getWordCount = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
-
-  const wordCount = getWordCount(textInput);
-  const remainingWords = maxWords - wordCount;
+  const maxChars = 300;
+  const postManager = PostManager.getInstance();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -52,18 +46,16 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const handlePost = async () => {
     setPosting(true);
     try {
-      const data = { text: textInput, forum: null };
+      const data: CreatePost = {};
+      if (textInput.length !== 0) data.text = textInput;
       const split = location.pathname.split("/");
       if (split.length === 3 && split[1] === "forums") {
-        (data as any).forum = split[2];
+        data.forum = split[2];
       }
-      const post = await submit_post(data);
-      if (imageFile) {
-        await upload_file(Array.from(imageFile), "post", post.id.toString(), "image")
-      }
-      if (videoFile) {
-        await upload_file(Array.from(videoFile), "post", post.id.toString(), "video")
-      }
+      if (imageFile) data.images = imageFile;
+      else if (videoFile) data.video = videoFile;
+      console.log(data);
+      await postManager.createPost(data);
       setOpen(false);
       snackbar({ open: true, message: "Post sent!" })
     } catch (err) {
@@ -132,8 +124,8 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
             disabled={posting}
             onChange={handleText}
             onKeyDown={handleKeyDown}
-            error={wordCount > maxWords}
-            helperText={wordCount > maxWords ? "Max text length is 300." : undefined} />
+            error={textInput.length > maxChars}
+            helperText={textInput.length > maxChars ? "Max text length is 300." : undefined} />
           {imageFile && (
             <>
               <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
@@ -183,12 +175,12 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
               accept="video/mp4, video/mpeg, video/webm"
             />
           </IconButton>
-          <Typography sx={{ color: wordCount > maxWords ? "red" : undefined }}>
-            {remainingWords >= 0 ? `${remainingWords} words remaining` : "Word limit exceeded"}
+          <Typography sx={{ color: textInput.length > maxChars ? "red" : undefined }}>
+            {textInput.length}/{maxChars}
           </Typography>
           <div style={{ flex: "1 0 0" }} />
           <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" disabled={(posting || !textInput || wordCount > maxWords) && !imageFile && !videoFile} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
+          <Button variant="contained" disabled={(posting || !textInput || textInput.length > maxChars) && !imageFile && !videoFile} onClick={handlePost}>{!posting ? "Post" : <CircularProgress color="inherit" size="1.5rem" />}</Button>
         </DialogActions>
       </Dialog>
     </Fragment>

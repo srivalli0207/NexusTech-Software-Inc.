@@ -2,7 +2,7 @@ import { Search } from "@mui/icons-material";
 import { Autocomplete, Avatar, Box, CircularProgress, InputAdornment, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { search_users, UserResponse } from "../utils/fetch";
+import { UserManager, UserResponse } from "../api/user";
 
 export default function AppBarSearch() {
 	const [searchString, setSearchString] = useState("");
@@ -12,7 +12,7 @@ export default function AppBarSearch() {
 
 	useEffect(() => {
 		const timerCallback = async () => {
-			const res = await search_users(searchString);
+			const res = await UserManager.getInstance().searchUsers(searchString);
 
 			if (res.length > 0) {
 				setSearchOptions(res)
@@ -49,7 +49,7 @@ export default function AppBarSearch() {
 			onInputChange={(_, value, __) => setSearchString(value)}
 			onChange={(_, value) => {
 				if (value) {
-					navigate("/user-profile/" + (typeof value === "string" ? value : value.username));
+					navigate("/profile/" + (typeof value === "string" ? value : value.username));
 					setSearchString("");
 				}
 			}}

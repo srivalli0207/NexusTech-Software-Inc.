@@ -3,43 +3,42 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import { useState, useEffect } from "react";
-import { LikeResponse } from "../utils/fetch";
 import Comment from "./Comment";
-import { post_comment,  get_comments, like_comment } from "../utils/fetch";
-import CSRF_Token from "../utils/csrf_token";
 import { useSnackbar } from "../utils/SnackbarContext";
+import { PostLike } from "../api/post";
+import { CommentManager } from "../api/comment";
+import CSRF_Token from "../utils/AuthContext";
 
 type CommentDialogProp = {
-  post_id: string | undefined;
+  post_id: number | undefined;
 };
 
 export default function CommentDialog({ post_id }: CommentDialogProp) {
-  const [likeState, setLikeState] = useState<LikeResponse>({
+  const [likeState, setLikeState] = useState<PostLike>({
     liked: false,
     likeCount: 0,
     dislikeCount: 0,
   });
   const snackbar = useSnackbar();
-  const [comment_text, set_comment_text] = useState<string>("")
+  const [comment_text, set_comment_text] = useState<string>("");
+  const commentManager = CommentManager.getInstance();
 
   useEffect(() => {
       const get_data = async () => {
-         
-         await get_comments(post_id!)
+         await commentManager.getComments(post_id!);
       }
       get_data()
-
   }, [])
 
   const handle_comment_post = async () => {
    console.log(post_id)
-   await post_comment(post_id!, "dummy comment")
+   await commentManager.postComment(post_id!, "dummy comment")
   }
   
   const handle_comment_like = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
     event.stopPropagation();
     try {
-      const res = await like_comment(123, like);
+      const res = await commentManager.likeComment(123, like);
       setLikeState(res);
     } catch(err) {
       snackbar({ open: true, message: err as any})

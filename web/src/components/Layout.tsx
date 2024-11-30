@@ -2,16 +2,16 @@ import Grid from '@mui/material/Grid2'
 import { Outlet } from "react-router-dom"
 import SideBar from "./SideBar"
 import { Box, useTheme } from '@mui/material'
-import NexifyAppBar from './NexifyAppBar'
+import TopNavbar from './TopNavbar'
 import LayoutNames from './LayoutNames'
-import NexifyBottomNav from './NexifyBottomNav'
+import BottomNavbar from './BottomNavbar'
 
 export default function Layout() {
    const theme = useTheme();
 
    return (
       <Box position='sticky' display='flex' flexDirection='column' height='100%'>
-         <NexifyAppBar />
+         <TopNavbar />
          <Box flexGrow={1} sx={{ height: "100%" }}>
             <Grid container>
                <Grid size={{ md: 2, xs: 0 }} sx={{ p: 2, borderRight: 'solid 0.5px', borderColor: theme.palette.divider, display: { md: "inline", xs: "none" } }}>
@@ -25,7 +25,7 @@ export default function Layout() {
                </Grid>
             </Grid>
             <Box sx={{ display: { md: "none", xs: "inline" } }}>
-               <NexifyBottomNav />
+               <BottomNavbar />
             </Box>
          </Box>
       </Box>

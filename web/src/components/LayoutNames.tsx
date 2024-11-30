@@ -1,20 +1,21 @@
 import { Typography, List, ListItemAvatar, Avatar, ListItemText, ListItemButton, Badge } from "@mui/material"; 
-import { useUser } from "../utils/auth-hooks";
 import { useState, useEffect } from "react";
-import { get_following, UserResponse} from "../utils/fetch";
 import { Link } from "react-router-dom";
 import { useStatus } from "../utils/StatusContext";
+import { useUser } from "../utils/AuthContext";
+import { UserManager, UserResponse } from "../api/user";
 
 export default function LayoutNames() {
    const user = useUser();
    const [following, setFollowing] = useState<UserResponse[]>();
    const statuses = useStatus();
+   const userManager = UserManager.getInstance();
 
    useEffect(() => {
       const fetch_follows = async () => {
          setFollowing(undefined);
          if (user != null) {
-            const res = await get_following(user.username);
+            const res = await userManager.getFollowing(user.username);
             setFollowing(res);
          }
       };
@@ -28,7 +29,7 @@ export default function LayoutNames() {
          </Typography>
          <List>
             {following?.map((value) => (
-               <ListItemButton key={`layout-following-${value.username}`} component={Link} to={`/user-profile/${value.username}`} replace={true}>
+               <ListItemButton key={`layout-following-${value.username}`} component={Link} to={`/profile/${value.username}`} replace={true}>
                   <ListItemAvatar>
                      <Badge
                         overlap="circular"

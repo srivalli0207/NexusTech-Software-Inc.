@@ -1,18 +1,19 @@
 import { Avatar, Box, CircularProgress, List, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
-import { ConversationResponse, get_conversations } from "../utils/fetch";
 import { Link } from "react-router-dom";
+import { Conversation, MessageManager } from "../api/message";
 
 export default function ConversationList() {
   const [loading, setLoading] = useState(true);
-  const [conversations, setConversations] = useState<ConversationResponse[]>([])
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const messageManager = MessageManager.getInstance();
   
   useEffect(() => {
     (async () => {
-      setConversations(await get_conversations());
-    })().then((_) => {
+      const conversations = await messageManager.getConversations();
+      setConversations(conversations);
       setLoading(false);
-    });
+    })();
   }, []);
 
   return (
@@ -26,7 +27,7 @@ export default function ConversationList() {
   )
 }
 
-function ConversationListItem({ conversation }: {conversation: ConversationResponse}) {
+function ConversationListItem({ conversation }: {conversation: Conversation}) {
   return (
     <ListItemButton alignItems="flex-start" component={Link} to={`/messages/${conversation.id}`} key={conversation.id}>
       <ListItemAvatar>

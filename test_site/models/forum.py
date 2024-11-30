@@ -18,7 +18,7 @@ class Forum(models.Model):
     def get_forum(forum_name: str) -> "Forum":
         res = Forum.objects.filter(name=forum_name)
         if res.exists():
-            return res[0]
+            return res.first()
         else:
             return None
         

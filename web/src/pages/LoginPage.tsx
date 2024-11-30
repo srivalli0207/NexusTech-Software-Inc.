@@ -1,15 +1,15 @@
 import { Box, TextField, Stack, Button, useTheme, CircularProgress, SnackbarCloseReason, Snackbar } from "@mui/material"
 import React, { FormEvent, useState } from "react"
 import { Link } from "react-router-dom"
-import { log_in } from "../utils/auth"
-import CSRF_Token from "../utils/csrf_token"
+import { AuthManager } from "../api/auth";
+import CSRF_Token from "../utils/AuthContext";
 
 export default function LoginPage() {
    const theme = useTheme()
-   
    const [loading, setLoading] = useState(false);
    const [open, setOpen] = useState(false);
    const [message, setMessage] = useState("");
+   const authManager = AuthManager.getInstance();
   
     const handleClose = (
       _event: React.SyntheticEvent | Event,
@@ -28,12 +28,12 @@ export default function LoginPage() {
 
       const formData = new FormData(event.currentTarget)
       let formObject = Object.fromEntries(formData.entries()) as { username: string, password: string };
-      const response = await log_in(formObject as { username: string, password: string })
+      const response = await authManager.login(formObject)
 
       if (response.user != null) {
          console.log('logged in', response.user)
       } else {
-         console.log('loggin failed', response.message);
+         console.log('login failed', response.message);
          setMessage(response.message);
          setOpen(true);
       }

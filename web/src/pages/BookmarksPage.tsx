@@ -3,21 +3,23 @@ import '../styles/App.css'
 import '../styles/index.css'
 import Typography from '@mui/material/Typography'
 import PostDialog from '../components/PostDialog';
-import { useUser } from '../utils/auth-hooks';
 import { useEffect, useState } from 'react';
-import { get_bookmarks, PostResponse } from '../utils/fetch';
-import PostFeedCard from '../components/PostFeedCard';
+import PostCard from '../components/PostCard';
+import { useUser } from '../utils/AuthContext';
+import { Post } from '../api/post';
+import { UserManager } from '../api/user';
 
 export default function BookmarksPage() {
   const user = useUser();
   const [loading, setLoading] = useState(false);
-  const [posts, setPosts] = useState<PostResponse[]>([])
+  const [posts, setPosts] = useState<Post[]>([]);
+  const userManager = UserManager.getInstance();
 
   useEffect(() => {
     if (!user) return;
 
     setLoading(true);
-    get_bookmarks().then((res) => {
+    userManager.getBookmarks().then((res) => {
       setPosts(res);
       setLoading(false);
     }).catch((err) => {
@@ -25,7 +27,7 @@ export default function BookmarksPage() {
     })
   }, []);
 
-  const handleDelete = async (post: PostResponse) => {
+  const handleDelete = async (post: Post) => {
     setPosts(posts.filter((p) => p.id != post.id));
   };
 
@@ -41,7 +43,7 @@ export default function BookmarksPage() {
           <Stack spacing={2}>
             {posts.map((post, index) => {
               return (
-                <PostFeedCard key={index} post={post} onDelete={handleDelete} />
+                <PostCard key={index} post={post} onDelete={handleDelete} />
               );
             })}
           </Stack>

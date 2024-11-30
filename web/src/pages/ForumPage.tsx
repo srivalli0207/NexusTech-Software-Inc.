@@ -1,18 +1,20 @@
 import { Avatar, Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ForumResponse, get_forum, get_forum_posts, PostResponse } from "../utils/fetch";
-import { useUser } from "../utils/auth-hooks";
-import PostFeedCard from "../components/PostFeedCard";
+import PostCard from "../components/PostCard";
+import { Forum, ForumManager } from "../api/forum";
+import { useUser } from "../utils/AuthContext";
+import { Post } from "../api/post";
 
 
 export default function ForumPage() {
   const { forum_name } = useParams();
-  const [forum, setForum] = useState<ForumResponse | null>(null);
+  const [forum, setForum] = useState<Forum | null>(null);
+  const forumManager = ForumManager.getInstance();
 
   useEffect(() => {
     setForum(null);
-    get_forum(forum_name!).then((forum) => {
+    forumManager.getForum(forum_name!).then((forum) => {
       setForum(forum);
     }).catch((err) => {
       console.error(err);
@@ -35,7 +37,7 @@ export default function ForumPage() {
   )
 }
 
-function ForumHeader({ forum }: { forum: ForumResponse }) {
+function ForumHeader({ forum }: { forum: Forum }) {
   const user = useUser();
   const [followLoading, setFollowLoading] = useState(false);
   const navigate = useNavigate();
@@ -102,17 +104,18 @@ function ForumHeader({ forum }: { forum: ForumResponse }) {
   )
 }
 
-function ForumPosts({ forum }: { forum: ForumResponse }) {
+function ForumPosts({ forum }: { forum: Forum }) {
   const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<PostResponse[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const forumManager = ForumManager.getInstance();
 
-  const handleDelete = async (post: PostResponse) => {
+  const handleDelete = async (post: Post) => {
     setPosts(posts.filter((p) => p.id != post.id));
   };
 
   useEffect(() => {
     setLoading(true);
-    get_forum_posts(forum.name)
+    forumManager.getForumPosts(forum.name)
       .then(async (res) => {
         setPosts(res);
         setLoading(false);
@@ -130,7 +133,7 @@ function ForumPosts({ forum }: { forum: ForumResponse }) {
       <Stack spacing={2}>
         {posts.map((post, index) => {
           return (
-            <PostFeedCard key={index} post={post} onDelete={handleDelete} />
+            <PostCard key={index} post={post} onDelete={handleDelete} />
           );
         })}
       </Stack>

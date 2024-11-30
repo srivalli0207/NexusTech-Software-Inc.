@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { UserResponse } from "../utils/fetch";
 import {
   Avatar,
   Box,
@@ -8,12 +7,13 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import { UserResponse } from "../api/user";
 
 export default function UserListItem({ user }: { user: UserResponse }) {
   const navigate = useNavigate();
 
   return (
-    <ListItemButton onClick={() => navigate(`/user-profile/${user.username}`)}>
+    <ListItemButton onClick={() => navigate(`/profile/${user.username}`)}>
       <ListItemAvatar>
         <Avatar src={user.profilePicture ?? undefined}>
           {user.username[0].toUpperCase()}

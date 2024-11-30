@@ -1,15 +1,15 @@
 import { Box, TextField, Stack, Button, useTheme, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import React, { FormEvent, useState } from "react";
-import { signup } from "../utils/auth";
-import CSRF_Token from "../utils/csrf_token";
+import { FormEvent, useState } from "react";
 import UserProfileBuilder from "../utils/UserProfileBuilder";
+import { AuthManager } from "../api/auth";
+import CSRF_Token from "../utils/AuthContext";
 
 export default function SignUpPage() {
    const theme = useTheme();
    const navigate = useNavigate();
-
    const [loading, setLoading] = useState(false);
+   const authManager = AuthManager.getInstance();
 
    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
       setLoading(true);
@@ -27,7 +27,7 @@ export default function SignUpPage() {
             .setPassword(password)
             .build();
 
-         const response = await signup(userProfile);
+         const response = await authManager.signup(userProfile);
 
          if (response.user != null) {
             console.log('signed up', response.user);

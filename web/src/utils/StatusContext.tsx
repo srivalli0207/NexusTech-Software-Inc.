@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useUser } from "./auth-hooks";
+import { useUser } from "./AuthContext";
 
 export type StatusProps = Set<String>;
 

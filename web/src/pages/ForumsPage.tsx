@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -7,22 +6,21 @@ import {
   CardContent,
   CardMedia,
   CircularProgress,
-  Stack,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { useEffect, useReducer, useState } from "react";
-import { ForumResponse, get_forums } from "../utils/fetch";
-import { Link, useNavigate } from "react-router-dom";
-import { useUser } from "../utils/auth-hooks";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Forum, ForumManager } from "../api/forum";
 
 export default function ForumsPage() {
-  const [forums, setForums] = useState<ForumResponse[]>([]);
+  const [forums, setForums] = useState<Forum[]>([]);
   const [loading, setLoading] = useState(true);
+  const forumManager = ForumManager.getInstance();
 
   useEffect(() => {
     setLoading(true);
-    get_forums()
+    forumManager.getForums()
       .then((res) => {
         setForums(res);
         setLoading(false);
@@ -51,7 +49,7 @@ export default function ForumsPage() {
   );
 }
 
-function ForumsCard({ forum }: { forum: ForumResponse }) {
+function ForumsCard({ forum }: { forum: Forum }) {
   return (
     <Card>
       <CardMedia

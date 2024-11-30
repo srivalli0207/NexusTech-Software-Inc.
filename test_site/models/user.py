@@ -92,6 +92,15 @@ class UserProfile(models.Model):
     def get_display_name(self) -> str:
         return self.display_name if self.display_name is not None else self.user.username
     
+    def get_posts(self) -> list["Post"]:
+        from test_site.models.post import Post
+        posts = Post.objects.filter(user=self)
+        return posts
+    
+    def get_likes(self) -> list["Post"]:
+        likes = self.likes.all().order_by("-postlike__datetime")
+        return likes
+    
     def __str__(self):
         return f"{self.user.username} ({self.pk})"
 

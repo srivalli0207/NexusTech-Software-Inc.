@@ -8,7 +8,7 @@ from test_site.views.serializers import serialize_forum, serialize_post
 def get_forum_views():
     return [
         path("", get_forums, name="get_forums"),
-        path("<str:forum_name>", get_forum, name="get_forum"),
+        path("<str:forum_name>/", get_forum, name="get_forum"),
         path("<str:forum_name>/posts", get_forum_posts, name="get_forum_posts")
     ]
 

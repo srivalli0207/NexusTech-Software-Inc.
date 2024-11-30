@@ -21,34 +21,23 @@ import {
 } from "@mui/material";
 import MessageIcon from "@mui/icons-material/Message";
 import UploadIcon from "@mui/icons-material/Upload";
-import PostFeedCard from "../components/PostFeedCard";
-import {
-  follow_user,
-  get_conversation,
-  get_followers,
-  get_following,
-  get_likes,
-  get_posts,
-  get_user,
-  PostResponse,
-  SetProfileRequest,
-  update_profile,
-  upload_file,
-  UserProfileResponse,
-  UserResponse,
-} from "../utils/fetch";
-import { useUser } from "../utils/auth-hooks";
+import PostCard from "../components/PostCard";
 import { useNavigate, useParams } from "react-router-dom";
 import UserListItem from "../components/UserListItem";
 import { useSnackbar } from "../utils/SnackbarContext";
+import { SetProfileData, SetProfileRequest, UserManager, UserProfileResponse, UserResponse } from "../api/user";
+import { useUser } from "../utils/AuthContext";
+import { Post } from "../api/post";
+import { MessageManager } from "../api/message";
 
 export default function UserProfile() {
   const { username } = useParams();
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(null);
+  const userManager = UserManager.getInstance();
 
   useEffect(() => {
     setUserProfile(null);
-    get_user(username!).then((profile) => {
+    userManager.getUser(username!).then((profile) => {
       setUserProfile(profile);
     }).catch((err) => {
       console.error(err);
@@ -75,17 +64,19 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
   const navigate = useNavigate();
   const isSelf = user?.username === username;
   const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const userManager = UserManager.getInstance();
+  const messageManager = MessageManager.getInstance();
 
   const followUser = async () => {
     setFollowLoading(true);
-    const res = await follow_user(username!, !profile.following);
+    const res = await userManager.followUser(username!);
     profile.following = res.following;
     setFollowLoading(false);
   };
 
   const messageUser = async () => {
-    const res = await get_conversation(username!);
-    navigate(`/messages/${res.id}`);
+    const res = await messageManager.getConversations(username!);
+    navigate(`/messages/${res[0].id}`);
   };
 
   const onProfileUpdate = (formData: SetProfileRequest) => {
@@ -174,7 +165,7 @@ function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
         </Tabs>
       </Paper>
       <CustomTabPanel value={value} index={0}>
-        <UserProfilePostsTab />
+        <UserProfilePostsTab resource="posts" />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <UserProfileFollowTab following={false} />
@@ -183,33 +174,29 @@ function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
         <UserProfileFollowTab following={true} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
-        <UserProfilePostsTab likes/>
+        <UserProfilePostsTab resource="likes" />
       </CustomTabPanel>
     </>
   )
 }
 
-function UserProfilePostsTab({ likes = false }: { likes?: boolean }) {
+function UserProfilePostsTab({ resource = "posts" }: { resource?: string }) {
   const { username } = useParams();
   const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<PostResponse[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const userManager = UserManager.getInstance();
 
-  const handleDelete = async (post: PostResponse) => {
+  const handleDelete = async (post: Post) => {
     setPosts(posts.filter((p) => p.id != post.id));
   };
 
   useEffect(() => {
     setLoading(true);
-    const promise = !likes ? get_posts : get_likes;
-    promise(username!)
-      .then(async (res) => {
-        setPosts(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    (async () => {
+      const posts = await userManager.getUserResource(username!, resource);
+      setPosts(posts);
+      setLoading(false);
+    })();
   }, [username]);
 
   return (
@@ -219,7 +206,7 @@ function UserProfilePostsTab({ likes = false }: { likes?: boolean }) {
       <Stack spacing={2}>
         {posts.map((post, index) => {
           return (
-              <PostFeedCard key={index} post={post} onDelete={handleDelete} />
+              <PostCard key={index} post={post} onDelete={handleDelete} />
           );
         })}
       </Stack>
@@ -231,19 +218,16 @@ function UserProfileFollowTab({ following }: { following: boolean }) {
   const { username } = useParams();
   const [loading, setLoading] = useState(true);
   const [follows, setFollows] = useState<UserResponse[]>([]);
+  const userManager = UserManager.getInstance();
 
   useEffect(() => {
     setLoading(true);
-    const promise = !following ? get_followers : get_following
-    promise(username!)
-      .then(async (res) => {
-        setFollows(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    const promise = !following ? userManager.getFollowers(username!) : userManager.getFollowing(username!);
+    (async () => {
+      const res = await promise;
+      setFollows(res);
+      setLoading(false);
+    })();
   }, [username]);
 
   return (
@@ -270,6 +254,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
   const snackbar = useSnackbar();
   const [pfpImage, setPfpImage] = useState<FileList | null>(null);
   const [bannerImage, setBannerImage] = useState<FileList | null>(null);
+  const userManager = UserManager.getInstance();
 
   const handleClickOpen = () => {
     setFormState({
@@ -293,19 +278,14 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
   const handleUpdate = async () => {
     setUpdating(true);
     try {
-      await update_profile(formState);
-      if (pfpImage) {
-        const res = await upload_file(Array.from(pfpImage), "pfp");
-        formState.profilePicture = res.urls[0];
-      }
-      if (bannerImage) {
-        const res = await upload_file(Array.from(bannerImage), "banner");
-        formState.banner = res.urls[0];
-      }
+      const formData: SetProfileData = {...formState};
+      if (pfpImage) formData.profilePicture = pfpImage.item(0);
+      if (bannerImage) formData.banner = bannerImage.item(0);
+      const res = await userManager.updateUser(formData);
       setOpen(false);
       setUpdating(false);
       snackbar({ open: true, message: "Profile updated!" });
-      if (onUpdate) onUpdate(formState);
+      if (onUpdate) onUpdate(res);
     } catch (err) {
       console.error(err);
       setUpdating(false);
@@ -376,6 +356,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
             value={formState.pronouns}
             onChange={handleText}
           />
+          <br />
           <TextField
             autoFocus
             margin="dense"
@@ -417,8 +398,6 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
               style={{ maxHeight: "100px", objectFit: "contain" }}
             />
           </div>
-          
-          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

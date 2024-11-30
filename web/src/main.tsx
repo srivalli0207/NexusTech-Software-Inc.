@@ -3,15 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, redirect } from "react-router-dom";
 import { CssBaseline, createTheme, ThemeProvider } from '@mui/material'
 import { grey, yellow } from '@mui/material/colors';
-import { AuthContextProvider } from './utils/AuthContext.tsx';
-import TestChat from './pages/TestChat.tsx';
+import { AuthContextProvider, useUser } from './utils/AuthContext.tsx';
 import CompanyPage from './pages/CompanyPage.tsx'
 import HomePage from './pages/HomePage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
 import Layout from './components/Layout.tsx';
 import UserProfile from './pages/UserProfile.tsx';
-import { useUser } from './utils/auth-hooks.ts';
 import ConversationList from './pages/ConversationList.tsx';
 import MessageList from './pages/MessageList.tsx';
 import { SnackbarProvider } from './utils/SnackbarContext.tsx';
@@ -69,12 +67,10 @@ export function Main() {
 			children:
 				[
 					{ path: "/", element: <HomePage /> },
-					// { path: "/user-profile", loader: protectedRoutes, element: <UserProfile /> },
-					{ path: "/user-profile/:username", loader: protectedRoutes, element: <UserProfile/>},
+					{ path: "/profile/:username", loader: protectedRoutes, element: <UserProfile/>},
 					{ path: "/messages", loader: protectedRoutes, element: <ConversationList /> },
 					{ path: "/messages/:conversation", loader: protectedRoutes, element: <MessageList /> },
 					{ path: "/bookmarks", loader: protectedRoutes, element: <BookmarksPage /> },
-					{ path: "/test-chat/:room_id", loader: protectedRoutes, element: <TestChat /> },
 					{ path: "/post/:post_id", loader: protectedRoutes, element: <PostPage/> },
 					{ path: "/forums", loader: protectedRoutes, element: <ForumsPage /> },
 					{ path: "/forums/:forum_name", loader: protectedRoutes, element: <ForumPage /> }

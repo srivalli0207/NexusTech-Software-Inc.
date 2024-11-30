@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  bookmark_post,
-  delete_post,
-  get_post,
-  get_user,
-  like_post,
-  LikeResponse,
-  PostResponse,
-  UserProfileResponse,
-} from "../utils/fetch";
-import {
   Card,
   CardHeader,
   Tooltip,
@@ -25,7 +15,6 @@ import {
   CardActions,
 } from "@mui/material";
 import { purple, green, red, blue, yellow } from "@mui/material/colors";
-import { useUser } from "../utils/auth-hooks";
 import { useSnackbar } from "../utils/SnackbarContext";
 import CommentIcon from "@mui/icons-material/Comment";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
@@ -34,32 +23,34 @@ import ShareIcon from "@mui/icons-material/Share";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CommentDialog from "../components/CommentDialog";
+import { Post, PostLike, PostManager } from "../api/post";
+import { UserManager, UserProfileResponse } from "../api/user";
+import { useUser } from "../utils/AuthContext";
 
 export default function PostPage() {
   let { post_id } = useParams();
-  const [post, setPost] = useState<PostResponse | null>(null);
+  const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
-  const [likeState, setLikeState] = useState<LikeResponse>({
+  const [likeState, setLikeState] = useState<PostLike>({
     liked: false,
     likeCount: 0,
     dislikeCount: 0,
   });
   const [bookmarked, setPostBookmarked] = useState(false);
-  const [date, setDate] = useState<Date>();
   const user = useUser();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [showCommentDialog, setShowCommentDialog] = useState(false);
   const open = Boolean(anchorEl);
   const snackbar = useSnackbar();
+  const postManager = PostManager.getInstance();
+  const userManager = UserManager.getInstance();
 
   useEffect(() => {
-    get_post(post_id as string)
+    postManager.getPost(parseInt(post_id!))
       .then((res) => {
         setPost(res);
         setLoading(false);
-         
-        setDate(new Date(res.date));
         setPostBookmarked(res.actions?.bookmarked!);
         setLikeState({
           liked: res.actions?.liked!,
@@ -72,7 +63,7 @@ export default function PostPage() {
       });
   }, []);
 
-  const handleComment = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleComment = (_: React.MouseEvent<HTMLButtonElement>) => {
     setShowCommentDialog(!showCommentDialog);
   };
 
@@ -87,13 +78,13 @@ export default function PostPage() {
 
   const handleDelete = async () => {
     handleClose();
-    await delete_post({ post_id: post.id });
+    await postManager.deletePost(post!.id);
     snackbar({ message: "Post deleted.", open: true });
   };
 
   const handleBookmark = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    bookmark_post(post.id)
+    postManager.bookmarkPost(post!.id)
       .then((res) => {
         setPostBookmarked(res.bookmarked);
         snackbar({
@@ -112,7 +103,7 @@ export default function PostPage() {
   ) => {
     event.stopPropagation();
     try {
-      const res = await like_post(post.id, like);
+      const res = await postManager.likePost(post!.id, like);
       setLikeState(res);
     } catch (err) {
       snackbar({ open: true, message: err as any });
@@ -123,7 +114,7 @@ export default function PostPage() {
   const handleTooltipOpen = async () => {
     if (profile !== null) return;
 
-    const res = await get_user(post.user.username);
+    const res = await userManager.getUser(post!.user.username);
     setProfile(res);
   };
 
@@ -181,10 +172,10 @@ export default function PostPage() {
                   {/* <IconButton onClick={() => console.log("ok2")}> */}
                   <Avatar
                     aria-label="pfp"
-                    src={post.user.profilePicture ?? undefined}
+                    src={post!.user.profilePicture ?? undefined}
                     onClick={handleAvatarClick}
                   >
-                    {post.user.username[0].toUpperCase()}
+                    {post!.user.username[0].toUpperCase()}
                   </Avatar>
                   {/* </IconButton> */}
                 </Tooltip>
@@ -199,35 +190,35 @@ export default function PostPage() {
                 >
                   <MoreVertIcon />
                   <Menu
-                    id={`post-menu-${post.id}`}
+                    id={`post-menu-${post!.id}`}
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleClose}
                   >
-                    {user?.username == post.user.username && (
+                    {user?.username == post!.user.username && (
                       <MenuItem onClick={handleDelete}>Delete</MenuItem>
                     )}
                     <MenuItem>Report</MenuItem>
                   </Menu>
                 </IconButton>
               }
-              title={post.user.username}
-              subheader={date.toLocaleString()}
+              title={post!.user.username}
+              subheader={post!.date.toLocaleString()}
             />
 
             <CardContent>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {post.text}
+                {post!.text}
               </Typography>
-              {post.media.length !== 0 && post.media[0].type === "video" ? (
+              {post!.media.length !== 0 && post!.media[0].type === "video" ? (
                 <video
-                  key={post.media[0].url}
-                  src={post.media[0].url}
+                  key={post!.media[0].url}
+                  src={post!.media[0].url}
                   controls
                 />
               ) : (
                 <ImageList cols={2} gap={8} sx={{ maxWidth: "50%" }}>
-                  {post.media.map((media) => (
+                  {post!.media.map((media) => (
                     <ImageListItem
                       key={media.id}
                       sx={{ borderRadius: 2, overflow: "hidden" }}
@@ -301,7 +292,7 @@ export default function PostPage() {
             </CardActions>
           </Card>
 
-          {<CommentDialog post_id={post_id}/>}
+          {<CommentDialog post_id={post!.id}/>}
         </>
       )}
     </>

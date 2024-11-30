@@ -3,9 +3,9 @@ import HomeIcon from "@mui/icons-material/Home";
 import ExploreIcon from "@mui/icons-material/Explore";
 import MessageIcon from "@mui/icons-material/Message";
 import { Link, useLocation } from "react-router-dom";
-import { useUser } from "../utils/auth-hooks";
+import { useUser } from "../utils/AuthContext";
 
-export default function NexifyBottomNav() {
+export default function BottomNavbar() {
     const user = useUser();
     const location = useLocation();
     let value = 0;

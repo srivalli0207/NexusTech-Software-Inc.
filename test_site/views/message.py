@@ -10,18 +10,53 @@ from .serializers import serialize_message, serialize_conversation
 
 def get_message_views():
     return [
-        path("conversations", get_conversations, name="conversations"),
-        path("conversation", get_conversation, name="conversation"),
-        path("messages", get_messages, name="messages"),
-        path("send_message", send_message, name="send_message"),
+        path("", conversations, name="conversations"),
+        path("<int:conversation_id>/", conversation_action, name="conversation"),
     ]
 
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
+@require_http_methods(["GET", "POST"])
+def conversations(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
+    
+    if request.method == "GET":
+        return get_conversations(request)
+    elif request.method == "POST":
+        return create_conversation(request)
+    
 
-    if isinstance(obj, (datetime, date, time)):
-        return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
+def get_conversations(request: HttpRequest):
+    user = UserProfile.objects.get(user=request.user)
+    usernames = request.GET.getlist("username")
+    conversations = MessageConversation.objects.filter(members=user)
+    if len(usernames) == 1:
+        conversations = conversations.filter(group=False)
+    elif len(usernames) > 1:
+        conversations = conversations.filter(group=True)
+    for username in usernames:
+        target = UserProfile.objects.filter(user__username=username)
+        if not target.exists():
+            return JsonResponse({"error": f"User not found: {username}"}, status=404)
+        conversations = conversations.filter(members=target.first())
+    
+    return JsonResponse([serialize_conversation(conversation, request) for conversation in conversations], safe=False, status=200)
+
+def create_conversation(request: HttpRequest):
+    ...
+
+@require_http_methods(["GET", "POST"])
+def conversation_action(request: HttpRequest, conversation_id: int):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
+    
+    conversation = MessageConversation.objects.filter(conversation_id=conversation_id)
+    if not conversation.exists():
+        return JsonResponse({"error": "Conversation does not exist"}, status=404)
+    
+    if request.method == "GET":
+        return get_messages(request, conversation.first())
+    elif request.method == "POST":
+        return send_message(request, conversation.first())
 
 @require_GET
 def get_conversation(request: HttpRequest):
@@ -37,37 +72,17 @@ def get_conversation(request: HttpRequest):
         conversation.members.add(user, target)
     
     return JsonResponse({"id": conversation.conversation_id}, status=200)
-    
 
-@require_GET
-def get_conversations(request: HttpRequest):
-    if not request.user.is_authenticated:
-        return JsonResponse({"message": "User is unauthenticated"}, status=401)
-    
-    conversations = [serialize_conversation(conversation, request) for conversation in MessageConversation.objects.filter(members__in=[request.user.id])]
-    return HttpResponse(json.dumps(conversations, default=json_serial), content_type="application/json")
-
-@require_GET
-def get_messages(request: HttpRequest):
-    if not request.user.is_authenticated:
-        return JsonResponse({"message": "User is unauthenticated"}, status=401)
-    
-    messages = [serialize_message(message) for message in Message.objects.filter(conversation_id=int(request.GET.get("conversation"))).order_by("sent")]
-    return HttpResponse(json.dumps(messages, default=json_serial), content_type="application/json")
+def get_messages(request: HttpRequest, conversation: MessageConversation):
+    return JsonResponse([serialize_message(message) for message in Message.objects.filter(conversation=conversation).order_by("sent")], safe=False, status=200)
 
 @require_POST
-def send_message(request: HttpRequest):
-    if not request.user.is_authenticated:
-        return JsonResponse({"message": "User is unauthenticated"}, status=401)
-    
-    data: dict = json.loads(request.body)
-    text = data.get("text")
-    conversation = MessageConversation.objects.get(pk=data.get("conversation"))
-    user = UserProfile.objects.get(pk=request.user.pk)
+def send_message(request: HttpRequest, conversation: MessageConversation):
+    text = request.POST.get("text")
+    user = UserProfile.objects.get(user=request.user)
     message = Message(user=user, conversation=conversation, text=text)
     message.save()
     conversation.last_message = message
     conversation.save()
 
-    fields = serialize_message(message)
-    return HttpResponse(json.dumps(fields, default=json_serial), content_type="application/json")
+    return JsonResponse(serialize_message(message), status=200)

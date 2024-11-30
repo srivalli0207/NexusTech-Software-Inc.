@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { get_messages, MessageResponse, send_message } from "../utils/fetch";
 import { useParams } from "react-router-dom";
 import {
   Avatar,
@@ -16,20 +15,22 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useUser } from "../utils/auth-hooks";
 import ImageIcon from "@mui/icons-material/Image";
 import { blue, grey } from "@mui/material/colors";
+import { ConversationMessage, MessageManager } from "../api/message";
+import { useUser } from "../utils/AuthContext";
 
 export default function MessageList() {
   const [loading, setLoading] = useState(true);
-  const [messages, setMessages] = useState<MessageResponse[]>([]);
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const { conversation } = useParams();
   const chatSocket = useRef<WebSocket>();
   const user = useUser();
+  const messageManager = MessageManager.getInstance();
 
   useEffect(() => {
     (async () => {
-      setMessages(await get_messages(parseInt(conversation!)));
+      setMessages(await messageManager.getMessages(parseInt(conversation!)));
     })().then((_) => {
       setLoading(false);
     });
@@ -41,7 +42,7 @@ export default function MessageList() {
     chatSocket.current.onmessage = (e: MessageEvent) => {
       const data = JSON.parse(e.data);
       if ("message" in data) {
-        const msg: MessageResponse = data.message;
+        const msg: ConversationMessage = data.message;
         if (msg.user.username !== user!.username) {
           setMessages((messages) => [...messages, msg])
         }
@@ -60,7 +61,7 @@ export default function MessageList() {
   }, [messages]);
 
   const handleSend = async (text: string) => {
-    const res = await send_message(parseInt(conversation!), text);
+    const res = await messageManager.sendMessage(parseInt(conversation!), {text: text});
     setMessages([...messages, res]);
 	  chatSocket.current?.send( JSON.stringify({'message': res}) )
   };
@@ -82,7 +83,7 @@ export default function MessageList() {
   );
 }
 
-function MessageBubble({ message }: { message: MessageResponse }) {
+function MessageBubble({ message }: { message: ConversationMessage }) {
   const user = useUser();
   const theme = useTheme();
   const isSender = message.user.username === user!.username;

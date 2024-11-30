@@ -5,22 +5,31 @@ from test_site.models import Comment, Post, UserProfile
 
 def get_comment_views():
    return [
-      path("get_post_comments", get_comments, name="get_post_comments"),
-      path("post_comment", post_comment, name="post_comment")
+      path("", comments, name="comments"),
    ]
 
-@require_GET
-def get_comments(request: HttpRequest):
-   post_id = request.GET["post_id"]
-   post = Post.objects.filter(post_id=post_id)[0]
-   comment = Comment.objects.filter(post=post)[0]
-   return JsonResponse({"hi": comment.content}, status=200)
+@require_http_methods(["GET", "POST"])
+def comments(request: HttpRequest):
+   post_id = request.GET["post"]
+   post = Post.objects.filter(post_id=post_id)
+   if not post.exists():
+      return JsonResponse({"error": "Post does not exist"}, status=404)
+   
+   if request.method == "GET":
+      return get_comments(request, post.first())
+   elif request.method == "POST":
+      return post_comment(request, post.first())
 
-def post_comment(request: HttpRequest):
-   post_id = request.GET["post_id"]
-   user_profile = UserProfile.objects.filter(user=request.user)[0]
-   post = Post.objects.filter(post_id=post_id)[0]
-   comment = Comment.objects.create(post=post, user=user_profile, content="dummy comment")
+
+def get_comments(request: HttpRequest, post: Post):
+   comments = Comment.objects.filter(post=post)
+   return JsonResponse([{"content": comment.content} for comment in comments], safe=False, status=200)
+
+def post_comment(request: HttpRequest, post: Post):
+   if not request.user.is_authenticated:
+      return JsonResponse({"error": "User is unauthenticated"}, status=401)
+   user = UserProfile.objects.get(user=request.user)
+   comment = Comment.objects.create(post=post, user=user, content="dummy comment")
    comment.save()
 
    return JsonResponse({"msg": request.user.username}, status=200)

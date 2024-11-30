@@ -11,27 +11,28 @@ import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import ShareIcon from "@mui/icons-material/Share";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import Typography from "@mui/material/Typography";
-import { useUser } from "../utils/auth-hooks";
 import Menu from "@mui/material/Menu";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { blue, green, purple, red, yellow } from "@mui/material/colors";
 import { CardActionArea, ImageList, ImageListItem, Tooltip } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { useNavigate } from "react-router-dom";
-import { bookmark_post, delete_post, get_user, like_post, LikeResponse, PostResponse, UserProfileResponse } from "../utils/fetch";
 import { Link } from "react-router-dom";
+import { useUser } from "../utils/AuthContext";
+import { UserManager, UserProfileResponse } from "../api/user";
+import { Post, PostLike, PostManager } from "../api/post";
 
-export default function PostFeedCard({ post, onDelete }: { post: PostResponse, onDelete: (post: PostResponse) => void }) {
-    const [likeState, setLikeState] = useState<LikeResponse>({ liked: post.actions?.liked!, likeCount: post.likeCount, dislikeCount: post.dislikeCount })
+export default function PostCard({ post, onDelete }: { post: Post, onDelete: (post: Post) => void }) {
+    const [likeState, setLikeState] = useState<PostLike>({ liked: post.actions?.liked!, likeCount: post.likeCount, dislikeCount: post.dislikeCount })
     const [bookmarked, setPostBookmarked] = useState(post.actions?.bookmarked);
     const date = new Date(post.date);
     const user = useUser();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [profile, setProfile] = useState<UserProfileResponse | null>(null);
     const open = Boolean(anchorEl);
     const snackbar = useSnackbar();
-    const navigate = useNavigate();
+    const postManager = PostManager.getInstance();
+    const userManager = UserManager.getInstance();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -44,25 +45,22 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
 
     const handleDelete = async () => {
       handleClose();
-      await delete_post({ post_id: post.id });
+      await postManager.deletePost(post.id);
       snackbar({ message: "Post deleted.", open: true });
       onDelete(post);
     }
 
     const handleBookmark = async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
-      bookmark_post(post.id).then((res) => {
-        setPostBookmarked(res.bookmarked);
-        snackbar({ message: `Post ${!res.bookmarked ? "un" : ""}bookmarked.`, open: true });
-      }).catch((err) => {
-        console.error(err);
-      })
+      const res = await postManager.bookmarkPost(post.id);
+      setPostBookmarked(res.bookmarked);
+      snackbar({ message: `Post ${!res.bookmarked ? "un" : ""}bookmarked.`, open: true });
     }
 
     const handleLike = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
       event.preventDefault();
       try {
-        const res = await like_post(post.id, like);
+        const res = await postManager.likePost(post.id, like);
         setLikeState(res);
       } catch (err) {
         snackbar({ open: true, message: err as any })
@@ -72,8 +70,7 @@ export default function PostFeedCard({ post, onDelete }: { post: PostResponse, o
 
     const handleTooltipOpen = async () => {
       if (profile !== null) return;
-
-      const res = await get_user(post.user.username);
+      const res = await userManager.getUser(post.user.username);
       setProfile(res);
     }
 

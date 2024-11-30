@@ -13,7 +13,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import ExploreIcon from "@mui/icons-material/Explore";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import MessageIcon from "@mui/icons-material/Message";
-import { useUser } from "../utils/auth-hooks";
+import { useUser } from "../utils/AuthContext";
 
 export default function SideBar() {
   const user = useUser();

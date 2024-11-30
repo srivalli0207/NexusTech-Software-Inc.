@@ -12,13 +12,10 @@ from nexus_site.custom_decorators import custom_login_required
 
 def get_post_views():
     return [
-        path("posts", get_posts, name="posts"),
-        path("get_post", get_post, name='get_post'),
-        path("post_submit", submit_post, name='submit_post'),
-        path("post_delete", delete_post, name='delete_post'),
-        path("upload_file", upload_file, name='upload_file'),
-        path("like_post", like_post, name="like_post"),
-        path("bookmark_post", bookmark_post, name="bookmark_post"),
+        path("", posts, name="posts"), # Getting feed and creating new posts
+        path("<int:post_id>/", post_action, name='post_action'), # Getting and deleting posts
+        path("<int:post_id>/like", like_post, name="like_post"),
+        path("<int:post_id>/bookmark", bookmark_post, name="bookmark_post"),
     ]
 
 def json_serial(obj):
@@ -28,9 +25,82 @@ def json_serial(obj):
         return obj.isoformat()
     raise TypeError ("Type %s not serializable" % type(obj))
 
+@require_http_methods(["GET", "POST"])
+def posts(request: HttpRequest):
+    if request.method == "GET":
+        return get_posts(request)
+    else:
+        return submit_post(request)
+    
+def get_posts(request: HttpRequest):
+    if request.user.is_authenticated:
+        profile = UserProfile.objects.get(user_id=request.user.id)
+        following_ids = [following for following in profile.following.all()]
+        following_ids.append(profile)
+        posts = Post.objects.filter(user__in=following_ids)
+    else:
+        posts = Post.objects.all()
+    
+    posts_response = [serialize_post(post, request) for post in posts.order_by("-creation_date")]
+    return HttpResponse(json.dumps(posts_response, default=json_serial), content_type="application/json")
+
+def submit_post(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
+    user = UserProfile.objects.filter(user__username=request.user.username)[0]
+
+    # Get fields from form data
+    text = request.POST.get("text")
+    forum = request.POST.get("forum")
+    images = request.FILES.getlist("images")
+    video = request.FILES.getlist("video")
+    
+    # Create post
+    post = Post(user=user, text=text, comment_setting=Post.PostCommentSetting.NONE)
+    if forum is not None:
+        from test_site.models.forum import Forum
+        post.forum = Forum.get_forum(forum)
+    post.save()
+    
+    # Upload media
+    fs = S3Storage()
+    media = []
+    for i, file in enumerate(images + video):
+        filename, file_extension = os.path.splitext(file.name)
+        filename = f"post_{post.post_id}_{i}{file_extension}"
+        fs_file = fs.save(filename, file)
+        file_url = fs.url(fs_file)
+        media.append(PostMedia(post=post, media_type="image" if len(images) > 0 else "video", url=file_url, index=i))
+    for m in media:
+        m.save()
+    
+    # Return post data
+    return JsonResponse(serialize_post(post, request), status=200)
+
+@require_http_methods(["GET", "DELETE"])
+def post_action(request: HttpRequest, post_id: int):
+    post = Post.objects.filter(post_id=post_id)
+    if not post.exists():
+        return JsonResponse({"error": "Post not found"}, status=404)
+    
+    if request.method == "GET":
+        return get_post(request, post.first())
+    elif request.method == "DELETE":
+        return delete_post(request, post.first())
+    
+@require_GET
+def get_post(request: HttpRequest, post: Post):
+    post_response = serialize_post(post, request)
+    return HttpResponse(json.dumps(post_response, default=json_serial), content_type="application/json")
+
+@require_http_methods(['DELETE'])
+def delete_post(request: HttpRequest, post: Post):
+    if request.user.pk != post.user.pk:
+        return JsonResponse({"error": "User is forbidden from deleting this post"}, status=403)
+    post.delete()
+    return JsonResponse({'message': 'post request processed'}, status=200)
 
 @require_POST
-@custom_login_required
 def upload_file(request: HttpRequest):
     entity_type = request.GET.get("type")
     entity_id = request.GET.get("id") or request.user.username
@@ -59,51 +129,9 @@ def upload_file(request: HttpRequest):
     
     return JsonResponse({"urls": urls}, status=200)
 
-@require_GET
-def get_post(request: HttpRequest):
-    id = request.GET.get("post_id")
-    post = Post.objects.filter(post_id=id)
-    post_response = serialize_post(post[0], request)
-    return HttpResponse(json.dumps(post_response, default=json_serial), content_type="application/json")
-
-@require_GET
-def get_posts(request: HttpRequest):
-    if (username := request.GET.get("username")) is not None:
-        posts = Post.objects.filter(user__user__username=username)
-    elif request.user.is_authenticated:
-        posts = Post.objects.filter(user_id=request.user.id)
-    else:
-        posts = Post.objects.all()
-    
-    posts_response = [serialize_post(post, request) for post in posts.order_by("-creation_date")]
-    return HttpResponse(json.dumps(posts_response, default=json_serial), content_type="application/json")
-
 @require_POST
-@custom_login_required
-def submit_post(request: HttpRequest):
-    data: dict = json.loads(request.body)
-    text = data.get("text")
-    user = UserProfile.objects.filter(user__username=request.user.username)[0]
-    post = Post(user=user,text=text, comment_setting=Post.PostCommentSetting.NONE)
-    if (forum := data.get("forum")) is not None:
-        from test_site.models.forum import Forum
-        post.forum = Forum.get_forum(forum)
-    post.save()
-    return JsonResponse(serialize_post(post, request), status=200)
-
-@require_http_methods(['DELETE'])
-@custom_login_required
-def delete_post(request: HttpRequest):
-    data: dict = json.loads(request.body)
-    post_id = data.get("post_id")
-    post = Post.objects.get(pk=post_id)
-    post.delete()
-    return JsonResponse({'message': 'post request processed'}, status=200)
-
-@require_POST
-def like_post(request: HttpRequest):
+def like_post(request: HttpRequest, post_id: int):
     profile = UserProfile.objects.get(user_id=request.user.id)
-    post_id = int(request.GET.get("post"))
     liked = request.GET.get("like") == "true"
     post = Post.objects.get(post_id=post_id)
 
@@ -123,9 +151,8 @@ def like_post(request: HttpRequest):
     return JsonResponse({"liked": res, "likeCount": post.get_like_count(), "dislikeCount": post.get_dislike_count()}, status=200)
 
 @require_POST
-def bookmark_post(request: HttpRequest):
+def bookmark_post(request: HttpRequest, post_id: int):
     profile = UserProfile.objects.get(user_id=request.user.id)
-    post_id = int(request.GET.get("post"))
     post = Post.objects.get(post_id=post_id)
 
     res = None

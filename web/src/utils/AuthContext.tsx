@@ -1,5 +1,5 @@
-import React, { createContext, useEffect, useState } from "react";
-import { get_auth } from "./auth";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { AuthManager } from "../api/auth";
 
 export type UserAuth = {
    username: string,
@@ -26,16 +26,16 @@ export function AuthContextProvider({children}: AuthContextProviderProp) {
    }
 
    const get_user_auth = async () => {
-      await get_auth();
+      await AuthManager.getInstance().getSession();
       setLoading(false);
    }
 
    useEffect(() => {
       get_user_auth()
-      document.addEventListener('nexify.auth.changed', on_auth_changed)
+      document.addEventListener('nexus.auth.changed', on_auth_changed)
 
       return () => {
-         document.removeEventListener('nexify.auth.changed', on_auth_changed);
+         document.removeEventListener('nexus.auth.changed', on_auth_changed);
       }
    }, [])
 
@@ -43,5 +43,19 @@ export function AuthContextProvider({children}: AuthContextProviderProp) {
       <AuthContext.Provider value={auth}>
          {!loading && children}
       </AuthContext.Provider>
+   )
+}
+
+export const useUser = () => {
+   return useContext(AuthContext)
+}
+
+export default function CSRF_Token() {
+   useEffect(() => {
+      AuthManager.getInstance().getCSRFToken();
+   }, [])
+
+   return (
+      <></>
    )
 }
