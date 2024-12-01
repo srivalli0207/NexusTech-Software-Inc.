@@ -4,6 +4,7 @@ from test_site.models.forum import Forum
 from test_site.models.user import Follow, UserProfile
 from test_site.models.post import Post, PostLike, PostMedia
 from test_site.models.message import Message, MessageConversation
+from test_site.models.comment import Comment
 
 def serialize_user(user: UserProfile):
     fields = {
@@ -93,5 +94,21 @@ def serialize_forum(forum: Forum):
         "creator": serialize_user(forum.creator),
         "banner": forum.banner,
         "icon": forum.icon
+    }
+    return fields
+
+def serialize_comment(comment: Comment):
+    fields = {
+        "id" : comment.comment_id,
+        "creation_date" : comment.creation_date,
+        "last_updated" : comment.last_updated,
+        "content" : comment.content,
+        "user" : {
+            "username": comment.user.user.username,
+            "avatar": comment.user.profile_picture,
+            "banner": comment.user.banner,
+            "display_name": comment.user.display_name,
+            "bio": comment.user.bio,
+        }
     }
     return fields

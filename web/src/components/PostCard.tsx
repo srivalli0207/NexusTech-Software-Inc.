@@ -130,7 +130,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
                   <MoreVertIcon />
                   <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
                     {user?.username == post.user.username && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
-                    <MenuItem>Report</MenuItem>
+                    {user?.username != post.user.username && <MenuItem>Report</MenuItem>}
                   </Menu>
                 </IconButton>
               </>

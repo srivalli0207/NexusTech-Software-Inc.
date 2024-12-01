@@ -4,7 +4,15 @@ import { RequestManager } from "./request";
 export type Comment = {
     id: number,
     creation_date: string,
+    last_updated: string,
     content: string,
+    user: {
+        username: string,
+        avatar: string,
+        banner: string,
+        display_name: string,
+        bio: string,
+    }
 }
 
 export class CommentManager extends RequestManager<"comment"> {
@@ -27,15 +35,22 @@ export class CommentManager extends RequestManager<"comment"> {
             .setQuery("post", postId.toString())
             .fetchJSON();
     }
-    
+
     public async postComment(postId: number, content: string): Promise<Comment> {
         return await this.createRequestBuilder()
             .setMethod("POST")
             .setQuery("post", postId.toString())
-            .setJSONData({"content": content})
+            .setJSONData({ "content": content })
             .fetchJSON();
     }
-    
+
+    public async deleteComment(commentID: number): Promise<void> {
+        return await this.createRequestBuilder()
+            .setMethod("DELETE")
+            .setQuery("comment_id", commentID.toString())
+            .fetchJSON();
+    }
+
     public async likeComment(commentId: number, like: boolean): Promise<PostLike> {
         return await this.createRequestBuilder()
             .setMethod("POST")
