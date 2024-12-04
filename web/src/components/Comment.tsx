@@ -1,15 +1,14 @@
 import Card from "@mui/material/Card";
-import { Tooltip } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import Avatar from "@mui/material/Avatar";
 import { CardActions } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import CommentIcon from "@mui/icons-material/Comment";
 import IconButton from '@mui/material/IconButton';
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
-import ShareIcon from "@mui/icons-material/Share";
+import ReplyIcon from '@mui/icons-material/Reply';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -20,19 +19,22 @@ import { PostLike } from "../api/post";
 import { useSnackbar } from "../utils/SnackbarContext";
 import { CommentManager } from "../api/comment";
 import { green, red } from "@mui/material/colors";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 
 type CommentCardProp = {
 	comment: Comment
 	commentDeleteCallback: (id: number) => void
+	isNested: Boolean
 }
 
-export default function CommentCard({ comment, commentDeleteCallback }: CommentCardProp) {
-	const user = useUser(); 
+export default function CommentCard({ comment, commentDeleteCallback, isNested }: CommentCardProp) {
+	const user = useUser();
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const open = Boolean(anchorEl);
 	const [likeState, setLikeState] = useState<PostLike>({
-		liked: comment.liked,	
+		liked: comment.liked,
 		likeCount: Number(comment.likeCount),
 		dislikeCount: Number(comment.dislikeCount),
 	});
@@ -132,13 +134,21 @@ export default function CommentCard({ comment, commentDeleteCallback }: CommentC
 					< ThumbDownIcon />
 				</ IconButton>
 				<Typography>{likeState.dislikeCount}</Typography>
-				{/* <IconButton aria-label="reply">
-					< CommentIcon />
+				<IconButton aria-label="reply">
+					< ReplyIcon />
+					<Typography sx={{ marginLeft: '10px' }}>Reply</Typography>
 				</ IconButton>
-				<IconButton aria-label="share">
-					< ShareIcon />
-				</ IconButton> */}
+
 			</CardActions>
+			{
+				true &&
+				<CardActions>
+					<Button onClick={() => console.log('show reply')}>
+						{true ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+						{`${1} Replies`}
+					</Button>
+				</CardActions>
+			}
 		</Card>
 
 

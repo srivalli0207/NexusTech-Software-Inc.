@@ -86,7 +86,7 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 						/>
 						<Stack direction="row" justifyContent="flex-end" marginTop="10px" spacing={2}>
 							<Button variant="outlined" onClick={() => setToggleComment(false)}>Cancel</Button>
-							<Button sx={{width: '200px'}} variant="contained" onClick={handle_comment_post}>{commentButtonLoading ? <CircularProgress size={25} color='secondary' /> : 'Post Comment'}</Button>
+							<Button sx={{ width: '200px' }} variant="contained" onClick={handle_comment_post}>{commentButtonLoading ? <CircularProgress size={25} color='secondary' /> : 'Post Comment'}</Button>
 						</Stack>
 					</>
 					:
@@ -113,7 +113,13 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 					:
 					<Stack spacing={2} sx={{ marginTop: '20px' }}>
 						{
-							comments.map((value) => <CommentCard key={value.id} comment={value} commentDeleteCallback={deleteCommentCallback} />)
+							comments.map((value) =>
+								<CommentCard
+									key={value.id}
+									comment={value}
+									commentDeleteCallback={deleteCommentCallback}
+									isNested={false}
+								/>)
 						}
 					</Stack>
 			}
