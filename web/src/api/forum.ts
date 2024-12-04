@@ -8,6 +8,13 @@ export type Forum = {
     banner: string | null
 }
 
+export type CreateForum = Partial <{
+    text: string,
+    forum: string
+    images: FileList,
+    video: FileList
+}>
+
 export class ForumManager extends RequestManager<"forum"> {
     private static instance: ForumManager | null = null;
 

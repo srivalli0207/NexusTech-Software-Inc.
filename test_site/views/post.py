@@ -110,7 +110,7 @@ def upload_file(request: HttpRequest):
 
     for i, file in enumerate(request.FILES.getlist("file")):
         filename, file_extension = os.path.splitext(file.name)
-        filename = f"{entity_type}_{entity_id}_{i if entity_type not in {"pfp", "banner"} else int(datetime.now().timestamp())}{file_extension}"
+        filename = f"{entity_type}_{entity_id}_{i if entity_type not in {'pfp', 'banner'} else int(datetime.now().timestamp())}{file_extension}"
         fs_file = fs.save(filename, file)
         file_url = fs.url(fs_file)
         urls.append(file_url)

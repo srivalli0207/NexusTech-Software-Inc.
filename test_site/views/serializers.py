@@ -4,7 +4,7 @@ from test_site.models.forum import Forum
 from test_site.models.user import Follow, UserProfile
 from test_site.models.post import Post, PostLike, PostMedia
 from test_site.models.message import Message, MessageConversation
-from test_site.models.comment import Comment
+from test_site.models.comment import Comment, CommentLike
 
 def serialize_user(user: UserProfile):
     fields = {
@@ -47,7 +47,8 @@ def serialize_post(post: Post, request: HttpRequest = None):
         "media": [serialize_post_media(media) for media in post.get_media()],
         "actions": None,
         "likeCount": post.likers.filter(postlike__like=True).count(),
-        "dislikeCount": post.likers.filter(postlike__like=False).count()
+        "dislikeCount": post.likers.filter(postlike__like=False).count(),
+        "comment_count": Comment.objects.filter(post=post).count(),
     }
 
     if request is not None and request.user.is_authenticated:
@@ -97,12 +98,21 @@ def serialize_forum(forum: Forum):
     }
     return fields
 
-def serialize_comment(comment: Comment):
+def serialize_comment(comment: Comment, request: HttpRequest):
+    profile = UserProfile.objects.get(user_id=request.user.id)
+    comment_like = CommentLike.objects.filter(comment=comment, user=profile)
+    res = None
+    if (comment_like.exists()):
+        res = comment_like.first().like
+
     fields = {
         "id" : comment.comment_id,
         "creation_date" : comment.creation_date,
         "last_updated" : comment.last_updated,
         "content" : comment.content,
+        "liked": res,
+        "likeCount": CommentLike.objects.filter(comment=comment, like=True).count(),
+        "dislikeCount": CommentLike.objects.filter(comment=comment, like=False).count(),
         "user" : {
             "username": comment.user.user.username,
             "avatar": comment.user.profile_picture,

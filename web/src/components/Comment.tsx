@@ -16,6 +16,11 @@ import MenuItem from "@mui/material/MenuItem";
 import { Comment } from "../api/comment";
 import { useState } from "react";
 import { useUser } from "../utils/AuthContext";
+import { PostLike } from "../api/post";
+import { useSnackbar } from "../utils/SnackbarContext";
+import { CommentManager } from "../api/comment";
+import { green, red } from "@mui/material/colors";
+
 
 type CommentCardProp = {
 	comment: Comment
@@ -23,13 +28,31 @@ type CommentCardProp = {
 }
 
 export default function CommentCard({ comment, commentDeleteCallback }: CommentCardProp) {
-	const user = useUser();
+	const user = useUser(); 
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const open = Boolean(anchorEl);
+	const [likeState, setLikeState] = useState<PostLike>({
+		liked: comment.liked,	
+		likeCount: Number(comment.likeCount),
+		dislikeCount: Number(comment.dislikeCount),
+	});
+	const snackbar = useSnackbar();
+	const commentManager = CommentManager.getInstance();
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		if (!open) setAnchorEl(event.currentTarget);
+	}
+
+	const handle_comment_like = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
+		event.stopPropagation();
+		try {
+			const res = await commentManager.likeComment(comment.id, like);
+			setLikeState(res);
+		} catch (err) {
+			snackbar({ open: true, message: err as any })
+			console.error(err);
+		}
 	}
 
 	const handleClose = () => {
@@ -101,12 +124,14 @@ export default function CommentCard({ comment, commentDeleteCallback }: CommentC
 				</Typography>
 			</CardContent>
 			<CardActions style={{ textAlign: 'left' }}>
-				<IconButton aria-label="like">
+				<IconButton aria-label="like" sx={{ color: likeState.liked === true ? green[500] : undefined, "&:hover": { color: green[500] } }} onClick={(event) => handle_comment_like(event, true)}>
 					< ThumbUpIcon />
 				</ IconButton>
-				<IconButton aria-label="dislike">
+				<Typography>{likeState.likeCount}</Typography>
+				<IconButton aria-label="dislike" sx={{ color: likeState.liked === false ? red[500] : undefined, "&:hover": { color: red[400] } }} onClick={(event) => handle_comment_like(event, false)}>
 					< ThumbDownIcon />
 				</ IconButton>
+				<Typography>{likeState.dislikeCount}</Typography>
 				{/* <IconButton aria-label="reply">
 					< CommentIcon />
 				</ IconButton>

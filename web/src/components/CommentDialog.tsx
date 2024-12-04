@@ -4,8 +4,6 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import { useState, useEffect, ChangeEvent, useRef } from "react";
 import CommentCard from "./Comment";
-import { useSnackbar } from "../utils/SnackbarContext";
-import { PostLike } from "../api/post";
 import { Comment } from "../api/comment";
 import { CommentManager } from "../api/comment";
 import CSRF_Token from "../utils/AuthContext";
@@ -18,7 +16,6 @@ type CommentDialogProp = {
 
 export default function CommentDialog({ post_id }: CommentDialogProp) {
 	const theme = useTheme()
-	const snackbar = useSnackbar();
 	const commentManager = CommentManager.getInstance();
 
 	const comment_text = useRef<string>("")
@@ -26,11 +23,7 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 	const [commentsLoading, setCommentsLoading] = useState<boolean>(true)
 	const [commentButtonLoading, setCommentButtonLoading] = useState<boolean>(false)
 	const [comments, setComments] = useState<Comment[]>([])
-	const [likeState, setLikeState] = useState<PostLike>({
-		liked: false,
-		likeCount: 0,
-		dislikeCount: 0,
-	});
+
 
 	useEffect(() => {
 		const get_data = async () => {
@@ -52,17 +45,6 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 		setCommentButtonLoading(false)
 		setToggleComment(false)
 		comment_text.current = ""
-		}
-
-	const handle_comment_like = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
-		event.stopPropagation();
-		try {
-			const res = await commentManager.likeComment(123, like);
-			setLikeState(res);
-		} catch (err) {
-			snackbar({ open: true, message: err as any })
-			console.error(err);
-		}
 	}
 
 	const deleteCommentCallback = async (id: number) => {
@@ -104,7 +86,7 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 						/>
 						<Stack direction="row" justifyContent="flex-end" marginTop="10px" spacing={2}>
 							<Button variant="outlined" onClick={() => setToggleComment(false)}>Cancel</Button>
-							<Button sx={{width: '15%'}} variant="contained" onClick={handle_comment_post}>{commentButtonLoading ? <CircularProgress size={25} color='secondary' /> : 'Post Comment'}</Button>
+							<Button sx={{width: '200px'}} variant="contained" onClick={handle_comment_post}>{commentButtonLoading ? <CircularProgress size={25} color='secondary' /> : 'Post Comment'}</Button>
 						</Stack>
 					</>
 					:

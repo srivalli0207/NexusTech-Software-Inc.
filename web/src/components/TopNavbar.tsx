@@ -59,6 +59,7 @@ export default function TopNavbar() {
                      </IconButton>
                      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} onClick={handleClose}>
                         <MenuItem component={Link} to={`/profile/${user!.username}`}>Profile</MenuItem>
+                        <MenuItem> Settings </MenuItem>
                         <MenuItem onClick={handleLogout}>Logout</MenuItem>
                      </Menu>
                   </Box>

@@ -1,11 +1,15 @@
 import { PostLike } from "./post";
 import { RequestManager } from "./request";
 
+
 export type Comment = {
     id: number,
     creation_date: string,
     last_updated: string,
     content: string,
+    liked: boolean | null,
+    likeCount: string,
+    dislikeCount: string,
     user: {
         username: string,
         avatar: string,

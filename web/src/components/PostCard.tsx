@@ -162,7 +162,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
             <IconButton aria-label="comment" sx={{ color: false ? purple[500] : undefined, "&:hover": { color: purple[500] } }} onClick={(event) => handleLike(event, true)}>
               <CommentIcon />
             </IconButton>
-            <Typography>{0}</Typography>
+            <Typography>{post.comment_count}</Typography>
             <IconButton aria-label="like" sx={{ color: likeState.liked === true ? green[500] : undefined, "&:hover": { color: green[500] } }} onClick={(event) => handleLike(event, true)}>
               <ThumbUpIcon />
             </IconButton>
