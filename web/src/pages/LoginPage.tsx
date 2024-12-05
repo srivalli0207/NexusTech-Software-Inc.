@@ -31,7 +31,7 @@ export default function LoginPage() {
       const response = await authManager.login(formObject)
 
       if (response.user != null) {
-         console.log('logged in', response.user)
+         //console.log('logged in', response.user)
       } else {
          console.log('login failed', response.message);
          setMessage(response.message);
