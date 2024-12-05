@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material";
 import CircularProgress from '@mui/material/CircularProgress';
 
 type CommentDialogProp = {
-	post_id: number | undefined;
+	post_id: number;
 };
 
 export default function CommentDialog({ post_id }: CommentDialogProp) {
@@ -21,14 +21,13 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 	const comment_text = useRef<string>("")
 	const [toggleComment, setToggleComment] = useState<boolean>(false)
 	const [commentsLoading, setCommentsLoading] = useState<boolean>(true)
-	const [commentButtonLoading, setCommentButtonLoading] = useState<boolean>(false)
 	const [comments, setComments] = useState<Comment[]>([])
 
 
 	useEffect(() => {
 		const get_data = async () => {
-			const fetchedComments = await commentManager.getComments(post_id!);
-			setComments(fetchedComments)
+			const fetchedComments = await commentManager.getComments(post_id);
+			setComments(fetchedComments.reverse())
 			setCommentsLoading(false)
 		}
 		get_data()
@@ -39,10 +38,8 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 			return
 		}
 
-		setCommentButtonLoading(true)
-		const posted_comment = await commentManager.postComment(post_id!, comment_text.current)
+		const posted_comment = await commentManager.postComment(post_id, comment_text.current)
 		setComments([posted_comment, ...comments,])
-		setCommentButtonLoading(false)
 		setToggleComment(false)
 		comment_text.current = ""
 	}
@@ -80,13 +77,14 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 							multiline
 							maxRows={5}
 							variant="outlined"
+							placeholder="Leave a comment..."
 							onChange={(event: ChangeEvent<HTMLInputElement>) => {
 								comment_text.current = event.currentTarget.value
 							}}
 						/>
 						<Stack direction="row" justifyContent="flex-end" marginTop="10px" spacing={2}>
 							<Button variant="outlined" onClick={() => setToggleComment(false)}>Cancel</Button>
-							<Button sx={{ width: '200px' }} variant="contained" onClick={handle_comment_post}>{commentButtonLoading ? <CircularProgress size={25} color='secondary' /> : 'Post Comment'}</Button>
+							<Button variant="contained" onClick={handle_comment_post}>Post Comment</Button>
 						</Stack>
 					</>
 					:
@@ -118,8 +116,8 @@ export default function CommentDialog({ post_id }: CommentDialogProp) {
 									key={value.id}
 									comment={value}
 									commentDeleteCallback={deleteCommentCallback}
-									isNested={false}
-								/>)
+								/>
+							)
 						}
 					</Stack>
 			}

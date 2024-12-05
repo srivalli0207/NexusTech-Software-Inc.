@@ -113,6 +113,7 @@ def serialize_comment(comment: Comment, request: HttpRequest):
         "liked": res,
         "likeCount": CommentLike.objects.filter(comment=comment, like=True).count(),
         "dislikeCount": CommentLike.objects.filter(comment=comment, like=False).count(),
+        "replyCount": Comment.objects.filter(parent=comment).count(),
         "user" : {
             "username": comment.user.user.username,
             "avatar": comment.user.profile_picture,

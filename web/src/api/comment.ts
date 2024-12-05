@@ -8,8 +8,9 @@ export type Comment = {
     last_updated: string,
     content: string,
     liked: boolean | null,
-    likeCount: string,
-    dislikeCount: string,
+    likeCount: number,
+    dislikeCount: number,
+    replyCount: number,
     user: {
         username: string,
         avatar: string,
@@ -65,6 +66,24 @@ export class CommentManager extends RequestManager<"comment"> {
             .setQuery("like", like ? "true" : "false")
             .setRedirect(true)
             .fetchJSON();
+    }
+
+    public async postCommentReply(parentCommentID: number, content: string): Promise<Comment> {
+        return await this.createRequestBuilder()
+            .setMethod("POST")
+            .setAction("post_reply")
+            .setJSONData({ "content": content })
+            .setQuery("parent_comment_id", parentCommentID.toString())
+            .setRedirect(true)
+            .fetchJSON()
+    }
+
+    public async getCommentReplies(parentCommentID: number): Promise<Comment[]> {
+        return await this.createRequestBuilder()
+            .setMethod("GET")
+            .setAction("get_replies")
+            .setQuery("parent_comment_id", parentCommentID.toString())
+            .fetchJSON()
     }
 }
 

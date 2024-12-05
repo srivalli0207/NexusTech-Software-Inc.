@@ -10,7 +10,8 @@ def get_comment_views():
    return [
       path("", comments, name="comments"),
       path("<int:comment_id>/like", comment_like, name="like_comment"),
-      path("<int:comment_id>/get_replies", get_comment_replies, name="get_comment_replies"),
+      path("get_replies", get_comment_replies, name="get_comment_replies"),
+      path("post_reply", post_comment_reply, name="post_comment_reply"),
    ]
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -56,7 +57,7 @@ def delete_comment(request: HttpRequest, comment: Comment):
 @require_POST
 @custom_login_required
 def comment_like(request: HttpRequest, comment_id: int):
-   profile = UserProfile.objects.get(user_id=request.user.id)
+   profile = UserProfile.objects.get(user=request.user)
    liked = request.GET.get("like") == "true"
    comment = Comment.objects.get(comment_id=comment_id)
 
@@ -81,6 +82,27 @@ def comment_like(request: HttpRequest, comment_id: int):
 
 @require_GET
 @custom_login_required
-def get_comment_replies(request: HttpRequest, comment_id: int):
-   JsonResponse({"msg": "get replies"}, status=200)
+def get_comment_replies(request: HttpRequest):
+   parent_comment_id = request.GET['parent_comment_id']
+   
+   parent_comment = Comment.objects.get(comment_id=parent_comment_id)
+   reply_comments = Comment.objects.filter(parent=parent_comment)
+   
+   return JsonResponse([serialize_comment(comment, request) for comment in reply_comments], safe=False, status=200)
+
+@require_POST
+@custom_login_required
+def post_comment_reply(request: HttpRequest):
+   body = json.loads(request.body.decode('utf-8'))
+
+   reply_text = body['content']
+   parent_comment_id = request.GET['parent_comment_id']
+
+   user = UserProfile.objects.get(user=request.user)
+   parent_comment = Comment.objects.get(comment_id=parent_comment_id)
+
+   comment_reply = Comment.objects.create(user=user, post=parent_comment.post, parent=parent_comment, content=reply_text)
+   comment_reply.save()
+   
+   return JsonResponse(serialize_comment(comment_reply, request), status=200, safe=False)
    
