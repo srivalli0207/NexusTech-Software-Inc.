@@ -45,6 +45,7 @@ export class CommentManager extends RequestManager<"comment"> {
             .setMethod("POST")
             .setQuery("post", postId.toString())
             .setJSONData({ "content": content })
+            .setRedirect(true)
             .fetchJSON();
     }
 
@@ -52,6 +53,7 @@ export class CommentManager extends RequestManager<"comment"> {
         return await this.createRequestBuilder()
             .setMethod("DELETE")
             .setQuery("comment_id", commentID.toString())
+            .setRedirect(true)
             .fetchJSON();
     }
 
@@ -61,6 +63,7 @@ export class CommentManager extends RequestManager<"comment"> {
             .setResource(commentId)
             .setAction("like")
             .setQuery("like", like ? "true" : "false")
+            .setRedirect(true)
             .fetchJSON();
     }
 }

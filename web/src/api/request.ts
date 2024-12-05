@@ -127,6 +127,10 @@ class RequestBuilder<T extends RequestManagerType> {
         const request = this.build();
         if (this.preRequest) await this.preRequest(request);
         const response = await fetch(request);
+        
+        if (response.redirected)
+            window.location.href = response.url
+
         const json = await response.json();
         if (this.postRequest) await this.postRequest(request, response, json);
         
