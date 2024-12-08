@@ -48,6 +48,10 @@ class Post(models.Model):
     
     def get_dislike_count(self) -> int:
         return self.likers.filter(postlike__like=False).count()
+    
+    def get_comment_count(self) -> int:
+        from test_site.models.comment import Comment
+        return Comment.objects.filter(post=self).count()
 
     def get_media(self) -> list["PostMedia"]:
         medias = PostMedia.objects.filter(post=self).order_by("index")

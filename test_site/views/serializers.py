@@ -48,7 +48,7 @@ def serialize_post(post: Post, request: HttpRequest = None):
         "actions": None,
         "likeCount": post.likers.filter(postlike__like=True).count(),
         "dislikeCount": post.likers.filter(postlike__like=False).count(),
-        "comment_count": Comment.objects.filter(post=post).count(),
+        "commentCount": post.get_comment_count()
     }
 
     if request is not None and request.user.is_authenticated:

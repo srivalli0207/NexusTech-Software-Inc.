@@ -9,7 +9,8 @@ def get_forum_views():
     return [
         path("", get_forums, name="get_forums"),
         path("<str:forum_name>/", get_forum, name="get_forum"),
-        path("<str:forum_name>/posts", get_forum_posts, name="get_forum_posts")
+        path("<str:forum_name>/posts", get_forum_posts, name="get_forum_posts"),
+        path("<str:forum_name>/follow", follow_forum, name="follow_forum")
     ]
 
 def get_forums(request: HttpRequest):
@@ -29,3 +30,10 @@ def get_forum_posts(request: HttpRequest, forum_name: str):
     else:
         posts = forum.get_posts()
         return JsonResponse([serialize_post(post) for post in posts], safe=False)
+
+def follow_forum(request: HttpRequest, forum_name: str):
+    forum = Forum.get_forum(forum_name)
+    if forum is None:
+        return JsonResponse({"error": "Forum not found"}, status=404)
+    
+    

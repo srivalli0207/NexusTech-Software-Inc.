@@ -16,7 +16,7 @@ export type Post = {
     actions: PostActions | null;
     likeCount: number;
     dislikeCount: number;
-    comment_count: number;
+    commentCount: number;
 };
 
 export type CreatePost = Partial<{

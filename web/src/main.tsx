@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, redirect } from "react-router-dom";
-import { CssBaseline, createTheme, ThemeProvider } from '@mui/material'
+import { CssBaseline, createTheme, ThemeProvider, useMediaQuery } from '@mui/material'
 import { grey, yellow } from '@mui/material/colors';
 import { AuthContextProvider, useUser } from './utils/AuthContext.tsx';
 import CompanyPage from './pages/CompanyPage.tsx'
@@ -78,9 +78,13 @@ export function Main() {
 		},
 	]);
 
-
-	// const prefersDarkMode = !useMediaQuery("(prefers-color-scheme: dark)");
-	const prefersDarkMode = true; // screw it for now
+	let prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+	const darkModeStorage = localStorage.getItem("darkMode");
+	if (darkModeStorage !== null) {
+		prefersDarkMode = darkModeStorage === "true";
+	} else {
+		localStorage.setItem("darkMode", prefersDarkMode.toString());
+	}
 
 	const theme = React.useMemo(
 		() =>

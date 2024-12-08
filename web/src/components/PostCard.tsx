@@ -17,7 +17,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { blue, green, purple, red, yellow } from "@mui/material/colors";
 import { CardActionArea, ImageList, ImageListItem, Tooltip } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../utils/AuthContext";
 import { UserManager, UserProfileResponse } from "../api/user";
 import { Post, PostLike, PostManager } from "../api/post";
@@ -31,6 +31,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
     const [profile, setProfile] = useState<UserProfileResponse | null>(null);
     const open = Boolean(anchorEl);
     const snackbar = useSnackbar();
+    const navigate = useNavigate();
     const postManager = PostManager.getInstance();
     const userManager = UserManager.getInstance();
 
@@ -83,7 +84,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
 
     const handleAvatarClick = (event: React.MouseEvent<HTMLDivElement>) => {
       event.preventDefault();
-      console.log("ok2");
+      navigate(`/profile/${post.user.username}`);
     }
 
     return (
@@ -162,7 +163,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
             <IconButton aria-label="comment" sx={{ color: false ? purple[500] : undefined, "&:hover": { color: purple[500] } }} onClick={(event) => handleLike(event, true)}>
               <CommentIcon />
             </IconButton>
-            <Typography>{post.comment_count}</Typography>
+            <Typography>{post.commentCount}</Typography>
             <IconButton aria-label="like" sx={{ color: likeState.liked === true ? green[500] : undefined, "&:hover": { color: green[500] } }} onClick={(event) => handleLike(event, true)}>
               <ThumbUpIcon />
             </IconButton>

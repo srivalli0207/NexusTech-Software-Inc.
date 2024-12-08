@@ -36,6 +36,13 @@ export class MessageManager extends RequestManager<"message"> {
         if (username) request.setQuery("username", username);
         return await request.fetchJSON();
     }
+
+    public async createConversation(usernames: string[], group: boolean): Promise<Conversation> {
+        return await this.createRequestBuilder()
+            .setMethod("POST")
+            .setJSONData({"usernames": usernames, "group": group})
+            .fetchJSON();
+    }
     
     public async getMessages(conversationId: number): Promise<ConversationMessage[]> {
         return await this.createRequestBuilder()

@@ -42,7 +42,16 @@ def get_conversations(request: HttpRequest):
     return JsonResponse([serialize_conversation(conversation, request) for conversation in conversations], safe=False, status=200)
 
 def create_conversation(request: HttpRequest):
-    ...
+    data: dict = json.loads(request.body)
+    usernames: list[str] = data["usernames"]
+    group: bool = data["group"]
+    name: str | None = data.get("name")
+
+    conversation = MessageConversation(group=group, name=name)
+    for username in usernames:
+        user = UserProfile.objects.get(user__username=username)
+        conversation.members.add(user)
+    conversation.save()
 
 @require_http_methods(["GET", "POST"])
 def conversation_action(request: HttpRequest, conversation_id: int):

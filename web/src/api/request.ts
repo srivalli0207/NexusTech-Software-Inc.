@@ -83,7 +83,7 @@ class RequestBuilder<T extends RequestManagerType> {
         return this;
     }
 
-    public setJSONData(data: { [key: string]: string | number | string[] }): RequestBuilder<T> {
+    public setJSONData(data: { [key: string]: string | number | boolean | string[] }): RequestBuilder<T> {
         this.jsonData = data;
         this.formData = undefined;
         return this;

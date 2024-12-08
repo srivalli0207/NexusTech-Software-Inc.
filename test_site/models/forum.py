@@ -9,6 +9,7 @@ class Forum(models.Model):
     created = models.DateTimeField(auto_now=True)
     banner = models.URLField(null=True, default=None)
     icon = models.URLField(null=True, default=None)
+    followers = models.ManyToManyField(UserProfile, through="ForumFollow", related_name="forum_follower")
 
     @staticmethod
     def get_forums() -> list["Forum"]:
@@ -27,6 +28,11 @@ class Forum(models.Model):
 
         posts = Post.objects.filter(forum=self)
         return posts
+    
+    def follow_forum(self, user: UserProfile) -> bool:
+        self.followers.add(user)
+        self.save()
+
 
 
 class ForumFollow(models.Model):
