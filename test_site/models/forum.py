@@ -26,7 +26,7 @@ class Forum(models.Model):
     def get_posts(self) -> list["Post"]:
         from test_site.models.post import Post
 
-        posts = Post.objects.filter(forum=self)
+        posts = Post.objects.filter(forum=self).order_by("-creation_date")
         return posts
     
     def follow_forum(self, user: UserProfile) -> bool:

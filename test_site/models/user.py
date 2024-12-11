@@ -95,7 +95,7 @@ class UserProfile(models.Model):
     
     def get_posts(self) -> list["Post"]:
         from test_site.models.post import Post
-        posts = Post.objects.filter(user=self)
+        posts = Post.objects.filter(user=self).order_by("-creation_date")
         return posts
     
     def get_likes(self) -> list["Post"]:

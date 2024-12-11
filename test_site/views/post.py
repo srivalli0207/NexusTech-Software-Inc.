@@ -39,7 +39,7 @@ def get_posts(request: HttpRequest):
         following_ids = [following for following in profile.following.all()]
         following_ids.append(profile)
         forum_following_ids = [following for following in profile.forum_following.all()]
-        posts = Post.objects.filter(Q(user__in=following_ids) | Q(forum__in=forum_following_ids))
+        posts = Post.objects.filter(Q(user__in=following_ids) | Q(forum__in=forum_following_ids)).order_by("-creation_date")
     else:
         posts = Post.objects.all()
     
