@@ -103,7 +103,8 @@ class RequestBuilder<T extends RequestManagerType> {
     public build(): Request {
         const url = new URL(this.manager, API_URL);
         if (this.resource) url.pathname += `/${this.resource}/`;
-        if (this.action) url.pathname += `/${this.action}`;
+        if (this.resource && this.action) url.pathname += `${this.action}`;
+        else if (this.action) url.pathname += `/${this.action}`;
         if (!this.resource && !this.action && !url.pathname.endsWith("/")) url.pathname += "/";
         for (const [key, value] of Object.entries(this.searchParams)) {
             url.searchParams.append(key, value);
