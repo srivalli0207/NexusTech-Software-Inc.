@@ -69,9 +69,9 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
 
     const handleShare = async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
+      snackbar({ open: true, message: "Post link copied to clipboard!" });
       const url = new URL(`/post/${post.id}`, window.location.origin);
       await navigator.clipboard.writeText(url.href);
-      snackbar({ open: true, message: "Post link copied to clipboard!" });
     }
 
     const handleCardClick = async (event: React.MouseEvent<HTMLDivElement>) => {

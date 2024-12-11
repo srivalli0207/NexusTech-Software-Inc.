@@ -42,16 +42,27 @@ def get_conversations(request: HttpRequest):
     return JsonResponse([serialize_conversation(conversation, request) for conversation in conversations], safe=False, status=200)
 
 def create_conversation(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
+    user = UserProfile.objects.get(user_id=request.user.id)
+    
     data: dict = json.loads(request.body)
     usernames: list[str] = data["usernames"]
     group: bool = data["group"]
     name: str | None = data.get("name")
 
+    if not group: # Check if conversation already exists
+        target_user = UserProfile.objects.get(user__username=usernames[0])
+        if (conversation := MessageConversation.objects.filter(group=False, members__in=[user]).filter(members__in=[target_user]).first()) is not None:
+            return JsonResponse(serialize_conversation(conversation, request), status=200)
+    
     conversation = MessageConversation(group=group, name=name)
+    conversation.save()
+    conversation.members.add(user)
     for username in usernames:
         user = UserProfile.objects.get(user__username=username)
         conversation.members.add(user)
-    conversation.save()
+    return JsonResponse(serialize_conversation(conversation, request), status=200)
 
 @require_http_methods(["GET", "POST"])
 def conversation_action(request: HttpRequest, conversation_id: int):

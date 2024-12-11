@@ -84,8 +84,8 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
   };
 
   const messageUser = async () => {
-    const res = await messageManager.getConversations(username!);
-    navigate(`/messages/${res[0].id}`);
+    const res = await messageManager.createConversation([username!], false);
+    navigate(`/messages/${res.id}`);
   };
 
   const onProfileUpdate = (formData: SetProfileRequest) => {

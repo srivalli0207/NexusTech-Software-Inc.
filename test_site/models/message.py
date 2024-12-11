@@ -11,8 +11,8 @@ class MessageConversation(models.Model):
     members = models.ManyToManyField(UserProfile, through="MessageConversationMember")
     last_message = models.ForeignKey("Message", on_delete=models.SET_NULL, null=True, default=None)
 
-    def __str__(self):
-        return f"{self.conversation_id} ({self.name}): {', '.join([member.user.username for member in self.members.all()])}"
+    # def __str__(self):
+    #     return f"{self.conversation_id} ({self.name}): {', '.join([member.user.username for member in self.members.all()])}"
     
     def send_message(self, user: UserProfile, text: str) -> "Message":
         message = Message.objects.create(user=user, conversation=self, text=text)
