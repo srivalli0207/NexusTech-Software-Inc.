@@ -40,7 +40,6 @@ class Forum(models.Model):
         return res
 
 
-
 class ForumFollow(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     forum = models.ForeignKey(Forum, on_delete=models.CASCADE)

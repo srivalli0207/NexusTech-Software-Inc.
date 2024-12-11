@@ -267,9 +267,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     if (event.target.files === null) return;
     setBannerImage(event.target.files);
   }
-
   
-
   return (
     <>
       <Button variant="contained" onClick={handleClickOpen}>Edit Profile</Button>

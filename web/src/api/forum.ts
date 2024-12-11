@@ -27,6 +27,12 @@ export type CreateForumRequest = {
     banner: File | null;
 };
 
+export type EditForumData = {
+    description: string;
+    icon: File | string | null;
+    banner: File | string | null;
+};
+
 export class ForumManager extends RequestManager<"forum"> {
     private static instance: ForumManager | null = null;
 
@@ -58,6 +64,20 @@ export class ForumManager extends RequestManager<"forum"> {
             .setMethod("POST")
             .setAction("create")
             .setFormData(formData)
+            .fetchJSON();
+    }
+
+    public async editForum(forum: string, formData: EditForumData): Promise<Forum> {
+        const form = new FormData();
+        form.append("description", formData.description);
+        if (formData.icon) form.append("icon", formData.icon);
+        if (formData.banner) form.append("banner", formData.banner);
+
+        return await this.createRequestBuilder()
+            .setMethod("POST")
+            .setResource(forum)
+            .setAction("edit")
+            .setFormData(form)
             .fetchJSON();
     }
     

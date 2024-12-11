@@ -2,6 +2,7 @@ import os
 import time
 from django.http import HttpRequest, JsonResponse
 from django.urls import path
+from django.views.decorators.http import require_http_methods
 
 from test_site.models.forum import Forum
 from test_site.views.serializers import serialize_forum, serialize_post
@@ -12,6 +13,7 @@ def get_forum_views():
         path("", get_forums, name="get_forums"),
         path("create", create_forum, name="create_forum"),
         path("<str:forum_name>/", get_forum, name="get_forum"),
+        path("<str:forum_name>/edit", edit_forum, name="edit_forum"),
         path("<str:forum_name>/posts", get_forum_posts, name="get_forum_posts"),
         path("<str:forum_name>/follow", follow_forum, name="follow_forum")
     ]
@@ -46,6 +48,42 @@ def create_forum(request: HttpRequest):
         forum.banner = file_url
     forum.save()
     forum.follow_forum(user)
+    return JsonResponse(serialize_forum(forum, request), status=200)
+
+@require_http_methods(["POST"])
+def edit_forum(request: HttpRequest, forum_name: str):
+    from test_site.models.user import UserProfile
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
+    
+    fs = S3Storage()
+    user = UserProfile.objects.get(user_id=request.user.id)
+    forum = Forum.get_forum(forum_name)
+    if forum.creator != user:
+        return JsonResponse({"error": "User is not the creator of the forum"}, status=403)
+    forum.description = request.POST.get("description")
+
+    if "icon" in request.FILES:
+        icon = request.FILES.get("icon")
+        filename, file_extension = os.path.splitext(icon.name)
+        filename = f"forum_icon_{forum.name}_{int(time.time())}{file_extension}"
+        fs_file = fs.save(filename, icon)
+        file_url = fs.url(fs_file)
+        forum.icon = file_url
+    elif "icon" not in request.POST:
+        forum.icon = None
+
+    if "banner" in request.FILES:
+        banner = request.FILES.get("banner")
+        filename, file_extension = os.path.splitext(banner.name)
+        filename = f"forum_banner_{forum.name}_{int(time.time())}{file_extension}"
+        fs_file = fs.save(filename, banner)
+        file_url = fs.url(fs_file)
+        forum.banner = file_url
+    elif "banner" not in request.POST:
+        forum.banner = None
+    
+    forum.save()
     return JsonResponse(serialize_forum(forum, request), status=200)
 
 def get_forum(request: HttpRequest, forum_name: str):
