@@ -15,28 +15,37 @@ import Menu from "@mui/material/Menu";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { blue, green, purple, red, yellow } from "@mui/material/colors";
-import { CardActionArea, ImageList, ImageListItem, Tooltip } from "@mui/material";
+import { ImageList, ImageListItem, Stack } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../utils/AuthContext";
 import { UserManager, UserProfileResponse } from "../api/user";
 import { Post, PostLike, PostManager } from "../api/post";
+import moment from "moment";
+import ProfileTooltip from "./ProfileTooltip";
+
+function timeSince(timeStamp: Date): string {
+  const now = new Date();
+  const secondsPast = (now.getTime() - timeStamp.getTime()) / 1000;
+  if (secondsPast < 60) return `${secondsPast}s`;
+  else if (secondsPast < 3600) return `${secondsPast / 60}m`;
+  else if (secondsPast <= 86400) return `${secondsPast / 3600}h`;
+  else return timeStamp.toLocaleString();
+}
 
 export default function PostCard({ post, onDelete }: { post: Post, onDelete: (post: Post) => void }) {
     const [likeState, setLikeState] = useState<PostLike>({ liked: post.actions?.liked!, likeCount: post.likeCount, dislikeCount: post.dislikeCount })
     const [bookmarked, setPostBookmarked] = useState(post.actions?.bookmarked);
     const date = new Date(post.date);
     const user = useUser();
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [profile, setProfile] = useState<UserProfileResponse | null>(null);
     const open = Boolean(anchorEl);
     const snackbar = useSnackbar();
-    const navigate = useNavigate();
     const postManager = PostManager.getInstance();
-    const userManager = UserManager.getInstance();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
+      event.stopPropagation();
       if (!open) setAnchorEl(event.currentTarget);
     }
 
@@ -52,14 +61,14 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
     }
 
     const handleBookmark = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
+      event.stopPropagation();
       const res = await postManager.bookmarkPost(post.id);
       setPostBookmarked(res.bookmarked);
       snackbar({ message: `Post ${!res.bookmarked ? "un" : ""}bookmarked.`, open: true });
     }
 
     const handleLike = async (event: React.MouseEvent<HTMLButtonElement>, like: boolean) => {
-      event.preventDefault();
+      event.stopPropagation();
       try {
         const res = await postManager.likePost(post.id, like);
         setLikeState(res);
@@ -70,57 +79,25 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
     }
 
     const handleShare = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
+      event.stopPropagation();
       const url = new URL(`/post/${post.id}`, window.location.origin);
       await navigator.clipboard.writeText(url.href);
       snackbar({ open: true, message: "Post link copied to clipboard!" });
     }
 
-    const handleTooltipOpen = async () => {
-      if (profile !== null) return;
-      const res = await userManager.getUser(post.user.username);
-      setProfile(res);
-    }
-
-    const handleAvatarClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleCardClick = async (event: React.MouseEvent<HTMLDivElement>) => {
       event.preventDefault();
-      navigate(`/profile/${post.user.username}`);
+      navigate(`/post/${post.id}`, { state: { postState: post } });
     }
 
     return (
       <Card sx={{ textAlign: "left" }}>
-        <CardActionArea component={Link} to={`/post/${post.id}`}>
+        <div onClick={handleCardClick}>
           <CardHeader
-            avatar={
-              <Tooltip enterDelay={500} onOpen={handleTooltipOpen} slotProps={profile === null ? {} : {tooltip: { sx: { width: 200 } }}} title={
-                profile ? <>
-                  <Card>
-                    <CardHeader
-                      title={profile.displayName ?? profile.username}
-                      subheader={`@${profile.username}`}
-                      avatar={
-                        <Avatar aria-label="pfp" src={profile.profilePicture ?? undefined}>
-                          {profile.username[0].toUpperCase()}
-                        </Avatar>
-                      }
-                      sx={{ backgroundImage: `url(${profile.banner})`, backgroundSize: "cover", backdropFilter: "blur(16px)" }}
-                    />
-                    <CardContent>
-                      <Typography variant="body2">{profile.bio ?? "No information given."}</Typography>
-                    </CardContent>
-                  </Card>
-                </> : "Loading..."
-              }>
-                {/* <IconButton onClick={() => console.log("ok2")}> */}
-                  <Avatar aria-label="pfp" src={post.user.profilePicture ?? undefined} onClick={handleAvatarClick}>
-                    {post.user.username[0].toUpperCase()}
-                  </Avatar>
-                {/* </IconButton> */}
-              </Tooltip>
-            }
+            avatar={<ProfileTooltip profile={post.user} />}
             action={
               <>
-                {date.toLocaleString()}
+                {moment(date).startOf("m").fromNow()}
                 <IconButton
                   aria-label="settings"
                   aria-controls={open ? 'basic-menu' : undefined}
@@ -181,7 +158,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
             <div style={{ flex: "1 0 0" }} />
             {post.forum && <Typography sx={{ marginRight: "8px", ":hover": { "textDecoration": "underline" } }}><Link to={`/forums/${post.forum}`}>/f/{post.forum}</Link></Typography>}
           </CardActions>
-        </CardActionArea>
+        </div>
       </Card>
     );
 }

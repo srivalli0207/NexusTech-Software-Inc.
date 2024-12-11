@@ -5,7 +5,7 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 from test_site.models.post import Post
 from test_site.models.user import Follow, UserProfile
 from storages.backends.s3 import S3Storage
-from .serializers import serialize_post, serialize_user, serialize_user_profile
+from .serializers import serialize_post, serialize_user_profile
 
 def get_user_views():
     return [
@@ -17,6 +17,7 @@ def get_user_views():
         path("<str:username>/friends", get_friends, name="get_friends"),
         path("<str:username>/follow", follow_user, name="follow_user"),
         path("<str:username>/likes", get_likes, name="get_likes"),
+        path("<str:username>/dislikes", get_dislikes, name="get_dislikes"),
         path("bookmarks", get_bookmarks, name="get_bookmarks"),
         path("profile", update_profile, name="update_profile")
     ]
@@ -24,34 +25,34 @@ def get_user_views():
 @require_GET
 def get_profile(request: HttpRequest, username: str):
     profile = UserProfile.objects.get(user__username=username)
-    fields = serialize_user_profile(profile, request.user if request.user.is_authenticated else None)
+    fields = serialize_user_profile(profile, request)
     return JsonResponse(fields, status=200)
 
 @require_GET
 def get_posts(request: HttpRequest, username: str):
     profile = UserProfile.objects.get(user__username=username)
     posts = profile.get_posts()
-    return JsonResponse([serialize_post(post) for post in posts], status=200, safe=False)
+    return JsonResponse([serialize_post(post, request) for post in posts], status=200, safe=False)
 
 @require_GET
 def get_followers(request: HttpRequest, username: str):
     profile = UserProfile.objects.get(user__username=username)
     followers = profile.followers.all()
-    fields = [serialize_user(user) for user in followers]
+    fields = [serialize_user_profile(user, request) for user in followers]
     return JsonResponse(fields, status=200, safe=False)
 
 @require_GET
 def get_following(request: HttpRequest, username: str):
     profile = UserProfile.objects.get(user__username=username)
     following = profile.following.all()
-    fields = [serialize_user(user) for user in following]
+    fields = [serialize_user_profile(user, request) for user in following]
     return JsonResponse(fields, status=200, safe=False)
 
 @require_GET
 def get_friends(request: HttpRequest, username: str):
     profile = UserProfile.objects.get(user__username=username)
     friends = profile.followers.all() & profile.following.all()
-    return JsonResponse([serialize_user(user) for user in friends], status=200, safe=False)
+    return JsonResponse([serialize_user_profile(user, request) for user in friends], status=200, safe=False)
 
 @require_POST
 def follow_user(request: HttpRequest, username: str):
@@ -75,13 +76,20 @@ def search_users(request: HttpRequest):
     if username_query is None or username_query == "":
         return JsonResponse({"error": "Query not specified"}, status=400)
     users = UserProfile.objects.filter(user__username__icontains=username_query)
-    return JsonResponse([serialize_user(user) for user in users], safe=False, status=200)
+    return JsonResponse([serialize_user_profile(user, request) for user in users], safe=False, status=200)
 
 @require_GET
 def get_likes(request: HttpRequest, username: str):
     profile = UserProfile.objects.get(user__username=username)
     likes = profile.get_likes()
     posts = [serialize_post(like, request) for like in likes]
+    return JsonResponse(posts, status=200, safe=False)
+
+@require_GET
+def get_dislikes(request: HttpRequest, username: str):
+    profile = UserProfile.objects.get(user__username=username)
+    dislikes = profile.get_dislikes()
+    posts = [serialize_post(dislike, request) for dislike in dislikes]
     return JsonResponse(posts, status=200, safe=False)
 
 @require_GET

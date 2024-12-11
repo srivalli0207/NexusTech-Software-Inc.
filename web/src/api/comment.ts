@@ -1,5 +1,6 @@
 import { PostLike } from "./post";
 import { RequestManager } from "./request";
+import { UserProfileResponse } from "./user";
 
 
 export type Comment = {
@@ -11,13 +12,7 @@ export type Comment = {
     likeCount: number,
     dislikeCount: number,
     replyCount: number,
-    user: {
-        username: string,
-        avatar: string,
-        banner: string,
-        display_name: string,
-        bio: string,
-    }
+    user: UserProfileResponse
 }
 
 export class CommentManager extends RequestManager<"comment"> {

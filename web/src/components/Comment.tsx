@@ -24,6 +24,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TextField from "@mui/material/TextField";
 import { useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
+import ProfileTooltip from "./ProfileTooltip";
+import moment from "moment";
 
 type CommentCardProp = {
 	comment: Comment
@@ -121,39 +123,13 @@ export default function CommentCard({ comment, commentDeleteCallback }: CommentC
 			<Card sx={{ padding: '10px', border: 'none', textAlign: 'left' }} variant="outlined">
 				<CardHeader
 					avatar={
-						<Tooltip
-							enterDelay={500}
-							/* onOpen={handleTooltipOpen} */
-							slotProps={comment.user === null ? {} : { tooltip: { sx: { width: 200 } } }}
-							title={
-								comment ?
-									<>
-										<Card>
-											<CardHeader
-												title={comment.user.username}
-												subheader={`@${comment.user.username}`}
-												avatar={
-													<Avatar aria-label="pfp" src={comment.user.avatar ?? undefined}>
-														{comment.user.username[0].toUpperCase()}
-													</Avatar>
-												}
-												sx={{ backgroundImage: `url(${comment.user.banner})`, backgroundSize: "cover", backdropFilter: "blur(16px)" }}
-											/>
-											<CardContent>
-												<Typography variant="body2">{comment.user.bio ?? "No information given."}</Typography>
-											</CardContent>
-										</Card>
-									</> : "Loading..."
-							}>
-							<Avatar aria-label="pfp" src={comment.user.avatar ?? undefined}>
-								{comment.user.username[0].toUpperCase()}
-							</Avatar>
-						</Tooltip>
+						<ProfileTooltip profile={comment.user} />
 					}
-					title={`${comment.user.username}`}
-					subheader={`${new Date(comment.creation_date).toLocaleString()}`}
+					title={comment.user.displayName ?? comment.user.username}
+					subheader={`@${comment.user.username}`}
 					action={
 						<>
+							{moment(new Date(comment.creation_date)).startOf("m").fromNow()}
 							<IconButton
 								aria-label="settings"
 								aria-controls={true ? 'basic-menu' : undefined}

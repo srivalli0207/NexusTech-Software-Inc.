@@ -6,48 +6,46 @@ from test_site.models.post import Post, PostLike, PostMedia
 from test_site.models.message import Message, MessageConversation
 from test_site.models.comment import Comment, CommentLike
 
-def serialize_user(user: UserProfile):
+def serialize_user_profile(user: UserProfile, request: HttpRequest):
     fields = {
         "username": user.user.username,
         "displayName": user.display_name,
         "profilePicture": user.profile_picture,
         "bio": user.bio,
-        "verified": user.verified
-    }
-    return fields
-
-def serialize_user_profile(user: UserProfile, auth_user: DjangoUser = None):
-    fields = {
-        **serialize_user(user),
+        "verified": user.verified,
         "banner": user.banner,
         "pronouns": user.pronouns,
         "following": None,
         "followingYou": None,
         "followerCount": user.followers.count(),
         "followingCount": user.following.count(),
+        "userActions": None,
         "blocking": None,
         "blockingYou": None
     }
 
-    if auth_user is not None:
-        following_obj = Follow.objects.filter(user_id=auth_user.id, following=user).first()
-        follows_obj = Follow.objects.filter(user=user, following__user=auth_user.id).first()
-        fields["following"] = following_obj is not None
-        fields["followingYou"] = follows_obj is not None
+    if request.user.is_authenticated:
+        user_actions = {
+            "following": Follow.objects.filter(user_id=request.user.id, following=user).first() is not None,
+            "followingYou": Follow.objects.filter(user=user, following__user=request.user.id).first() is not None,
+            "blocking": False,
+            "blockingYou": False
+        }
+        fields["userActions"] = user_actions
 
     return fields
 
-def serialize_post(post: Post, request: HttpRequest = None):
+def serialize_post(post: Post, request: HttpRequest):
     fields = {
         "id": post.post_id,
-        "user": serialize_user(post.user),
+        "user": serialize_user_profile(post.user, request),
         "forum": post.forum.name if post.forum is not None else None,
         "text": post.text,
         "date": post.creation_date,
         "media": [serialize_post_media(media) for media in post.get_media()],
         "actions": None,
-        "likeCount": post.likers.filter(postlike__like=True).count(),
-        "dislikeCount": post.likers.filter(postlike__like=False).count(),
+        "likeCount": post.get_like_count(),
+        "dislikeCount": post.get_dislike_count(),
         "commentCount": post.get_comment_count()
     }
 
@@ -68,10 +66,10 @@ def serialize_post_media(media: PostMedia):
     }
     return fields
 
-def serialize_message(message: Message):
+def serialize_message(message: Message, request: HttpRequest):
     fields = {
         "id": message.pk,
-        "user": serialize_user(message.user),
+        "user": serialize_user_profile(message.user, request),
         "text": message.text,
         "sent": message.sent,
         "media": []
@@ -83,16 +81,16 @@ def serialize_conversation(conversation: MessageConversation, request: HttpReque
         "id": conversation.conversation_id,
         "name": conversation.name,
         "group": conversation.group,
-        "lastMessage": serialize_message(conversation.last_message) if conversation.last_message is not None else None,
-        "members": [serialize_user(member) for member in conversation.members.all() if member.pk != request.user.pk]
+        "lastMessage": serialize_message(conversation.last_message, request) if conversation.last_message is not None else None,
+        "members": [serialize_user_profile(member, request) for member in conversation.members.all() if member.pk != request.user.pk]
     }
     return fields
 
-def serialize_forum(forum: Forum):
+def serialize_forum(forum: Forum, request: HttpRequest):
     fields = {
         "name": forum.name,
         "description": forum.description,
-        "creator": serialize_user(forum.creator),
+        "creator": serialize_user_profile(forum.creator, request),
         "banner": forum.banner,
         "icon": forum.icon
     }
@@ -114,12 +112,6 @@ def serialize_comment(comment: Comment, request: HttpRequest):
         "likeCount": CommentLike.objects.filter(comment=comment, like=True).count(),
         "dislikeCount": CommentLike.objects.filter(comment=comment, like=False).count(),
         "replyCount": Comment.objects.filter(parent=comment).count(),
-        "user" : {
-            "username": comment.user.user.username,
-            "avatar": comment.user.profile_picture,
-            "banner": comment.user.banner,
-            "display_name": comment.user.display_name,
-            "bio": comment.user.bio,
-        }
+        "user": serialize_user_profile(comment.user, request)
     }
     return fields

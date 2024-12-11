@@ -1,20 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AuthManager } from "../api/auth";
+import { UserProfileResponse } from "../api/user";
 
-export type UserAuth = {
-   username: string,
-   email: string,
-   pfp: string | null
-}
-
-export const AuthContext = createContext<UserAuth | null>(null)
+export const AuthContext = createContext<UserProfileResponse | null>(null)
 
 type AuthContextProviderProp = {
    children: React.ReactNode
 }
 
 export function AuthContextProvider({children}: AuthContextProviderProp) {
-   const [auth, setAuth] = useState<UserAuth | null>(null)
+   const [auth, setAuth] = useState<UserProfileResponse | null>(null)
    const [loading, setLoading] = useState(true)
 
    const on_auth_changed = (e: any) => {

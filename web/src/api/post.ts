@@ -1,5 +1,5 @@
 import { RequestManager } from "./request";
-import { UserResponse } from "./user";
+import { UserProfileResponse } from "./user";
 
 export type PostActions = {
     liked: boolean | null; // liked = true, disliked = false, none = null
@@ -8,7 +8,7 @@ export type PostActions = {
 
 export type Post = {
     id: number;
-    user: UserResponse;
+    user: UserProfileResponse;
     forum: string | null;
     text: string | null;
     date: string;
@@ -22,8 +22,8 @@ export type Post = {
 export type CreatePost = Partial<{
     text: string,
     forum: string
-    images: FileList,
-    video: FileList
+    images: File[],
+    video: File
 }>
 
 export type PostLike = {
@@ -65,7 +65,7 @@ export class PostManager extends RequestManager<"post"> {
                 formData.append("images", file);
             }
         } else if (data.video) {
-            formData.set("video", data.video.item(0)!);
+            formData.set("video", data.video);
         }
         
         return await this.createRequestBuilder()

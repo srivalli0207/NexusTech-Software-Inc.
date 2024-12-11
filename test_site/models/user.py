@@ -98,8 +98,12 @@ class UserProfile(models.Model):
         return posts
     
     def get_likes(self) -> list["Post"]:
-        likes = self.likes.all().order_by("-postlike__datetime")
+        likes = self.likes.filter(postlike__like=True).order_by("-postlike__datetime")
         return likes
+    
+    def get_dislikes(self) -> list["Post"]:
+        dislikes = self.likes.filter(postlike__like=False).order_by("-postlike__datetime")
+        return dislikes
     
     def __str__(self):
         return f"{self.user.username} ({self.pk})"

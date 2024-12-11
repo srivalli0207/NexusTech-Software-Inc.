@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useStatus } from "../utils/StatusContext";
 import { useUser } from "../utils/AuthContext";
-import { UserManager, UserResponse } from "../api/user";
+import { UserManager, UserProfileResponse } from "../api/user";
 
 export default function LayoutNames() {
    const user = useUser();
-   const [following, setFollowing] = useState<UserResponse[]>();
+   const [following, setFollowing] = useState<UserProfileResponse[]>();
    const statuses = useStatus();
    const userManager = UserManager.getInstance();
 

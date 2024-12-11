@@ -1,17 +1,17 @@
 import { RequestManager } from "./request";
-import { UserResponse } from "./user";
+import { UserProfileResponse } from "./user";
 
 export type Conversation = {
     id: number;
     name: string | null;
     group: boolean;
     lastMessage: ConversationMessage | null,
-    members: UserResponse[]
+    members: UserProfileResponse[]
 }
 
 export type ConversationMessage = {
     id: number;
-    user: UserResponse;
+    user: UserProfileResponse;
     text: string;
     sent: string; 
 }

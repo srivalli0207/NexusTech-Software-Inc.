@@ -4,8 +4,9 @@ import HubIcon from '@mui/icons-material/Hub';
 import { useState } from "react";
 import PostDialog from "./PostDialog"; 
 import AppBarSearch from "./AppBarSearch";
-import { UserAuth, useUser } from "../utils/AuthContext";
+import { useUser } from "../utils/AuthContext";
 import { AuthManager } from "../api/auth";
+import { UserProfileResponse } from "../api/user";
 
 
 export default function TopNavbar() {
@@ -36,7 +37,7 @@ export default function TopNavbar() {
    )
 }
 
-function TopNavbarUser({ user }: { user: UserAuth }) {
+function TopNavbarUser({ user }: { user: UserProfileResponse }) {
    const navigate = useNavigate();
    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
    const open = Boolean(anchorEl);
@@ -69,7 +70,7 @@ function TopNavbarUser({ user }: { user: UserAuth }) {
             <PostDialog />
          </Box>
          <IconButton onClick={handleClick}>
-            <Avatar src={user!.pfp !== null ? user!.pfp : undefined}>{user!.username[0].toUpperCase()}</Avatar>
+            <Avatar src={user.profilePicture !== null ? user.profilePicture : undefined}>{user!.username[0].toUpperCase()}</Avatar>
          </IconButton>
          <Menu anchorEl={anchorEl} open={open} onClose={handleClose} onClick={handleClose}>
             <MenuItem component={Link} to={`/profile/${user!.username}`}>Profile</MenuItem>

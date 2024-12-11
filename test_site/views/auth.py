@@ -5,6 +5,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.models import User as DjangoUser
 from django.contrib.auth import authenticate, login, logout
+from .serializers import serialize_user_profile
 
 from test_site.models.user import UserProfile
 
@@ -27,11 +28,7 @@ def get_session(request: HttpRequest):
     if (request.user.is_authenticated):
         user = DjangoUser.objects.get(username=request.user.username)
         profile = UserProfile.objects.get(pk=user.pk)
-        user_object = {
-            "username": user.username,
-            "email": user.email,
-            "pfp": profile.profile_picture
-        }
+        user_object = serialize_user_profile(profile, request)
         
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
@@ -49,11 +46,7 @@ def login_user(request: HttpRequest):
         login(request=request, user=user)
         user = DjangoUser.objects.get(username=request.user.username)
         profile = UserProfile.objects.get(pk=user.pk)
-        user_object = {
-            "username": user.username,
-            "email": user.email,
-            "pfp": profile.profile_picture
-        }
+        user_object = serialize_user_profile(profile, request)
 
         return JsonResponse({"message": "Login success!", "user": user_object}, status=200)
     else:
@@ -82,11 +75,7 @@ def register_user(request: HttpRequest, ):
         login(request, user)
         user_model = UserProfile(user=user)
         user_model.save()
-        user_object = {
-            "username": name,
-            "email": email,
-            "pfp": None
-        }
+        user_object = serialize_user_profile(user_model, request)
         return JsonResponse({"message": "Register user success!", "user": user_object},status=200)
     else:
         return JsonResponse({"message": "Login failed!","user": None}, status=409)

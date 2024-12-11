@@ -20,28 +20,35 @@ import {
   styled,
   Tooltip,
 } from "@mui/material";
+import Grid from '@mui/material/Grid2'
 import MessageIcon from "@mui/icons-material/Message";
 import UploadIcon from "@mui/icons-material/Upload";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import PostCard from "../components/PostCard";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import UserListItem from "../components/UserListItem";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { SetProfileData, SetProfileRequest, UserManager, UserProfileResponse, UserResponse } from "../api/user";
+import { SetProfileData, SetProfileRequest, UserManager, UserProfileResponse } from "../api/user";
 import { useUser } from "../utils/AuthContext";
 import { Post } from "../api/post";
 import { MessageManager } from "../api/message";
 import { blue } from "@mui/material/colors";
 import PostList from "../components/PostList";
 import UserList from "../components/UserList";
+import { VisuallyHiddenInput } from "../components/VisuallyHiddenInput";
 
 export default function UserProfile() {
   const { username } = useParams();
+  const { state } = useLocation();
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(null);
   const userManager = UserManager.getInstance();
 
   useEffect(() => {
     setUserProfile(null);
+    if (state !== null && state.profile) {
+      setUserProfile(state.profile);
+      return;
+    }
     userManager.getUser(username!).then((profile) => {
       setUserProfile(profile);
     }).catch((err) => {
@@ -75,7 +82,7 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
   const followUser = async () => {
     setFollowLoading(true);
     const res = await userManager.followUser(username!);
-    profile.following = res.following;
+    profile.userActions!.following = res.following;
     setFollowLoading(false);
   };
 
@@ -107,8 +114,8 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
             <MessageIcon />
           </IconButton>}
           {isSelf ? <UserProfileEditButton profile={profile} onUpdate={onProfileUpdate} /> : 
-          <Button sx={{ marginLeft: "16px" }} variant="contained" onClick={!isSelf ? followUser : undefined} disabled={followLoading}>
-            {!followLoading ? (!profile.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
+          <Button sx={{ marginLeft: "16px" }} variant={profile.userActions?.following ? "outlined" : "contained"} onClick={!isSelf ? followUser : undefined} disabled={followLoading}>
+            {!followLoading ? (!profile.userActions?.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
           </Button>}
         </Box>
         <Box sx={{ height: "56px" }} />
@@ -121,7 +128,7 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
           <Typography variant="subtitle1">
             @{profile.username}
           </Typography>
-          {profile.followingYou && <Chip label="Follows you" />}
+          {profile.userActions?.followingYou && <Chip label="Follows you" />}
         </Stack>
         <Typography variant="body1" sx={{ my: "16px" }}>
           {profile.bio ?? "No information given."}
@@ -156,6 +163,8 @@ function CustomTabPanel(props: TabPanelProps) {
 function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
   const [value, setValue] = useState(0);
   const userManager = UserManager.getInstance();
+  const user = useUser();
+  const isSelf = user?.username === profile.username;
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -169,6 +178,7 @@ function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
           <Tab label={`Followers (${profile.followerCount})`} />
           <Tab label={`Following (${profile.followingCount})`} />
           <Tab label="Likes" />
+          {isSelf && <Tab label="Dislikes" />}
         </Tabs>
       </Paper>
       <CustomTabPanel value={value} index={0}>
@@ -183,6 +193,9 @@ function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
       <CustomTabPanel value={value} index={3}>
         <PostList requester={userManager.getLikes(profile.username)} />
       </CustomTabPanel>
+      {isSelf && <CustomTabPanel value={value} index={4}>
+        <PostList requester={userManager.getDislikes(profile.username)} />
+      </CustomTabPanel>}
     </>
   )
 }
@@ -258,17 +271,7 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
     setBannerImage(event.target.files);
   }
 
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
+  
 
   return (
     <>
@@ -318,33 +321,36 @@ function UserProfileEditButton({ profile, onUpdate = undefined }: { profile: Use
             value={formState.bio}
             onChange={handleText}
           />
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <Button variant="contained" startIcon={<UploadIcon />} component="label" sx={{ marginBottom: "4px" }}>
-              Profile Picture
-              <VisuallyHiddenInput
-                type="file"
-                onChange={handlePfpFile}
-                accept="image/png, image/jpeg, image/gif"
+          <Stack direction="row" spacing={2}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <Button variant="contained" startIcon={<UploadIcon />} component="label" sx={{ marginBottom: "4px" }}>
+                Profile Picture
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={handlePfpFile}
+                  accept="image/png, image/jpeg, image/gif"
+                />
+              </Button>
+              <img
+                src={pfpImage ? URL.createObjectURL(pfpImage.item(0)!) : formState.profilePicture ?? "" }
+                style={{ maxHeight: "100px", objectFit: "contain" }}
               />
-            </Button>
-            <img
-              src={pfpImage ? URL.createObjectURL(pfpImage.item(0)!) : formState.profilePicture ?? "" }
-              style={{ maxHeight: "100px", objectFit: "contain" }}
-            />
-
-            <Button variant="contained" startIcon={<UploadIcon />} component="label" sx={{ marginBottom: "4px" }}>
-              Banner
-              <VisuallyHiddenInput
-                type="file"
-                onChange={handleBannerFile}
-                accept="image/png, image/jpeg"
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <Button variant="contained" startIcon={<UploadIcon />} component="label" sx={{ marginBottom: "4px" }}>
+                Banner
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={handleBannerFile}
+                  accept="image/png, image/jpeg"
+                />
+              </Button>
+              <img
+                src={bannerImage ? URL.createObjectURL(bannerImage.item(0)!) : formState.banner ?? "" }
+                style={{ maxHeight: "100px", maxWidth: "300px", objectFit: "contain" }}
               />
-            </Button>
-            <img
-              src={bannerImage ? URL.createObjectURL(bannerImage.item(0)!) : formState.banner ?? "" }
-              style={{ maxHeight: "100px", objectFit: "contain" }}
-            />
-          </div>
+            </div>
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

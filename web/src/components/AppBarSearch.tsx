@@ -2,13 +2,13 @@ import { Search } from "@mui/icons-material";
 import { Autocomplete, Avatar, Box, CircularProgress, InputAdornment, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserManager, UserResponse } from "../api/user";
+import { UserManager, UserProfileResponse } from "../api/user";
 
 export default function AppBarSearch() {
 	const [searchString, setSearchString] = useState("");
 	const [isLoading, setIsLoading] = useState(false)
 	const navigate = useNavigate();
-	const [searchOptions, setSearchOptions] = useState<UserResponse[]>([])
+	const [searchOptions, setSearchOptions] = useState<UserProfileResponse[]>([])
 
 	useEffect(() => {
 		const timerCallback = async () => {

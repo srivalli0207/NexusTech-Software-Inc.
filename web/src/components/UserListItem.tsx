@@ -7,9 +7,9 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { UserResponse } from "../api/user";
+import { UserProfileResponse } from "../api/user";
 
-export default function UserListItem({ user }: { user: UserResponse }) {
+export default function UserListItem({ user }: { user: UserProfileResponse }) {
   const navigate = useNavigate();
 
   return (

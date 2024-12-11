@@ -1,22 +1,25 @@
 import { Post } from "./post";
 import { RequestManager } from "./request";
 
-export type UserResponse = {
+export type UserProfileResponse = {
     username: string;
     displayName: string | null;
     profilePicture: string | null;
     bio: string | null;
     verified: boolean;
-};
-
-export type UserProfileResponse = UserResponse & {
     banner: string | null;
     pronouns: string | null;
-    following: boolean;
-    followingYou: boolean;
     followerCount: number;
     followingCount: number;
+    userActions: UserProfileActions | null
 };
+
+export type UserProfileActions = {
+    following: boolean;
+    followingYou: boolean;
+    blocking: boolean;
+    blockingYou: boolean;
+}
 
 export type SetProfileRequest = {
     displayName: string | null,
@@ -88,7 +91,7 @@ export class UserManager extends RequestManager<"user"> {
             .fetchJSON();
     }
     
-    public async getFollowers(username: string): Promise<UserResponse[]> {
+    public async getFollowers(username: string): Promise<UserProfileResponse[]> {
         return await this.createRequestBuilder()
             .setMethod("GET")
             .setResource(username)
@@ -96,7 +99,7 @@ export class UserManager extends RequestManager<"user"> {
             .fetchJSON();
     }
     
-    public async getFollowing(username: string): Promise<UserResponse[]> {
+    public async getFollowing(username: string): Promise<UserProfileResponse[]> {
         return await this.createRequestBuilder()
             .setMethod("GET")
             .setResource(username)
@@ -104,7 +107,7 @@ export class UserManager extends RequestManager<"user"> {
             .fetchJSON();
     }
 
-    public async getFriends(username: string): Promise<UserResponse[]> {
+    public async getFriends(username: string): Promise<UserProfileResponse[]> {
         return await this.createRequestBuilder()
             .setMethod("GET")
             .setResource(username)
@@ -127,8 +130,16 @@ export class UserManager extends RequestManager<"user"> {
             .setAction("likes")
             .fetchJSON();
     }
+
+    public async getDislikes(username: string): Promise<Post[]> {
+        return await this.createRequestBuilder()
+            .setMethod("GET")
+            .setResource(username)
+            .setAction("dislikes")
+            .fetchJSON();
+    }
     
-    public async searchUsers(query: string): Promise<UserResponse[]> {
+    public async searchUsers(query: string): Promise<UserProfileResponse[]> {
         return await this.createRequestBuilder()
             .setMethod("GET")
             .setQuery("query", query)

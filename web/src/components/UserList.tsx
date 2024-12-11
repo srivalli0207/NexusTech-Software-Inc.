@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { UserResponse } from "../api/user";
+import { UserProfileResponse } from "../api/user";
 import { Box, CircularProgress, List, Typography } from "@mui/material";
 import UserListItem from "./UserListItem";
 
 export type UserListProps = {
-    requester: Promise<UserResponse[]>
+    requester: Promise<UserProfileResponse[]>
 }
 
 export default function UserList({ requester }: UserListProps) {
     const [loading, setLoading] = useState(true);
-    const [users, setUsers] = useState<UserResponse[]>([]);
+    const [users, setUsers] = useState<UserProfileResponse[]>([]);
   
     useEffect(() => {
       setLoading(true);

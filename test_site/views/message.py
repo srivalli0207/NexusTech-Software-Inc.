@@ -83,7 +83,7 @@ def get_conversation(request: HttpRequest):
     return JsonResponse({"id": conversation.conversation_id}, status=200)
 
 def get_messages(request: HttpRequest, conversation: MessageConversation):
-    return JsonResponse([serialize_message(message) for message in Message.objects.filter(conversation=conversation).order_by("sent")], safe=False, status=200)
+    return JsonResponse([serialize_message(message, request) for message in Message.objects.filter(conversation=conversation).order_by("sent")], safe=False, status=200)
 
 @require_POST
 def send_message(request: HttpRequest, conversation: MessageConversation):
@@ -94,4 +94,4 @@ def send_message(request: HttpRequest, conversation: MessageConversation):
     conversation.last_message = message
     conversation.save()
 
-    return JsonResponse(serialize_message(message), status=200)
+    return JsonResponse(serialize_message(message, request), status=200)

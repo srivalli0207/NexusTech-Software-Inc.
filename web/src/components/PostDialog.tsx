@@ -9,6 +9,7 @@ import CreateIcon from '@mui/icons-material/Create';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { Fragment, useState } from 'react';
 import { CircularProgress, DialogContentText, Fab, IconButton, ImageList, ImageListItem, styled, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2'
 import { useSnackbar } from '../utils/SnackbarContext';
 import { useLocation } from 'react-router-dom';
 import { CreatePost, PostManager } from '../api/post';
@@ -18,8 +19,8 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState("");
   const [textInput, setTextInput] = useState("");
-  const [imageFile, setImageFile] = useState<FileList | null>(null);
-  const [videoFile, setVideoFile] = useState<FileList | null>(null);
+  const [imageFile, setImageFile] = useState<File[] | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const snackbar = useSnackbar();
   const location = useLocation();
   const maxChars = 300;
@@ -74,13 +75,17 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
   const handleImageFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length > 4) return;
     setVideoFile(null);
-    setImageFile(event.target.files);
+    let files = []
+    for (let i = 0; i < event.target.files.length; i++) {
+      files.push(event.target.files.item(i)!)
+    }
+    setImageFile(files);
   }
 
   const handleVideoFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) return;
     setImageFile(null);
-    setVideoFile(event.target.files);
+    setVideoFile(event.target.files.item(0));
   }
 
   const VisuallyHiddenInput = styled('input')({
@@ -125,7 +130,8 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
             onChange={handleText}
             onKeyDown={handleKeyDown}
             error={textInput.length > maxChars}
-            helperText={textInput.length > maxChars ? "Max text length is 300." : undefined} />
+            helperText={textInput.length > maxChars ? "Max text length is 300." : undefined}
+          />
           {imageFile && (
             <>
               <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
@@ -147,10 +153,10 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
           {videoFile && (
             <>
               <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 1}}>
-                Selected video: {videoFile.item(0)?.name}
+                Selected video: {videoFile.name}
               </Typography>
               <video 
-                src={URL.createObjectURL(videoFile.item(0)!)}
+                src={URL.createObjectURL(videoFile)}
                 style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
                 controls
               />

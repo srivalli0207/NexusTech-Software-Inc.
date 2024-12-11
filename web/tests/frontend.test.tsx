@@ -1,7 +1,7 @@
 import { expect, test, vi, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import { AuthContextProvider, UserAuth } from "../src/utils/AuthContext";
+import { AuthContextProvider } from "../src/utils/AuthContext";
 import { useUser } from "../src/utils/auth-hooks";
 import userEvent from "@testing-library/user-event";
 import { signup } from "../src/utils/auth";
@@ -10,7 +10,6 @@ import LoginPage from "../src/pages/LoginPage";
 import { MemoryRouter } from "react-router-dom";
 import CSRF_Token from "../src/utils/csrf_token";
 import { findByLabelText } from "@testing-library/react";
-import {} from "../src/utils/fetch";
 import PostDialog from "../src/components/PostDialog";
 import UserProfile from "../src/pages/UserProfile";
 import { cleanup } from "@testing-library/react";
@@ -19,7 +18,7 @@ export function sum(a, b) {
   return a + b;
 }
 
-function AuthRetriever({ func }: { func: (user: UserAuth) => void }) {
+function AuthRetriever({ func }: { func: (user: UserProfileResponse) => void }) {
   const user = useUser();
 
   func(user);

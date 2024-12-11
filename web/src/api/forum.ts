@@ -1,19 +1,21 @@
 import { Post } from "./post";
 import { RequestManager } from "./request";
+import { UserProfileResponse } from "./user";
 
 export type Forum = {
     name: string,
     description: string,
     icon: string | null,
-    banner: string | null
+    banner: string | null,
+    creator: UserProfileResponse
 }
 
-export type CreateForum = Partial <{
-    text: string,
-    forum: string
-    images: FileList,
-    video: FileList
-}>
+export type CreateForumRequest = {
+    name: string;
+    description: string;
+    icon: File | null;
+    banner: File | null;
+};
 
 export class ForumManager extends RequestManager<"forum"> {
     private static instance: ForumManager | null = null;
@@ -32,6 +34,20 @@ export class ForumManager extends RequestManager<"forum"> {
     public async getForums(): Promise<Forum[]> {
         return await this.createRequestBuilder()
             .setMethod("GET")
+            .fetchJSON();
+    }
+
+    public async createForum(formState: CreateForumRequest): Promise<Forum> {
+        const formData = new FormData();
+        formData.append("name", formState.name);
+        formData.append("description", formState.description);
+        if (formState.icon) formData.append("icon", formState.icon);
+        if (formState.banner) formData.append("banner", formState.banner);
+
+        return await this.createRequestBuilder()
+            .setMethod("POST")
+            .setAction("create")
+            .setFormData(formData)
             .fetchJSON();
     }
     

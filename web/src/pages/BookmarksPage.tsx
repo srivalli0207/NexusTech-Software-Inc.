@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import '../styles/App.css'
 import '../styles/index.css'
 import { UserManager } from '../api/user';
@@ -9,6 +9,9 @@ export default function BookmarksPage() {
 
   return (
     <Box p={2}>
+      <div style={{ textAlign: "start", marginBottom: "8px" }}>
+        <Typography variant="h2">Bookmarks</Typography>
+      </div>
       <PostList requester={userManager.getBookmarks()} />
     </Box>
   );

@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { useEffect, useReducer, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import { Forum, ForumManager } from "../api/forum";
 import { useUser } from "../utils/AuthContext";
@@ -27,9 +27,6 @@ export default function ForumPage() {
       {forum === null
         ? <CircularProgress />
         : <Box>
-            {/* {forum.name} */}
-            {/* <UserProfileHeader profile={userProfile!} />
-            <UserProfileTabs profile={userProfile!} /> */}
             <ForumHeader forum={forum} />
             <PostList requester={forumManager.getForumPosts(forum.name)} />
           </Box>
@@ -75,9 +72,6 @@ function ForumHeader({ forum }: { forum: Forum }) {
           {forum.name[0].toUpperCase()}
         </Avatar>
         <Box sx={{ position: "absolute", right: "16px", top: "16px" }}>
-          {/* {user?.username !== username && <IconButton onClick={messageUser}>
-            <MessageIcon />
-          </IconButton>} */}
           {/* {isSelf ? <UserProfileEditButton profile={profile} onUpdate={onProfileUpdate} /> : 
           <Button sx={{ marginLeft: "16px" }} variant="contained" onClick={!isSelf ? followUser : undefined} disabled={followLoading}>
             {!followLoading ? (!profile.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
@@ -87,8 +81,9 @@ function ForumHeader({ forum }: { forum: Forum }) {
           </Button>
         </Box>
         <Box sx={{ height: "56px" }} />
-        <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+        <Stack direction="column" spacing={1}>
           <Typography variant="h4">/f/{forum.name}</Typography>
+          <Typography variant="body2">Created by <Link to={`/profile/${forum.creator.username}`} state={{ profile: forum.creator }}>@{forum.creator.username}</Link></Typography>
           {/* {profile.pronouns && <Typography>({profile.pronouns})</Typography>} */}
         </Stack>
         {/* <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
@@ -103,41 +98,4 @@ function ForumHeader({ forum }: { forum: Forum }) {
       </Box>
     </Box>
   )
-}
-
-function ForumPosts({ forum }: { forum: Forum }) {
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const forumManager = ForumManager.getInstance();
-
-  const handleDelete = async (post: Post) => {
-    setPosts(posts.filter((p) => p.id != post.id));
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    forumManager.getForumPosts(forum.name)
-      .then(async (res) => {
-        setPosts(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, [forum.name]);
-
-  return (
-    <Box sx={{ p: 3 }}>
-      {loading && <CircularProgress />}
-      {!loading && posts.length === 0 && <Typography>No posts found.</Typography>}
-      <Stack spacing={2}>
-        {posts.map((post, index) => {
-          return (
-            <PostCard key={index} post={post} onDelete={handleDelete} />
-          );
-        })}
-      </Stack>
-    </Box>
-  );
 }
