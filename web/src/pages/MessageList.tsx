@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -11,7 +10,6 @@ import {
   ImageListItem,
   styled,
   TextField,
-  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
