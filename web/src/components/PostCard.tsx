@@ -96,7 +96,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
                 >
                   <MoreVertIcon />
                   <Menu id={`post-menu-${post.id}`} anchorEl={anchorEl} open={open} onClose={handleClose}>
-                    {user?.username == post.user.username && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
+                    {(user?.username == post.user.username) && <MenuItem onClick={handleDelete}>Delete</MenuItem>}
                     {user?.username != post.user.username && <MenuItem>Report</MenuItem>}
                   </Menu>
                 </IconButton>
@@ -145,7 +145,7 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
               <ShareIcon />
             </IconButton>
             <div style={{ flex: "1 0 0" }} />
-            {post.forum && <Typography sx={{ marginRight: "8px", ":hover": { "textDecoration": "underline" } }}><Link to={`/forums/${post.forum}`}>/f/{post.forum}</Link></Typography>}
+            {post.forum && <Typography sx={{ marginRight: "8px", ":hover": { "textDecoration": "underline" } }}><Link to={`/forums/${post.forum}`}>/{post.forum}</Link></Typography>}
           </CardActions>
         </div>
       </Card>

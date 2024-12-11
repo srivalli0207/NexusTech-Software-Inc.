@@ -68,6 +68,7 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
   const { username } = useParams();
   const [followLoading, setFollowLoading] = useState(false);
   const navigate = useNavigate();
+  const snackbar = useSnackbar();
   const isSelf = user?.username === username;
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   const userManager = UserManager.getInstance();
@@ -77,7 +78,9 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
     setFollowLoading(true);
     const res = await userManager.followUser(username!);
     profile.userActions!.following = res.following;
+    profile.followerCount += res.following ? 1 : -1;
     setFollowLoading(false);
+    snackbar({open: true, message: res.following ? `Followed @${profile.username}!` : `Unfollowed @${profile.username}.`});
   };
 
   const messageUser = async () => {
@@ -176,7 +179,7 @@ function UserProfileTabs({ profile }: { profile: UserProfileResponse }) {
         </Tabs>
       </Paper>
       <CustomTabPanel value={value} index={0}>
-        <PostList requester={userManager.getUserPosts(profile.username)} />
+        <PostList requester={userManager.getUserPosts(profile.username)} postCallback={(post) => post.user.username === user?.username} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <UserList requester={userManager.getFollowers(profile.username)} />

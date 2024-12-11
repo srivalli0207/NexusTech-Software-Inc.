@@ -1,7 +1,8 @@
-import { Avatar, Box, CircularProgress, List, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
+import { Box, CircularProgress, List, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Conversation, MessageManager } from "../api/message";
+import ProfileTooltip from "../components/ProfileTooltip";
 
 export default function ConversationList() {
   const [loading, setLoading] = useState(true);
@@ -17,7 +18,10 @@ export default function ConversationList() {
   }, []);
 
   return (
-    <Box>
+    <Box p={2}>
+      <div style={{ textAlign: "start", marginBottom: "8px" }}>
+        <Typography variant="h2">Messages</Typography>
+      </div>
       {loading && <CircularProgress />}
       {!loading && 
       <List>
@@ -31,7 +35,7 @@ function ConversationListItem({ conversation }: {conversation: Conversation}) {
   return (
     <ListItemButton alignItems="flex-start" component={Link} to={`/messages/${conversation.id}`} key={conversation.id}>
       <ListItemAvatar>
-        <Avatar src={conversation.members[0].profilePicture ?? undefined}>{conversation.members[0].username[0].toUpperCase()}</Avatar>
+        <ProfileTooltip profile={conversation.members[0]} />
       </ListItemAvatar>
       <ListItemText
         primary={conversation.name ?? conversation.members.map((member) => member.username).join(", ")}

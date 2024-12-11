@@ -8,7 +8,8 @@ export type Forum = {
     icon: string | null,
     banner: string | null,
     creator: UserProfileResponse,
-    userActions: ForumActions | null
+    followerCount: number,
+    userActions: ForumActions | null,
 }
 
 export type ForumActions = {

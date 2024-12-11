@@ -26,7 +26,9 @@ export default function ForumPage() {
         ? <CircularProgress />
         : <Box>
             <ForumHeader forum={forum} />
-            <PostList requester={forumManager.getForumPosts(forum.name)} />
+            <Box p={2}>
+              <PostList requester={forumManager.getForumPosts(forum.name)} />
+            </Box>
           </Box>
       }
     </Box>
@@ -44,7 +46,7 @@ function ForumHeader({ forum }: { forum: Forum }) {
     const res = await forumManager.followForum(forum.name)
     forum.userActions!.following = res.following;
     setFollowLoading(false);
-    snackbar({open: true, message: res.following ? `Followed /f/${forum.name}!` : `Unfollowed /f/${forum.name}.`})
+    snackbar({open: true, message: res.following ? `Followed /${forum.name}!` : `Unfollowed /${forum.name}.`})
   };
 
   // const onProfileUpdate = (formData: SetProfileRequest) => {
@@ -76,7 +78,8 @@ function ForumHeader({ forum }: { forum: Forum }) {
         </Box>
         <Box sx={{ height: "56px" }} />
         <Stack direction="column" spacing={1}>
-          <Typography variant="h4">/f/{forum.name}</Typography>
+          <Typography variant="h4">/{forum.name}</Typography>
+          <Typography variant="subtitle1">{forum.followerCount} followers</Typography>
           <Typography variant="body2">Created by <Link to={`/profile/${forum.creator.username}`} state={{ profile: forum.creator }}>@{forum.creator.username}</Link></Typography>
           {/* {profile.pronouns && <Typography>({profile.pronouns})</Typography>} */}
         </Stack>

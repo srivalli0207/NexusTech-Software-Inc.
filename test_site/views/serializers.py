@@ -93,6 +93,7 @@ def serialize_forum(forum: Forum, request: HttpRequest):
         "creator": serialize_user_profile(forum.creator, request),
         "banner": forum.banner,
         "icon": forum.icon,
+        "followerCount": forum.followers.all().count(),
         "userActions": None
     }
 

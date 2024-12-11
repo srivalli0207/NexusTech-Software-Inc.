@@ -22,7 +22,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { CreateForumRequest, Forum, ForumManager } from "../api/forum";
 import { VisuallyHiddenInput } from "../components/VisuallyHiddenInput";
 import { useSnackbar } from "../utils/SnackbarContext";
-import { NexusAPIError } from "../api/request";
 
 export default function ForumsPage() {
   const [forums, setForums] = useState<Forum[]>([]);
@@ -74,8 +73,9 @@ function ForumsCard({ forum }: { forum: Forum }) {
     setFollowLoading(true);
     const res = await forumManager.followForum(forum.name)
     forum.userActions!.following = res.following;
+    forum.followerCount += res.following ? 1 : -1;
     setFollowLoading(false);
-    snackbar({open: true, message: res.following ? `Followed /f/${forum.name}!` : `Unfollowed /f/${forum.name}.`})
+    snackbar({open: true, message: res.following ? `Followed /${forum.name}!` : `Unfollowed /${forum.name}.`});
   };
 
   return (
@@ -86,18 +86,10 @@ function ForumsCard({ forum }: { forum: Forum }) {
         title="forum banner"
       />
       <CardContent>
-        <Typography
-          gutterBottom
-          variant="h5"
-          component="div"
-          sx={{ textAlign: "start" }}
-        >
+        <Typography gutterBottom variant="h5" component="div" sx={{ textAlign: "start" }}>
           {forum.name}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "text.secondary", textAlign: "start" }}
-        >
+        <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "start" }}>
           {forum.description}
         </Typography>
       </CardContent>
@@ -106,6 +98,10 @@ function ForumsCard({ forum }: { forum: Forum }) {
         <Button variant={forum.userActions?.following ? "outlined" : "contained"} onClick={followForum} disabled={followLoading}>
             {!followLoading ? (!forum.userActions?.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
         </Button>
+        <div style={{ flex: "1 0 0" }} />
+        <Typography variant="body1" sx={{ textAlign: "start", marginRight: "4px" }}>
+          {forum.followerCount} followers
+        </Typography>
       </CardActions>
     </Card>
   );

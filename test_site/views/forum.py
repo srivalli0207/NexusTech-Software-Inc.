@@ -45,6 +45,7 @@ def create_forum(request: HttpRequest):
         file_url = fs.url(fs_file)
         forum.banner = file_url
     forum.save()
+    forum.follow_forum(user)
     return JsonResponse(serialize_forum(forum, request), status=200)
 
 def get_forum(request: HttpRequest, forum_name: str):

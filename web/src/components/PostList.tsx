@@ -4,10 +4,11 @@ import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import PostCard from "./PostCard";
 
 export type PostListProps = {
-    requester: Promise<Post[]>
+  requester: Promise<Post[]>,
+  postCallback?: boolean | ((post: Post) => boolean);
 }
 
-export default function PostList({ requester }: PostListProps) {
+export default function PostList({ requester, postCallback = false }: PostListProps) {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -24,14 +25,29 @@ export default function PostList({ requester }: PostListProps) {
     })();
   }, []);
 
+  const onPostCreated = async (e: any) => {
+    const post: Post = e.detail;
+    if ((typeof postCallback === "boolean" && postCallback) || (typeof postCallback === "function" && postCallback(post))) {
+      setPosts((posts) => [post, ...posts]);
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('nexus.post.created', onPostCreated)
+
+    return () => {
+       document.removeEventListener('nexus.post.created', onPostCreated);
+    }
+ }, [])
+
   return (
     <Box>
       {loading && <CircularProgress />}
       {!loading && posts.length === 0 && <Typography>No posts found.</Typography>}
       <Stack spacing={2}>
-        {posts.map((post, index) => {
+        {posts.map((post) => {
           return (
-              <PostCard key={index} post={post} onDelete={handleDelete} />
+            <PostCard key={post.id} post={post} onDelete={handleDelete} />
           );
         })}
       </Stack>

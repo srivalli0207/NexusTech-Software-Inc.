@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { UserProfileResponse } from "../api/user";
-import { Avatar, Card, CardContent, CardHeader, Tooltip, Typography } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, SxProps, Theme, Tooltip, Typography } from "@mui/material";
 
-export default function ProfileTooltip({ profile }: { profile: UserProfileResponse }) {
+export default function ProfileTooltip({ profile, sx = [] }: { profile: UserProfileResponse, sx?: SxProps<Theme> }) {
     const navigate = useNavigate();
 
     const handleAvatarClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -29,7 +29,7 @@ export default function ProfileTooltip({ profile }: { profile: UserProfileRespon
             </Card>
         }>
             {/* <IconButton onClick={() => console.log("ok2")}> */}
-                <Avatar aria-label="pfp" src={profile.profilePicture ?? undefined} onClick={handleAvatarClick}>
+                <Avatar aria-label="pfp" src={profile.profilePicture ?? undefined} onClick={handleAvatarClick} sx={sx}>
                     {profile.username[0].toUpperCase()}
                 </Avatar>
             {/* </IconButton> */}

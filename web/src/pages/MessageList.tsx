@@ -19,6 +19,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import { blue, grey } from "@mui/material/colors";
 import { ConversationMessage, MessageManager } from "../api/message";
 import { useUser } from "../utils/AuthContext";
+import ProfileTooltip from "../components/ProfileTooltip";
 
 export default function MessageList() {
   const [loading, setLoading] = useState(true);
@@ -97,11 +98,7 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
     >
       {!isSender && (
         <Grid size={1}>
-          <Tooltip title={message.user.username}>
-            <Avatar src={message.user.profilePicture ?? undefined} sx={{ float: "right" }}>
-              {message.user.username[0].toUpperCase()}
-            </Avatar>
-          </Tooltip>
+          <ProfileTooltip profile={message.user} sx={{ float: "right" }} />
         </Grid>
       )}
       <Grid>
@@ -122,11 +119,7 @@ function MessageBubble({ message }: { message: ConversationMessage }) {
       </Grid>
       {isSender && (
         <Grid size={1}>
-          <Tooltip title={message.user.username}>
-            <Avatar src={message.user.profilePicture ?? undefined}>
-              {message.user.username[0].toUpperCase()}
-            </Avatar>
-          </Tooltip>
+          <ProfileTooltip profile={message.user} />
         </Grid>
       )}
     </Grid>

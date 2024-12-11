@@ -1,8 +1,8 @@
 import json, os
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from storages.backends.s3 import S3Storage
 
@@ -34,16 +34,29 @@ def posts(request: HttpRequest):
         return submit_post(request)
     
 def get_posts(request: HttpRequest):
-    if request.user.is_authenticated:
-        profile = UserProfile.objects.get(user_id=request.user.id)
-        following_ids = [following for following in profile.following.all()]
-        following_ids.append(profile)
-        forum_following_ids = [following for following in profile.forum_following.all()]
-        posts = Post.objects.filter(Q(user__in=following_ids) | Q(forum__in=forum_following_ids)).order_by("-creation_date")
-    else:
-        posts = Post.objects.all()
+    post_filter = request.GET.get("filter") or "latest"
+    match post_filter:
+        case "latest":
+            posts = Post.objects.all().order_by("-creation_date")
+        case "following":
+            if request.user.is_authenticated:
+                profile = UserProfile.objects.get(user_id=request.user.id)
+                following_ids = [following for following in profile.following.all()]
+                following_ids.append(profile)
+                forum_following_ids = [following for following in profile.forum_following.all()]
+                posts = Post.objects.filter(Q(user__in=following_ids) | Q(forum__in=forum_following_ids)).order_by("-creation_date")
+            else:
+                posts = []
+        case "top_24":
+            date_from = datetime.now() - timedelta(days=1)
+            posts = Post.objects.filter(creation_date__gte=date_from).annotate(like_count=Count("likers", filter=Q(postlike__like=True))).order_by("-like_count")
+        case "top_7":
+            date_from = datetime.now() - timedelta(days=7)
+            posts = Post.objects.filter(creation_date__gte=date_from).annotate(like_count=Count("likers", filter=Q(postlike__like=True))).order_by("-like_count")
+        case "top_all":
+            posts = Post.objects.all().annotate(like_count=Count("likers", filter=Q(postlike__like=True))).order_by("-like_count")
     
-    posts_response = [serialize_post(post, request) for post in posts.order_by("-creation_date")]
+    posts_response = [serialize_post(post, request) for post in posts]
     return HttpResponse(json.dumps(posts_response, default=json_serial), content_type="application/json")
 
 def submit_post(request: HttpRequest):

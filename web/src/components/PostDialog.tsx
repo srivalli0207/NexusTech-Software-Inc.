@@ -54,10 +54,12 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
       }
       if (imageFile) data.images = imageFile;
       else if (videoFile) data.video = videoFile;
-      console.log(data);
-      await postManager.createPost(data);
+      const post = await postManager.createPost(data);
+
       setOpen(false);
-      snackbar({ open: true, message: "Post sent!" })
+      snackbar({ open: true, message: "Post sent!" });
+      const event = new CustomEvent('nexus.post.created', { detail: post });
+      document.dispatchEvent(event);
     } catch (err) {
       setPostError(err as any);
       setPosting(false);

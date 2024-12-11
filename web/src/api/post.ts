@@ -50,10 +50,10 @@ export class PostManager extends RequestManager<"post"> {
         return PostManager.instance;
     }
 
-    public async getPosts(): Promise<Post[]> {
-        return await this.createRequestBuilder()
-            .setMethod("GET")
-            .fetchJSON();
+    public async getPosts(filter?: string): Promise<Post[]> {
+        const builder = this.createRequestBuilder().setMethod("GET");
+        if (filter) builder.setQuery("filter", filter);
+        return await builder.fetchJSON();
     }
 
     public async createPost(data: CreatePost): Promise<Post> {

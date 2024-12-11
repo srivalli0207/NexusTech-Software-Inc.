@@ -32,7 +32,7 @@ def get_session(request: HttpRequest):
         
         return JsonResponse({"message": "User authenticated!", "user": user_object}, status=200)
     else:
-        return JsonResponse({"message": "User not authenticated!", "user": None}, status=401)
+        return JsonResponse({"message": "User not authenticated!", "user": None}, status=200)
     
 @require_POST
 def login_user(request: HttpRequest):
