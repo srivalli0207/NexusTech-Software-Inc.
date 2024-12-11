@@ -2,6 +2,7 @@ import json
 from datetime import datetime, date, time
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
+from django.db.models import Q, Count
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from test_site.models.message import Message, MessageConversation
 from test_site.models.user import UserProfile
@@ -51,10 +52,13 @@ def create_conversation(request: HttpRequest):
     group: bool = data["group"]
     name: str | None = data.get("name")
 
-    if not group: # Check if conversation already exists
-        target_user = UserProfile.objects.get(user__username=usernames[0])
-        if (conversation := MessageConversation.objects.filter(group=False, members__in=[user]).filter(members__in=[target_user]).first()) is not None:
-            return JsonResponse(serialize_conversation(conversation, request), status=200)
+    conversation = MessageConversation.objects.annotate(member_count=Count("members")).filter(group=group, members__in=[user], member_count=len(usernames) + 1)
+    for username in usernames:
+        profile = UserProfile.objects.get(user__username=username)
+        conversation = conversation.filter(members__in=[profile])
+    conversation = conversation.first()
+    if conversation is not None:
+        return JsonResponse(serialize_conversation(conversation, request), status=200)
     
     conversation = MessageConversation(group=group, name=name)
     conversation.save()
@@ -62,6 +66,7 @@ def create_conversation(request: HttpRequest):
     for username in usernames:
         user = UserProfile.objects.get(user__username=username)
         conversation.members.add(user)
+    conversation.save()
     return JsonResponse(serialize_conversation(conversation, request), status=200)
 
 @require_http_methods(["GET", "POST"])

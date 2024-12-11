@@ -79,7 +79,7 @@ function ForumHeader({ forum }: { forum: Forum }) {
         <Box sx={{ height: "56px" }} />
         <Stack direction="column" spacing={1}>
           <Typography variant="h4">/{forum.name}</Typography>
-          <Typography variant="subtitle1">{forum.followerCount} followers</Typography>
+          <Typography variant="subtitle1" color="textSecondary">{forum.followerCount} followers</Typography>
           <Typography variant="body2">Created by <Link to={`/profile/${forum.creator.username}`} state={{ profile: forum.creator }}>@{forum.creator.username}</Link></Typography>
         </Stack>
         <Typography variant="body1" sx={{ my: "16px" }}>

@@ -37,10 +37,10 @@ export class MessageManager extends RequestManager<"message"> {
         return await request.fetchJSON();
     }
 
-    public async createConversation(usernames: string[], group: boolean): Promise<Conversation> {
+    public async createConversation(usernames: string[], group: boolean, name: string | null = null): Promise<Conversation> {
         return await this.createRequestBuilder()
             .setMethod("POST")
-            .setJSONData({"usernames": usernames, "group": group})
+            .setJSONData({"usernames": usernames, "group": group, "name": name})
             .fetchJSON();
     }
     

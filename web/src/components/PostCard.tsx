@@ -14,7 +14,7 @@ import Menu from "@mui/material/Menu";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { blue, green, purple, red, yellow } from "@mui/material/colors";
-import { ImageList, ImageListItem } from "@mui/material";
+import { ImageList, ImageListItem, Tooltip } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../utils/AuthContext";
@@ -86,7 +86,9 @@ export default function PostCard({ post, onDelete }: { post: Post, onDelete: (po
             avatar={<ProfileTooltip profile={post.user} />}
             action={
               <>
-                {moment(date).startOf("m").fromNow()}
+                <Tooltip title={date.toLocaleString()}>
+                  <Typography component="span" color="textSecondary">{moment(date).startOf("m").fromNow()}</Typography>
+                </Tooltip>
                 <IconButton
                   aria-label="settings"
                   aria-controls={open ? 'basic-menu' : undefined}

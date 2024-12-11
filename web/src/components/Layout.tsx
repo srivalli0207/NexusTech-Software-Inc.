@@ -1,13 +1,15 @@
 import Grid from '@mui/material/Grid2'
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 import SideBar from "./SideBar"
 import { Box, useTheme } from '@mui/material'
 import TopNavbar from './TopNavbar'
 import LayoutNames from './LayoutNames'
 import BottomNavbar from './BottomNavbar'
+import PostDialog from './PostDialog'
 
 export default function Layout() {
    const theme = useTheme();
+   const location = useLocation();
 
    return (
       <Box position='sticky' display='flex' flexDirection='column' height='100%'>
@@ -25,6 +27,7 @@ export default function Layout() {
                </Grid>
             </Grid>
             <Box sx={{ display: { md: "none", xs: "inline" } }}>
+               {(location.pathname === "/" || location.pathname.startsWith("/forums/")) && <PostDialog fab={true} />}
                <BottomNavbar />
             </Box>
          </Box>

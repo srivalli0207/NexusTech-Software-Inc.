@@ -119,10 +119,10 @@ function UserProfileHeader({ profile }: { profile: UserProfileResponse }) {
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
           <Typography variant="h4">{profile.displayName ?? profile.username}</Typography>
           {profile.verified && <Tooltip title={"Verified"}><VerifiedIcon /></Tooltip>}
-          {profile.pronouns && <Typography>({profile.pronouns})</Typography>}
+          {profile.pronouns && <Typography color="textSecondary">({profile.pronouns})</Typography>}
         </Stack>
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-          <Typography variant="subtitle1">
+          <Typography variant="subtitle1" color="textSecondary">
             @{profile.username}
           </Typography>
           {profile.userActions?.followingYou && <Chip label="Follows you" />}

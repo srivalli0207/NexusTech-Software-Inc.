@@ -99,7 +99,7 @@ function ForumsCard({ forum }: { forum: Forum }) {
             {!followLoading ? (!forum.userActions?.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
         </Button>
         <div style={{ flex: "1 0 0" }} />
-        <Typography variant="body1" sx={{ textAlign: "start", marginRight: "4px" }}>
+        <Typography variant="body1" sx={{ textAlign: "start", marginRight: "4px" }} color="textSecondary">
           {forum.followerCount} followers
         </Typography>
       </CardActions>
@@ -171,11 +171,7 @@ function CreateForumButton() {
   return (
     <>
       <Button variant="contained" onClick={handleClickOpen}>Create Forum</Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth
-      >
+      <Dialog open={open} onClose={handleClose} fullWidth>
         <DialogTitle>Create Forum</DialogTitle>
         <DialogContent>
           {creatingError && <DialogContentText color="error">{creatingError.message}</DialogContentText>}

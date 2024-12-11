@@ -1,5 +1,5 @@
 import Card from "@mui/material/Card";
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import { CardActions } from "@mui/material";
@@ -128,7 +128,10 @@ export default function CommentCard({ comment, commentDeleteCallback }: CommentC
 					subheader={`@${comment.user.username}`}
 					action={
 						<>
-							{moment(new Date(comment.creation_date)).startOf("m").fromNow()}
+							<Tooltip title={new Date(comment.creation_date).toLocaleString()}>
+								<Typography component="span" color="textSecondary">{moment(new Date(comment.creation_date)).startOf("m").fromNow()}</Typography>
+							</Tooltip>
+							
 							<IconButton
 								aria-label="settings"
 								aria-controls={true ? 'basic-menu' : undefined}

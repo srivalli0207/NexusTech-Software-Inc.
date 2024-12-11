@@ -2,6 +2,7 @@ import { BottomNavigation, BottomNavigationAction, Box } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import ExploreIcon from "@mui/icons-material/Explore";
 import MessageIcon from "@mui/icons-material/Message";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { Link, useLocation } from "react-router-dom";
 import { useUser } from "../utils/AuthContext";
 
@@ -23,6 +24,7 @@ export default function BottomNavbar() {
           >
             <BottomNavigationAction label="Home" icon={<HomeIcon />} component={Link} to="/" />
             <BottomNavigationAction label="Forums" icon={<ExploreIcon />} component={Link} to="/forums" />
+            {user && <BottomNavigationAction label="Bookmarks" icon={<BookmarkIcon />} component={Link} to="/bookmarks" />}
             {user && <BottomNavigationAction label="Messages" icon={<MessageIcon />} component={Link} to="/messages" />}
           </BottomNavigation>
         </Box>
