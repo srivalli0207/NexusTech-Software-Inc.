@@ -30,8 +30,14 @@ class Forum(models.Model):
         return posts
     
     def follow_forum(self, user: UserProfile) -> bool:
-        self.followers.add(user)
+        if self.followers.filter(user_id=user.pk).exists():
+            self.followers.remove(user)
+            res = False
+        else:
+            self.followers.add(user)
+            res = True
         self.save()
+        return res
 
 
 

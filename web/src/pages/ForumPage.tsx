@@ -1,11 +1,9 @@
 import { Avatar, Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
-import { useEffect, useReducer, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import PostCard from "../components/PostCard";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { Forum, ForumManager } from "../api/forum";
-import { useUser } from "../utils/AuthContext";
-import { Post } from "../api/post";
 import PostList from "../components/PostList";
+import { useSnackbar } from "../utils/SnackbarContext";
 
 
 export default function ForumPage() {
@@ -36,22 +34,18 @@ export default function ForumPage() {
 }
 
 function ForumHeader({ forum }: { forum: Forum }) {
-  const user = useUser();
   const [followLoading, setFollowLoading] = useState(false);
-  const navigate = useNavigate();
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
+  // const [, forceUpdate] = useReducer(x => x + 1, 0);
+  const forumManager = ForumManager.getInstance();
+  const snackbar = useSnackbar();
 
-  // const followUser = async () => {
-  //   setFollowLoading(true);
-  //   const res = await follow_user(username!, !profile.following);
-  //   profile.following = res.following;
-  //   setFollowLoading(false);
-  // };
-
-  // const messageUser = async () => {
-  //   const res = await get_conversation(username!);
-  //   navigate(`/messages/${res.id}`);
-  // };
+  const followForum = async () => {
+    setFollowLoading(true);
+    const res = await forumManager.followForum(forum.name)
+    forum.userActions!.following = res.following;
+    setFollowLoading(false);
+    snackbar({open: true, message: res.following ? `Followed /f/${forum.name}!` : `Unfollowed /f/${forum.name}.`})
+  };
 
   // const onProfileUpdate = (formData: SetProfileRequest) => {
   //   profile.displayName = formData.displayName;
@@ -76,8 +70,8 @@ function ForumHeader({ forum }: { forum: Forum }) {
           <Button sx={{ marginLeft: "16px" }} variant="contained" onClick={!isSelf ? followUser : undefined} disabled={followLoading}>
             {!followLoading ? (!profile.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
           </Button>} */}
-          <Button sx={{ marginLeft: "16px" }} variant="contained" disabled={followLoading}>
-            {!followLoading ? (true ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
+          <Button sx={{ marginLeft: "16px" }} variant={forum.userActions?.following ? "outlined" : "contained"} onClick={followForum} disabled={followLoading}>
+            {!followLoading ? (!forum.userActions?.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
           </Button>
         </Box>
         <Box sx={{ height: "56px" }} />

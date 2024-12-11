@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CreateForumRequest, Forum, ForumManager } from "../api/forum";
 import { VisuallyHiddenInput } from "../components/VisuallyHiddenInput";
+import { useSnackbar } from "../utils/SnackbarContext";
 
 export default function ForumsPage() {
   const [forums, setForums] = useState<Forum[]>([]);
@@ -66,6 +67,18 @@ export default function ForumsPage() {
 }
 
 function ForumsCard({ forum }: { forum: Forum }) {
+  const [followLoading, setFollowLoading] = useState(false);
+  const forumManager = ForumManager.getInstance();
+  const snackbar = useSnackbar();
+
+  const followForum = async () => {
+    setFollowLoading(true);
+    const res = await forumManager.followForum(forum.name)
+    forum.userActions!.following = res.following;
+    setFollowLoading(false);
+    snackbar({open: true, message: res.following ? `Followed /f/${forum.name}!` : `Unfollowed /f/${forum.name}.`})
+  };
+
   return (
     <Card>
       <CardMedia
@@ -91,7 +104,9 @@ function ForumsCard({ forum }: { forum: Forum }) {
       </CardContent>
       <CardActions>
         <Button variant="contained" component={Link} to={`/forums/${forum.name}`}>View</Button>
-        <Button variant="outlined">Follow</Button>
+        <Button variant={forum.userActions?.following ? "outlined" : "contained"} onClick={followForum} disabled={followLoading}>
+            {!followLoading ? (!forum.userActions?.following ? "Follow" : "Unfollow") : <CircularProgress size="24px" />}
+        </Button>
       </CardActions>
     </Card>
   );

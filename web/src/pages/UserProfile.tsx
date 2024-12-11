@@ -11,26 +11,20 @@ import {
   Paper,
   IconButton,
   Chip,
-  List,
   Dialog,
   DialogTitle,
   DialogContent,
   TextField,
   DialogActions,
-  styled,
   Tooltip,
 } from "@mui/material";
-import Grid from '@mui/material/Grid2'
 import MessageIcon from "@mui/icons-material/Message";
 import UploadIcon from "@mui/icons-material/Upload";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import PostCard from "../components/PostCard";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import UserListItem from "../components/UserListItem";
 import { useSnackbar } from "../utils/SnackbarContext";
 import { SetProfileData, SetProfileRequest, UserManager, UserProfileResponse } from "../api/user";
 import { useUser } from "../utils/AuthContext";
-import { Post } from "../api/post";
 import { MessageManager } from "../api/message";
 import { blue } from "@mui/material/colors";
 import PostList from "../components/PostList";

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User as DjangoUser
 from django.http import HttpRequest
-from test_site.models.forum import Forum
+from test_site.models.forum import Forum, ForumFollow
 from test_site.models.user import Follow, UserProfile
 from test_site.models.post import Post, PostLike, PostMedia
 from test_site.models.message import Message, MessageConversation
@@ -92,15 +92,23 @@ def serialize_forum(forum: Forum, request: HttpRequest):
         "description": forum.description,
         "creator": serialize_user_profile(forum.creator, request),
         "banner": forum.banner,
-        "icon": forum.icon
+        "icon": forum.icon,
+        "userActions": None
     }
+
+    if request.user.is_authenticated:
+        user_actions = {
+            "following": ForumFollow.objects.filter(user_id=request.user.id, forum=forum).first() is not None,
+        }
+        fields["userActions"] = user_actions
+
     return fields
 
 def serialize_comment(comment: Comment, request: HttpRequest):
     profile = UserProfile.objects.get(user_id=request.user.id)
     comment_like = CommentLike.objects.filter(comment=comment, user=profile)
     res = None
-    if (comment_like.exists()):
+    if comment_like.exists():
         res = comment_like.first().like
 
     fields = {

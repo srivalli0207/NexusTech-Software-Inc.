@@ -1,6 +1,5 @@
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
-import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CardContent from "@mui/material/CardContent";
@@ -15,23 +14,13 @@ import Menu from "@mui/material/Menu";
 import { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { blue, green, purple, red, yellow } from "@mui/material/colors";
-import { ImageList, ImageListItem, Stack } from "@mui/material";
+import { ImageList, ImageListItem } from "@mui/material";
 import { useSnackbar } from "../utils/SnackbarContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../utils/AuthContext";
-import { UserManager, UserProfileResponse } from "../api/user";
 import { Post, PostLike, PostManager } from "../api/post";
 import moment from "moment";
 import ProfileTooltip from "./ProfileTooltip";
-
-function timeSince(timeStamp: Date): string {
-  const now = new Date();
-  const secondsPast = (now.getTime() - timeStamp.getTime()) / 1000;
-  if (secondsPast < 60) return `${secondsPast}s`;
-  else if (secondsPast < 3600) return `${secondsPast / 60}m`;
-  else if (secondsPast <= 86400) return `${secondsPast / 3600}h`;
-  else return timeStamp.toLocaleString();
-}
 
 export default function PostCard({ post, onDelete }: { post: Post, onDelete: (post: Post) => void }) {
     const [likeState, setLikeState] = useState<PostLike>({ liked: post.actions?.liked!, likeCount: post.likeCount, dislikeCount: post.dislikeCount })

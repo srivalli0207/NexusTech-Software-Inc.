@@ -7,7 +7,16 @@ export type Forum = {
     description: string,
     icon: string | null,
     banner: string | null,
-    creator: UserProfileResponse
+    creator: UserProfileResponse,
+    userActions: ForumActions | null
+}
+
+export type ForumActions = {
+    following: boolean
+}
+
+export type ForumFollow = {
+    following: boolean
 }
 
 export type CreateForumRequest = {
@@ -63,6 +72,14 @@ export class ForumManager extends RequestManager<"forum"> {
             .setMethod("GET")
             .setResource(forumName)
             .setAction("posts")
+            .fetchJSON();
+    }
+
+    public async followForum(forumName: string): Promise<ForumFollow> {
+        return await this.createRequestBuilder()
+            .setMethod("POST")
+            .setResource(forumName)
+            .setAction("follow")
             .fetchJSON();
     }
 }

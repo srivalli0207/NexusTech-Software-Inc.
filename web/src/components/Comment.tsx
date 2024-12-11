@@ -1,8 +1,7 @@
 import Card from "@mui/material/Card";
-import { Button, Tooltip } from "@mui/material";
+import { Button } from "@mui/material";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
-import Avatar from "@mui/material/Avatar";
 import { CardActions } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import IconButton from '@mui/material/IconButton';

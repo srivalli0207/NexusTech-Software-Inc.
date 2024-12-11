@@ -60,8 +60,13 @@ def get_forum_posts(request: HttpRequest, forum_name: str):
         return JsonResponse([serialize_post(post, request) for post in posts], safe=False)
 
 def follow_forum(request: HttpRequest, forum_name: str):
+    from test_site.models.user import UserProfile
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
+    
+    user = UserProfile.objects.get(user_id=request.user.id)
     forum = Forum.get_forum(forum_name)
     if forum is None:
         return JsonResponse({"error": "Forum not found"}, status=404)
-    
-    
+    res = forum.follow_forum(user)
+    return JsonResponse({"following": res}, status=200)

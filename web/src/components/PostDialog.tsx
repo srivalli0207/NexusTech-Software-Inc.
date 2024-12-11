@@ -9,7 +9,6 @@ import CreateIcon from '@mui/icons-material/Create';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { Fragment, useState } from 'react';
 import { CircularProgress, DialogContentText, Fab, IconButton, ImageList, ImageListItem, styled, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2'
 import { useSnackbar } from '../utils/SnackbarContext';
 import { useLocation } from 'react-router-dom';
 import { CreatePost, PostManager } from '../api/post';

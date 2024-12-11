@@ -18,6 +18,7 @@ class UserProfile(models.Model):
     bookmarks = models.ManyToManyField("Post", through="PostBookmark", related_name="bookmarked_posts")
     followers = models.ManyToManyField("UserProfile", through="Follow", through_fields=("following", "user"), related_name="following_users")
     following = models.ManyToManyField("UserProfile", through="Follow", through_fields=("user", "following"), related_name="followed_users")
+    forum_following = models.ManyToManyField("Forum", through="ForumFollow")
 
     def natural_key(self):
         return {

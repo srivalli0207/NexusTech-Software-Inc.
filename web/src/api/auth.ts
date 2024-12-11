@@ -14,7 +14,7 @@ export class AuthManager extends RequestManager<"auth"> {
         return AuthManager.instance;
     }
 
-    protected override async postRequest(request: Request, response: Response, json?: any) {
+    protected override async postRequest(request: Request, _: Response, json?: any) {
         if (!request.url.endsWith("csrf")) {
             const event = new CustomEvent('nexus.auth.changed', {detail: json});
             document.dispatchEvent(event);

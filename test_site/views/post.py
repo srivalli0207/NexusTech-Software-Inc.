@@ -2,6 +2,7 @@ import json, os
 from datetime import datetime, date, time
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
+from django.db.models import Q
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from storages.backends.s3 import S3Storage
 
@@ -37,7 +38,8 @@ def get_posts(request: HttpRequest):
         profile = UserProfile.objects.get(user_id=request.user.id)
         following_ids = [following for following in profile.following.all()]
         following_ids.append(profile)
-        posts = Post.objects.filter(user__in=following_ids)
+        forum_following_ids = [following for following in profile.forum_following.all()]
+        posts = Post.objects.filter(Q(user__in=following_ids) | Q(forum__in=forum_following_ids))
     else:
         posts = Post.objects.all()
     
