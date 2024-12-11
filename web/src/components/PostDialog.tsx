@@ -117,6 +117,7 @@ export default function PostDialog({ fab = false }: { fab?: boolean}) {
         <DialogTitle>Create Post</DialogTitle>
         <DialogContent>
           {postError && <DialogContentText>{postError}</DialogContentText>}
+          {location.pathname.startsWith("/forums/") && <DialogContentText color="textSecondary">Posting to <strong>/{location.pathname.split("/").pop()}</strong></DialogContentText>}
           <TextField
             autoFocus
             margin="dense"
