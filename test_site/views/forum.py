@@ -24,9 +24,12 @@ def create_forum(request: HttpRequest):
     if not request.user.is_authenticated:
         return JsonResponse({"error": "User is unauthenticated"}, status=401)
     
+    name = request.POST.get("name")
+    if Forum.objects.filter(name=name).exists():
+        return JsonResponse({"error": f"Forum with name '{name}' already exists"}, status=409)
     fs = S3Storage()
     user = UserProfile.objects.get(user_id=request.user.id)
-    forum = Forum(name=request.POST.get("name"), description=request.POST.get("description"), creator=user)
+    forum = Forum(name=name, description=request.POST.get("description"), creator=user)
     if "icon" in request.FILES:
         icon = request.FILES.get("icon")
         filename, file_extension = os.path.splitext(icon.name)

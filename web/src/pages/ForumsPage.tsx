@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Stack,
   TextField,
@@ -21,6 +22,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CreateForumRequest, Forum, ForumManager } from "../api/forum";
 import { VisuallyHiddenInput } from "../components/VisuallyHiddenInput";
 import { useSnackbar } from "../utils/SnackbarContext";
+import { NexusAPIError } from "../api/request";
 
 export default function ForumsPage() {
   const [forums, setForums] = useState<Forum[]>([]);
@@ -51,16 +53,13 @@ export default function ForumsPage() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <>
-          
-          <Grid container spacing={2}>
-            {forums.map((forum) => (
-              <Grid size={{ xl: 4, md: 6, xs: 12 }}>
-                <ForumsCard forum={forum} />
-              </Grid>
-            ))}
-          </Grid>
-        </>
+        <Grid container spacing={2}>
+          {forums.map((forum) => (
+            <Grid size={{ xl: 4, md: 6, xs: 12 }} key={forum.name}>
+              <ForumsCard forum={forum} />
+            </Grid>
+          ))}
+        </Grid>
       )}
     </Box>
   );
@@ -115,6 +114,7 @@ function ForumsCard({ forum }: { forum: Forum }) {
 function CreateForumButton() {
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [creatingError, setCreatingError] = useState<Error | null>(null);
   const [formState, setFormState] = useState<CreateForumRequest>({ name: "", description: "", icon: null, banner: null })
   const [inputError, setInputError] = useState<{ name: string | null, description: null }>({ name: null, description: null });
   const forumManager = ForumManager.getInstance();
@@ -122,6 +122,7 @@ function CreateForumButton() {
 
   const handleClickOpen = () => {
     setCreating(false);
+    setCreatingError(null);
     setFormState({ name: "", description: "", icon: null, banner: null });
     setInputError({ name: null, description: null });
     setOpen(true);
@@ -146,9 +147,9 @@ function CreateForumButton() {
       navigate(`/forums/${forum.name}`);
     } catch (e) {
       console.error(e);
+      setCreatingError(e as any);
       setCreating(false);
     }
-    
   }
 
   const handleText = (event: any) => {
@@ -181,6 +182,7 @@ function CreateForumButton() {
       >
         <DialogTitle>Create Forum</DialogTitle>
         <DialogContent>
+          {creatingError && <DialogContentText color="error">{creatingError.message}</DialogContentText>}
           <TextField
             margin="dense"
             id="text"

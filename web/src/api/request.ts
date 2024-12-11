@@ -134,7 +134,17 @@ class RequestBuilder<T extends RequestManagerType> {
 
         const json = await response.json();
         if (this.postRequest) await this.postRequest(request, response, json);
+        if (response.status !== 200) {
+            throw new NexusAPIError(json.error);
+        }
         
         return json;
+    }
+}
+
+export class NexusAPIError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "NexusAPIError"
     }
 }
