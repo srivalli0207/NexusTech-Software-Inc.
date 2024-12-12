@@ -37,6 +37,8 @@ def get_comments(request: HttpRequest, post: Post):
    return JsonResponse([serialize_comment(comment, request) for comment in comments], safe=False, status=200)
 
 def post_comment(request: HttpRequest, post: Post):
+   if not request.user.is_authenticated:
+      return JsonResponse({"error": "User is unauthenticated"}, status=401)
    user = UserProfile.objects.get(user=request.user)
 
    body = json.loads(request.body.decode('utf-8'))
@@ -48,15 +50,18 @@ def post_comment(request: HttpRequest, post: Post):
    return JsonResponse(serialize_comment(comment, request), status=200)
 
 def delete_comment(request: HttpRequest, comment: Comment):
-   if (request.user.pk != comment.user.pk):
+   if not request.user.is_authenticated:
+      return JsonResponse({"error": "User is unauthenticated"}, status=401)
+   if request.user.pk != comment.user.pk:
       return JsonResponse({"error": "User is forbidden from deleting this post"}, status=403)
-   else:
-      comment.delete()
-      return JsonResponse({'msg': 'comment deleted'}, status=200)
+   comment.delete()
+   return JsonResponse({'msg': 'comment deleted'}, status=200)
    
 @require_POST
 @custom_login_required
 def comment_like(request: HttpRequest, comment_id: int):
+   if not request.user.is_authenticated:
+      return JsonResponse({"error": "User is unauthenticated"}, status=401)
    profile = UserProfile.objects.get(user=request.user)
    liked = request.GET.get("like") == "true"
    comment = Comment.objects.get(comment_id=comment_id)
@@ -93,6 +98,8 @@ def get_comment_replies(request: HttpRequest):
 @require_POST
 @custom_login_required
 def post_comment_reply(request: HttpRequest):
+   if not request.user.is_authenticated:
+      return JsonResponse({"error": "User is unauthenticated"}, status=401)
    body = json.loads(request.body.decode('utf-8'))
 
    reply_text = body['content']

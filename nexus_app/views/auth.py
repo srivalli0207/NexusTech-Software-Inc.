@@ -25,7 +25,7 @@ def get_csrf_token(request: HttpRequest):
 
 @require_GET
 def get_session(request: HttpRequest):
-    if (request.user.is_authenticated):
+    if request.user.is_authenticated:
         user = DjangoUser.objects.get(username=request.user.username)
         profile = UserProfile.objects.get(pk=user.pk)
         user_object = serialize_user_profile(profile, request)

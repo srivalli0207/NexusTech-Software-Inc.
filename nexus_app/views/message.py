@@ -27,6 +27,8 @@ def conversations(request: HttpRequest):
     
 
 def get_conversations(request: HttpRequest):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
     user = UserProfile.objects.get(user=request.user)
     usernames = request.GET.getlist("username")
     conversations = MessageConversation.objects.filter(members=user)
@@ -103,6 +105,8 @@ def get_messages(request: HttpRequest, conversation: MessageConversation):
 
 @require_POST
 def send_message(request: HttpRequest, conversation: MessageConversation):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
     text = request.POST.get("text")
     user = UserProfile.objects.get(user=request.user)
     message = Message(user=user, conversation=conversation, text=text)

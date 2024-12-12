@@ -8,6 +8,6 @@ def custom_login_required(func):
          if (request.user.is_authenticated):
             return func(request, *args, **Kwargs)
          else:
-            return redirect("/login/?next=%s" % request.GET['next'])
+            return redirect("/login?next=%s" % request.GET.get('next', '/'))
     
    return inner

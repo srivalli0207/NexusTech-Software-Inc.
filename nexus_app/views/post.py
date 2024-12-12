@@ -110,6 +110,8 @@ def get_post(request: HttpRequest, post: Post):
 
 @require_http_methods(['DELETE'])
 def delete_post(request: HttpRequest, post: Post):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
     if request.user.pk != post.user.pk:
         return JsonResponse({"error": "User is forbidden from deleting this post"}, status=403)
     post.delete()
@@ -144,8 +146,11 @@ def upload_file(request: HttpRequest):
     
     return JsonResponse({"urls": urls}, status=200)
 
+@custom_login_required
 @require_POST
 def like_post(request: HttpRequest, post_id: int):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User is unauthenticated"}, status=401)
     profile = UserProfile.objects.get(user_id=request.user.id)
     liked = request.GET.get("like") == "true"
     post = Post.objects.get(post_id=post_id)
