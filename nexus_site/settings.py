@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-q8(y6x*!e%-36h#wlyf25t9o=$$i=u!%op5ugskpcf%1bten@2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["ec2-13-57-195-163.us-west-1.compute.amazonaws.com", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["ec2-13-57-195-163.us-west-1.compute.amazonaws.com", "127.0.0.1", "localhost", "nexus.finerty.me"]
 CSRF_TRUSTED_ORIGINS = ["http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com", "http://localhost:5173"]
 CORS_ALLOW_ALL_ORIGINS = True
 

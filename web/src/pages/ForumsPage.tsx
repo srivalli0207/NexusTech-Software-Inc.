@@ -11,6 +11,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Stack,
   TextField,
   Typography,
@@ -22,15 +27,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { CreateForumRequest, Forum, ForumManager } from "../api/forum";
 import { VisuallyHiddenInput } from "../components/VisuallyHiddenInput";
 import { useSnackbar } from "../utils/SnackbarContext";
+import { useUser } from "../utils/AuthContext";
 
 export default function ForumsPage() {
   const [forums, setForums] = useState<Forum[]>([]);
   const [loading, setLoading] = useState(true);
+  const user = useUser();
+  const [filter, setFilter] = useState(user ? "following" : "all");
   const forumManager = ForumManager.getInstance();
 
   useEffect(() => {
     setLoading(true);
-    forumManager.getForums()
+    forumManager.getForums(filter)
       .then((res) => {
         setForums(res);
         setLoading(false);
@@ -40,19 +48,38 @@ export default function ForumsPage() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  }, [filter]);
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setFilter(event.target.value as string);
+  };
 
   return (
     <Box sx={{ p: 2 }}>
       <div style={{ textAlign: "start", marginBottom: "8px" }}>
         <Typography variant="h2">Forums</Typography>
-        <CreateForumButton />
+        <Stack direction="row" component="div" spacing={1}>
+          <CreateForumButton />
+          <FormControl>
+            <InputLabel id="filter-forum-select-label">Filter</InputLabel>
+            <Select
+              labelId="filter-forum-select-label"
+              value={filter}
+              label="Filter"
+              onChange={handleChange}
+            >
+              <MenuItem value={"all"}>All</MenuItem>
+              {user && <MenuItem value={"following"}>Following</MenuItem>}
+              <MenuItem value={"top"}>Top</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
       </div>
       
       {loading ? (
         <CircularProgress />
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} key={filter}>
           {forums.map((forum) => (
             <Grid size={{ xl: 4, md: 6, xs: 12 }} key={forum.name}>
               <ForumsCard forum={forum} />

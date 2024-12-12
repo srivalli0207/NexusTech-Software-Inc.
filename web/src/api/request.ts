@@ -12,12 +12,7 @@ export type RequestBuilderMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export type RequestBuilderPreRequest = (request: Request) => Promise<any>;
 export type RequestBuilderPostRequest = (request: Request, response: Response, json?: any) => Promise<any>;
 
-const DOMAIN = Object.freeze({
-    DEVELOPMENT: 'http://localhost:5173',
-    PRODUCTION: 'http://ec2-13-57-195-163.us-west-1.compute.amazonaws.com'
-});
- 
-const BASE_URL = (import.meta.env.MODE == 'production') ? DOMAIN.PRODUCTION : DOMAIN.DEVELOPMENT;
+const BASE_URL = `${window.location.origin}`
 const API_URL = `${BASE_URL}/api/test/`;
 
 export abstract class RequestManager<T extends RequestManagerType> {

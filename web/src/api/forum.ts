@@ -47,10 +47,10 @@ export class ForumManager extends RequestManager<"forum"> {
         return ForumManager.instance;
     }
 
-    public async getForums(): Promise<Forum[]> {
-        return await this.createRequestBuilder()
-            .setMethod("GET")
-            .fetchJSON();
+    public async getForums(filter?: string): Promise<Forum[]> {
+        const builder = this.createRequestBuilder().setMethod("GET");
+        if (filter) builder.setQuery("filter", filter);
+        return await builder.fetchJSON();
     }
 
     public async createForum(formState: CreateForumRequest): Promise<Forum> {

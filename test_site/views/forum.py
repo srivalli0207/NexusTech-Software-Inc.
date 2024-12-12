@@ -2,6 +2,7 @@ import os
 import time
 from django.http import HttpRequest, JsonResponse
 from django.urls import path
+from django.db.models import Count
 from django.views.decorators.http import require_http_methods
 
 from test_site.models.forum import Forum
@@ -19,7 +20,20 @@ def get_forum_views():
     ]
 
 def get_forums(request: HttpRequest):
-    return JsonResponse([serialize_forum(forum, request) for forum in Forum.get_forums()], safe=False)
+    forum_filter = request.GET.get("filter", "all")
+    match forum_filter:
+        case "all":
+            forums = Forum.objects.all()
+        case "following":
+            from test_site.models.user import UserProfile
+            if not request.user.is_authenticated:
+                return JsonResponse({"error": "User is unauthenticated"}, status=401)
+            user = UserProfile.objects.get(user_id=request.user.id)
+            forums = user.forum_following.all()
+        case "top":
+            forums = Forum.objects.all().annotate(follower_count=Count("followers")).order_by("-follower_count")
+
+    return JsonResponse([serialize_forum(forum, request) for forum in forums], safe=False)
 
 def create_forum(request: HttpRequest):
     from test_site.models.user import UserProfile
