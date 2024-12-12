@@ -9,7 +9,7 @@ cd NexusTech-Software-Inc.
 
 * Install Python dependencies (if `pip` doesn't work, use `python -m pip`):
 ```bash
-pip install django django-cors-headers django-storages mysqlclient python-dotenv 
+pip install django django-cors-headers django-storages mysqlclient python-dotenv boto3 daphne channels
 ```
 
 * Copy `db.conf` to repository directory (file provided in Discord):

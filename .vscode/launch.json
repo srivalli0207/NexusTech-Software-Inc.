@@ -20,7 +20,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "console": "integratedTerminal",
-            "args": ["test", "test_site.tests", "-v", "2"],
+            "args": ["test", "nexus_app.tests", "-v", "2"],
             "django": true,
             "justMyCode": true
         }

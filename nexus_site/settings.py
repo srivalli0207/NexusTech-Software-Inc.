@@ -37,7 +37,7 @@ INSTALLED_APPS = [
    "daphne",
 
     # User apps
-    "test_site",
+    "nexus_app",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -67,7 +67,7 @@ ROOT_URLCONF = "nexus_site.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "test_site")],
+        "DIRS": [os.path.join(BASE_DIR, "nexus_app")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

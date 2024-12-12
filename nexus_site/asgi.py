@@ -14,7 +14,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from channels.auth import AuthMiddlewareStack
 from django.urls import re_path
-from test_site import consumers
+from nexus_app import consumers
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nexus_site.settings")
 
