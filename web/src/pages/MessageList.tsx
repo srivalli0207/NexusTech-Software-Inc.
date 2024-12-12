@@ -35,7 +35,7 @@ export default function MessageList() {
     });
 
     chatSocket.current = new WebSocket(
-      `ws${window.location.protocol === 'https' ? 's' : ''}://${window.location.host}/ws/chat/${conversation}/`
+      `ws${window.location.protocol === 'https:' ? 's' : ''}://${window.location.host}/ws/chat/${conversation}/`
     );
 
     chatSocket.current.onmessage = (e: MessageEvent) => {

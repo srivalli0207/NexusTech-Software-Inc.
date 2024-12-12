@@ -50,7 +50,7 @@ def login_user(request: HttpRequest):
 
         return JsonResponse({"message": "Login success!", "user": user_object}, status=200)
     else:
-        return JsonResponse({"message": "Invalid username or password!", "user": None}, status=401)
+        return JsonResponse({"error": "Invalid username or password!", "user": None}, status=401)
     
 @require_POST
 def logout_user(request: HttpRequest):
@@ -65,9 +65,9 @@ def register_user(request: HttpRequest, ):
     password = data.get("password")
 
     if DjangoUser.objects.filter(username=name).exists():
-        return JsonResponse({"message": "Username taken!"}, status=409)
+        return JsonResponse({"error": "Username taken!"}, status=409)
     elif len(password) < 8:
-        return JsonResponse({"message": "Password should be 8 characters or longer"}, status=409)
+        return JsonResponse({"error": "Password should be 8 characters or longer"}, status=409)
     
     user = DjangoUser.objects.create_user(name, email, password)
     
@@ -78,4 +78,4 @@ def register_user(request: HttpRequest, ):
         user_object = serialize_user_profile(user_model, request)
         return JsonResponse({"message": "Register user success!", "user": user_object},status=200)
     else:
-        return JsonResponse({"message": "Login failed!","user": None}, status=409)
+        return JsonResponse({"error": "Login failed!","user": None}, status=409)

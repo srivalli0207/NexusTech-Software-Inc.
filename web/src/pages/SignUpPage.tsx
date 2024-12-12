@@ -4,38 +4,38 @@ import { FormEvent, useState } from "react";
 import UserProfileBuilder from "../utils/UserProfileBuilder";
 import { AuthManager } from "../api/auth";
 import CSRF_Token from "../utils/AuthContext";
+import { useSnackbar } from "../utils/SnackbarContext";
 
 export default function SignUpPage() {
    const theme = useTheme();
    const navigate = useNavigate();
+   const snackbar = useSnackbar();
    const [loading, setLoading] = useState(false);
    const authManager = AuthManager.getInstance();
 
    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-      setLoading(true);
       event.preventDefault();
 
       const username = (event.currentTarget.elements.namedItem("username") as HTMLFormElement).value;
       const email = (event.currentTarget.elements.namedItem("email") as HTMLFormElement).value;
       const password = (event.currentTarget.elements.namedItem("password") as HTMLFormElement).value;
-      // const confirmPassword = (event.currentTarget.elements.namedItem("confirm_password") as HTMLFormElement).value;
+      const confirmPassword = (event.currentTarget.elements.namedItem("confirm_password") as HTMLFormElement).value;
+      if (password !== confirmPassword) {
+         snackbar({ open: true, message: "Passwords do not match." });
+         return;
+      }
 
+      setLoading(true);
       try {
          const userProfile = new UserProfileBuilder()
             .setUsername(username)
             .setEmail(email)
             .setPassword(password)
             .build();
-
-         const response = await authManager.signup(userProfile);
-
-         if (response.user != null) {
-            console.log('signed up', response.user);
-            navigate('/');
-         } else {
-            // console.log('signup failed', response.message);
-         }
+         await authManager.signup(userProfile);
+         navigate('/');
       } catch (error) {
+         snackbar({ open: true, message: (error as any).message });
          console.error("Profile creation failed:", error);
       } finally {
          setLoading(false);
@@ -65,7 +65,7 @@ export default function SignUpPage() {
                <TextField required id="username" label="Username" />
                <TextField required id="email" type="email" label="Email" />
                <TextField required id="password" type="password" label="Password" />
-               <TextField required id="password_confirm" type="password" label="Confirm Password" />
+               <TextField required id="confirm_password" type="password" label="Confirm Password" />
                <Button variant="contained" type='submit' sx={{ height: '2.5rem' }}>
                   {loading ? <CircularProgress size='1.5rem' color="inherit" /> : 'Create Account'}
                </Button>

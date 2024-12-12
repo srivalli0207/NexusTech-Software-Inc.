@@ -30,7 +30,7 @@ export function StatusProvider({ children }: StatusProviderProp) {
             }
          } else {
             if (!statusSocket.current) {
-               statusSocket.current = new WebSocket(`ws://${window.location.host}/ws/status/`);
+               statusSocket.current = new WebSocket(`ws${window.location.protocol === 'https:' ? 's' : ''}://${window.location.host}/ws/status/`);
                statusSocket.current.onopen = onSocketOpen;
             }
          }

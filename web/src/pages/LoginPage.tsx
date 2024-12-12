@@ -28,17 +28,14 @@ export default function LoginPage() {
 
       const formData = new FormData(event.currentTarget)
       let formObject = Object.fromEntries(formData.entries()) as { username: string, password: string };
-      const response = await authManager.login(formObject)
-
-      if (response.user != null) {
-         //console.log('logged in', response.user)
-      } else {
-         console.log('login failed', response.message);
-         setMessage(response.message);
+      try {
+         await authManager.login(formObject)
+      } catch (e) {
+         console.error(e);
+         setMessage((e as any).message);
          setOpen(true);
       }
-
-      setLoading(false)
+      setLoading(false);
    }
 
    return (
